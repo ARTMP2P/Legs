@@ -4,6 +4,22 @@ from multiprocessing import Pool, cpu_count
 from PIL import Image
 
 
+def find_png_files(input_dir, output_file):
+    """
+    Эта функция принимает путь к директории (input_dir), проходится по всем файлам внутри нее и 
+    записывает пути ко всем файлам с расширением .png в файл (output_file). Она использует метод o
+    s.walk() для обхода всех файлов и поддиректорий в указанной директории, и при обнаружении 
+    файла с расширением .png, записывает его относительный путь от указанной директории в файл 
+    на каждой итерации.
+    """
+    with open(output_file, "w") as f:
+        for root, dirs, files in os.walk(input_dir):
+            for file in files:
+                if file.endswith(".png"):
+                    rel_path = os.path.relpath(os.path.join(root, file), input_dir)
+                    f.write(rel_path + "\n")
+                    
+
 def resize_png(png_file_path, save_file_path):
     """
     Функция resize_png изменяет размер и формат изображения в формате PNG. Она принимает два аргумента: 
@@ -111,6 +127,27 @@ def main(input_dir, output_dir):
 
 
 if __name__ == "__main__":
-    input_dir = "data/validation_dataset/models_alexandr_5_remaining_gold"
-    output_dir = "data_a/validation_dataset1"
-    main(input_dir, output_dir)
+    """
+    Этот код позволяет выбрать одну из двух функций для выполнения. Если выбрана функция find, то указывается 
+    путь к папке для поиска файлов и путь к файлу для сохранения путей. Если выбрана функция main, то указываются 
+    путь к входной папке и путь к выходной папке.
+    """
+    parser = argparse.ArgumentParser(description="Find PNG files in directory and save paths to text file")
+    subparsers = parser.add_subparsers(dest="command")
+
+    find_parser = subparsers.add_parser("find", help="Find PNG files in directory and save paths to text file")
+    find_parser.add_argument("input_dir", type=str, help="Input directory to search for PNG files")
+    find_parser.add_argument("output_file", type=str, help="Output text file to save PNG file paths")
+
+    main_parser = subparsers.add_parser("main", help="Main function")
+    main_parser.add_argument("input_dir", type=str, help="Input directory")
+    main_parser.add_argument("output_dir", type=str, help="Output directory")
+
+    args = parser.parse_args()
+
+    if args.command == "find":
+        find_png_files(args.input_dir, args.output_file)
+    elif args.command == "main":
+        main(args.input_dir, args.output_dir)
+    else:
+        print("Error: no command specified")
