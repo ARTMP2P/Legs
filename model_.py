@@ -23,6 +23,7 @@ import numpy as np
 from numpy import ones
 from numpy import zeros
 
+
 # ======================================================================
 def read_img(dir):
     """
@@ -42,6 +43,7 @@ def read_img(dir):
     img = cv2.resize(img, (SIZE, SIZE), interpolation=cv2.INTER_NEAREST)
     return np.expand_dims(img, axis=2)
 
+
 def get_name_model(s):
     """
     Функция get_name_model(s) принимает на вход строку s, которая содержит путь к файлу. Функция 
@@ -51,9 +53,11 @@ def get_name_model(s):
     и конечной позициями в строке s, содержащую имя файла с расширением .pos. Таким образом, функция 
     возвращает имя файла из пути к файлу.
     """
-    end = s.find('.pos')
-    start = s.find('/', s.find('yaw_'))
-    return s[start + 1:end] + '.pos'
+    # end = s.find('.pos')
+    # start = s.find('/', s.find('yaw_'))
+    print(s)
+    m_name = s.split('/')[0]
+    return m_name  # s[start + 1:end] + '.pos'
 
 
 # define the discriminator model
@@ -228,7 +232,7 @@ def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape):
     два изображения и метки классов (все классы помечены как реальные). :param list_dir_name: :param
     list_dir_name_25: :param n_samples: :param patch_shape: :return:
     """
-    
+
     list_img1 = list(map(read_img, list_dir_name))
     X1 = np.concatenate(list_img1, axis=-1)
     X1 = np.expand_dims(X1, axis=0)
