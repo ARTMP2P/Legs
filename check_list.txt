@@ -1,0 +1,4 @@
+Ступни/8channal_77/ready_renders/data_200_14-11-22/rendered_segmentation_part3
+Ступни/8channal_77/ready_renders/output_part22/yaw_0/7913right.pos
+Ступни/8channal_77/ready_renders/output_part22/yaw_55/7913right.pos
+Ступни/8channal_77/ready_renders/.ipynb_checkpoints
