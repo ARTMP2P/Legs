@@ -55,7 +55,7 @@ def get_name_model(s):
     """
     # end = s.find('.pos')
     # start = s.find('/', s.find('yaw_'))
-    print(s)
+    
     m_name = s.split('/')[0]
     return m_name  # s[start + 1:end] + '.pos'
 

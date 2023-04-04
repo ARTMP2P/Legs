@@ -5,13 +5,13 @@ lr = 0.0001
 n_epochs=1
 
 
-dir_file_txt = 'data_a/dir_260_clear_yaw_0.txt'
-dir_260_clear_file_txt = 'data_a/dir_260_clear.txt'
+dir_file_txt = 'data_a/training_dataset/png_path.txt'
+dir_260_clear_file_txt = 'data_a/training_dataset/png_path_clear.txt'
 dir_model_NN = 'data_a/models'
 img_test_group = 'data_a/img_test_group'
 img_test = 'data_a/img_test'
 root_25 = 'data_a/rendered_models'
-root = 'data_a/ready_renders/'
+root = 'data_a/training_dataset/'
 
 
 
@@ -32,4 +32,3 @@ dir_260_clear = []
 list_img_test, list_img_test_25 = [], []
 list_models = []
 bugs = []
-dir_260_clear = []

@@ -1,6 +1,6 @@
 import os
 from multiprocessing import Pool, cpu_count
-
+import argparse
 from PIL import Image
 
 
@@ -12,12 +12,12 @@ def find_png_files(input_dir, output_file):
     файла с расширением .png, записывает его относительный путь от указанной директории в файл 
     на каждой итерации.
     """
-    with open(output_file, "w") as f:
+    with open(output_file, "w+") as f:
         for root, dirs, files in os.walk(input_dir):
             for file in files:
                 if file.endswith(".png"):
                     rel_path = os.path.relpath(os.path.join(root, file), input_dir)
-                    f.write(rel_path + "\n")
+                    f.write(rel_path[:-11] + "\n")
                     
 
 def resize_png(png_file_path, save_file_path):
