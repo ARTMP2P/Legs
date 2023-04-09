@@ -1,8 +1,6 @@
-import tensorflow as tf
-
 # ======================================================================
-from learn import *
-from model_ import *
+from learning.learn import *
+from learning.model_ import *
 
 # ======================================================================
 
