@@ -11,7 +11,7 @@ img_test_group = 'data_a/img_test_group'
 img_test = 'data_a/test_dataset'
 root_25 = 'data_a/rendered_models'
 root = 'data_a/training_dataset'
-
+log_file = 'data_a/log.txt'
 
 
 rakurs = ['yaw_0',

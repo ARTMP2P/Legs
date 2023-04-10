@@ -81,7 +81,8 @@ def summarize_performance(step, g_model, f=0):
                 IMG_res = IMG_res[:, :, ::-1]
                 
                 cv2.imwrite(f'{img_test}/{rakurs[i]}_{dir_test[j][75:-20]}.jpg', np.uint8(IMG_res))
-            
+                with open(log_file, 'a+') as file:
+                    file.write(f'{filename_model_NN}\nMetricks: {mean(precentage_list)}')
         print(mean(precentage_list))
             
 
