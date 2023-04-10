@@ -13,7 +13,7 @@ import time, os, werkzeug, zipfile, cv2, shutil
 from flask import Flask, render_template, make_response, request, Blueprint, send_file
 from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.utils import secure_filename
-from functions import get_img_for_predict, predict_img, save_gen_img
+from functions.function import get_img_for_predict, predict_img, save_gen_img
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 

@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-import input_data
+import .input_data
 
 
 def read_img(dir) -> np.array:
