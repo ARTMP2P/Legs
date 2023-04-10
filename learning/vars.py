@@ -29,6 +29,5 @@ rakurs = ['yaw_0',
 Zeros data
 '''
 dir_260_clear = []
-list_img_test, list_img_test_25 = [], []
 list_models = []
 bugs = []
