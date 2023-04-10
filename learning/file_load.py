@@ -142,6 +142,7 @@ def find_files_by_name(root_dir, file_name):
                 file_paths.append(os.path.join(dirpath, filename))
 
     # вернуть список найденных путей к файлам
+    print(len(file_paths))
     return file_paths
 
 
