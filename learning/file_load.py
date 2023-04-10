@@ -153,6 +153,7 @@ dir_260_clear = get_dirs(dir_260_clear_file_txt)
 
 # dir_test = np.load('data_a/dir_test.npy')
 dir_test = np.array(random.choices(find_files_by_name(img_test, '9_segmap.png'), k=8))
+print(dir_test)
 # dir_test = ['/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3145left.pos/12/9_segmap.png',
 #             '/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3091right.pos/12/9_segmap.png',
 #             '/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3200right.pos/12/9_segmap.png',
