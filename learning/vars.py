@@ -2,7 +2,6 @@ CHANEL, SIZE = 8, 1024
 n_steps, batch = 200000, 4
 y1, y2, x1, x2 = 800, 2848, 136, 2184
 lr = 0.0001
-n_epochs=20
 
 
 dir_file_txt = 'data_a/training_dataset/png_path.txt'
