@@ -132,7 +132,7 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
         # summarize performance
         print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (i + 1, d_loss1, d_loss2, g_loss))
         # summarize model performance
-        if (i + 1) % (200) == 0:  # bat_per_epo // 200
+        if (i + 1) % (n_epochs) == 0:  # bat_per_epo // 200
             bufer = i
             i_s += 1
             summarize_performance(i_s, g_model)
