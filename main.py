@@ -12,7 +12,16 @@ import parser
 n_epochs = 200
 image_shape = [SIZE, SIZE, CHANEL]
 d_model = define_discriminator(image_shape)
+parser = argparse.ArgumentParser()
+parser.add_argument("file_path", nargs="?", default=None)
+args = parser.parse_args()
 
+if args.file_path:
+    g_model = load_model(args.file_path)
+else:
+    g_model = define_generator(image_shape)
+gan_model = define_gan(g_model, d_model, image_shape)
+train(d_model, g_model, gan_model, dir, n_epochs)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
 
@@ -23,13 +32,3 @@ if __name__ == '__main__':
     gpu_devices = tf.config.experimental.list_physical_devices('GPU')
     for device in gpu_devices:
         tf.config.experimental.set_memory_growth(device, True)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("file_path", nargs="?", default=None)
-    args = parser.parse_args()
-
-    if args.file_path:
-        g_model = load_model(args.file_path)
-    else:
-        g_model = define_generator(image_shape)
-    gan_model = define_gan(g_model, d_model, image_shape)
-    train(d_model, g_model, gan_model, dir, n_epochs)
