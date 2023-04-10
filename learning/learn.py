@@ -101,7 +101,7 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
     i_s = 0
     # determine the output square shape of the discriminator
     n_patch = d_model.output_shape[1]
-    print(f'n_patch  {n_patch}')
+    print(f'n_patch  {n_patch}\nn_epochs = {n_epochs}')
 
     for i in range(n_steps):  # n_steps
         
