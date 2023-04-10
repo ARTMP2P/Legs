@@ -8,7 +8,7 @@ dir_file_txt = 'data_a/training_dataset/png_path.txt'
 dir_260_clear_file_txt = 'data_a/training_dataset/png_path_clear.txt'
 dir_model_NN = 'data_a/models'
 img_test_group = 'data_a/img_test_group'
-img_test = 'data_a/img_test'
+img_test = 'data_a/test_dataset'
 root_25 = 'data_a/rendered_models'
 root = 'data_a/training_dataset'
 
