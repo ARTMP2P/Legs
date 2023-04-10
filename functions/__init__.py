@@ -1,2 +1,2 @@
-from function import *
-from input_data import *
+from .function import *
+from .input_data import *
