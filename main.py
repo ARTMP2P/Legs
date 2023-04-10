@@ -6,8 +6,7 @@ from learning.model_ import *
 # ======================================================================
 
 
-
-n_epochs = 20
+n_epochs = 200
 image_shape = [SIZE, SIZE, CHANEL]
 d_model = define_discriminator(image_shape)
 g_model = define_generator(image_shape)
