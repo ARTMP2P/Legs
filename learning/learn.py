@@ -5,7 +5,7 @@ import tensorflow as tf
 from PIL import Image, ImageChops
 from statistics import mean
 import cv2
-
+import random
 
 # ======================================================================
 from .vars import *
