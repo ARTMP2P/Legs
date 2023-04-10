@@ -15,6 +15,27 @@ from .model_ import *
 # ======================================================================
 
 
+def get_list_dir_2(root, list_models, batch):
+    '''
+    получаем список рандомных дирректорий для выбранных модели, для каждого ракурса
+    list(batch, list(dir-rakurs))
+    '''
+    list_rand_dir, list_rand_dir_25 = [], []
+    for m in random.sample(list_models, batch):
+        list_model_dir, list_model_dir_25 = [], []
+        for r in rakurs:
+            dir_rand = (random.choices(list(filter(lambda x: (m in x) & (r in x), dir_260_clear))))[0]
+            index = dir_rand[-3:].find('/')
+            dir_rand_25 = os.path.join(root, dir_rand[:index - 3], '49_segmap.png')
+            dir_rand = os.path.join(root, dir_rand + '_segmap.png')
+            list_model_dir.append(dir_rand)
+            list_model_dir_25.append(dir_rand_25)
+        list_rand_dir.append(list_model_dir)
+        list_rand_dir_25.append(list_model_dir_25)
+
+    return list_rand_dir, list_rand_dir_25
+
+
 def summarize_performance(step, g_model, f=0):
     """
     Эта функция предназначена для сохранения обученных моделей и оценки их производительности на тестовых данных. 
