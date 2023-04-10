@@ -44,7 +44,7 @@ def read_img(dir):
         img = cv2.imread(dir, 0)[y1:y2, x1:x2].astype(np.bool_).astype(np.int8)
     except:
         print('read_img(dir)=', dir)
-    img[:960] = -1
+    # img[:960] = -1
     img[img == 0] = -1
     img = cv2.resize(img, (SIZE, SIZE), interpolation=cv2.INTER_NEAREST)
     return np.expand_dims(img, axis=2)
@@ -59,7 +59,7 @@ def read_img25(dir):
         img = cv2.imread(dir, 0)[y1:y2, x1:x2].astype(np.bool_).astype(np.int8)
     except:
         print('read_img25(dir)=', dir)
-    img[:960] = 0
+    # img[:960] = 0
     img = cv2.resize(img, (SIZE, SIZE), interpolation=cv2.INTER_NEAREST)
     return np.expand_dims(img, axis=2)
 
