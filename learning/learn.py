@@ -43,7 +43,7 @@ def summarize_performance(step, g_model, f=0):
     list_metrics.extend(val_2)
     """
 
-    print(f'list_img_test_array.shape= {len(list_img_test_25)}')
+    print(f'list_img_test_array.shape= {list_img_test_array.shape}')
     try:
         X = g_model.predict(list_img_test_array)  # np.uint8()
     except:
