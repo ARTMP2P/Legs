@@ -14,7 +14,7 @@ import glob
 
 def get_dirs(dir_file_txt):
     """
-    получает список директорий из текстового файла, удаляет символы "[" и "]" 
+    Получает список директорий из текстового файла, удаляет символы "[" и "]"
     из каждой строки и возвращает список директорий.
     """
     dirs = []
@@ -27,7 +27,7 @@ def get_dirs(dir_file_txt):
 
 def get_rand_index(dir):
     """
-    генерирует случайный индекс для выбора случайного изображения из списка директорий.
+    Генерирует случайный индекс для выбора случайного изображения из списка директорий.
     """
     rand_index = list(range(len(dir)))
     np.random.shuffle(rand_index)
@@ -73,7 +73,7 @@ def get_img(dir):
         img = cv2.imread(dir, 0)[y1:y2, x1:x2].astype(np.bool_).astype(np.int8)
     except:
         print('get_img(dir)=', dir)
-    img[:960] = 0
+    # img[:960] = 0
     img = cv2.resize(img, (SIZE, SIZE), interpolation=cv2.INTER_NEAREST)
     return img
 
