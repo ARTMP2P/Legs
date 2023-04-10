@@ -1,7 +1,7 @@
 # ======================================================================
-from learn import *
-from vars import *
-from model_ import *
+from .learn import *
+from .vars import *
+from .model_ import *
 import os
 import cv2
 import random

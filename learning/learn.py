@@ -8,9 +8,9 @@ import cv2
 
 
 # ======================================================================
-from vars import *
-from file_load import *
-from model_ import *
+from .vars import *
+from .file_load import *
+from .model_ import *
 
 # ======================================================================
 

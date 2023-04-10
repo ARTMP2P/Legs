@@ -1,8 +1,8 @@
 from keras.initializers import RandomNormal
 from tensorflow.keras.optimizers import Adam
 
-from file_load import *
-from vars import *
+from .file_load import *
+from .vars import *
 
 from keras.initializers import RandomNormal
 from keras.models import Model
