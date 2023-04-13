@@ -78,8 +78,8 @@ def summarize_performance(step, g_model, f=0):
             # ============================================
             IMG_res = cv2.resize(IMG, (int(SIZE * 2), int(SIZE * 2)), interpolation=cv2.INTER_NEAREST)
             IMG_res = IMG_res[:, :, ::-1]
-            cv2.imwrite(f'{img_test_group}/{rakurs[i]}_{image_eta}.jpg', np.uint8(IMG_res))
-            cv2.imwrite(f'{test_img_path}/{rakurs[i]}_{dir_test[j][75:-20]}.jpg', np.uint8(IMG_res))
+            cv2.imwrite(f'{img_test_group}/{rakurs[i]}_{dir_test[j][75:-20]}.jpg', np.uint8(IMG_res))
+
         print(mean(precentage_list))
     with open(log_file, 'a+') as file:
         file.write(f'{filename_model_NN}\nMetricks: {mean(precentage_list)}\n')
