@@ -37,7 +37,7 @@ n_steps, batch = 200000, 4
 ```python
 y1, y2, x1, x2
 ```
-- 
+- параметры обрезки изображения (в данный момент датасет приведен к стандарту обучения и форматирование изображения в момент обучения не требуется).
 ```python
 lr = 0.0001
 ```
@@ -71,7 +71,7 @@ img_test = 'data_a/img_test'
 ```python
 root_25 = 'data_a/rendered_models'
 ```
-
+-
 ```python
 root = 'data/training_dataset/'
 ```
