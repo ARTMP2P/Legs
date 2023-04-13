@@ -3,6 +3,7 @@ from tensorflow.keras.optimizers import Adam
 
 from .file_load import *
 from .vars import *
+from .file_load import read_img
 
 from keras.initializers import RandomNormal
 from keras.models import Model
