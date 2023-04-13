@@ -34,26 +34,6 @@ def get_rand_index(dir):
     return rand_index
 
 
-def read_img(dir):
-    """
-    Эта функция считывает изображение из указанного каталога и изменяет его размер до заданного
-    значения. Затем она применяет к нему определенные операции обработки изображений: обрезание,
-    преобразование в бинарное изображение и приведение к формату int8. В конце функция возвращает
-    изображение, увеличенное на одно измерение, чтобы сделать его совместимым с другими массивами,
-    используемыми в коде.
-    """
-
-    # try:
-    #     img = cv2.imread(dir, 0)[y1:y2, x1:x2].astype(np.bool_).astype(np.int8)
-    # except:
-    #     print('read_img(dir)=', dir)
-    # # img[:960] = -1
-    # img[img == 0] = -1
-    # img = cv2.resize(img, (SIZE, SIZE), interpolation=cv2.INTER_NEAREST)
-    img = cv2.imread(dir, 0).astype(np.bool_).astype(np.int8)
-    return np.expand_dims(img, axis=2)
-
-
 def read_img25(dir):
     """
     читает изображение из директории, обрезает его, преобразует в черно-белое, 
