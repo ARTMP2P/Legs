@@ -6,11 +6,11 @@ from PIL import Image, ImageChops
 from statistics import mean
 import cv2
 
-
 # ======================================================================
 from .vars import *
 from .file_load import *
 from .model_ import *
+
 
 # ======================================================================
 
@@ -48,45 +48,45 @@ def summarize_performance(step, g_model, f=0):
         X = g_model.predict(list_img_test_array)  # np.uint8()
     except:
         print('ошибка !!!')
-   
+
     for j, im in enumerate(X):
         precentage_list = []
         # fig = plt.figure(figsize=(24, 11))
         print(dir_test[j][75:-20])
         for i in range(CHANEL):
-            #try:
-                # plt.subplot(2, CHANEL // 2, i + 1)
-                # plt.title(list_metrics[i])
-                # pyplot.axis('off')
+            # try:
+            # plt.subplot(2, CHANEL // 2, i + 1)
+            # plt.title(list_metrics[i])
+            # pyplot.axis('off')
 
-                # print('333333', 'im[:,:,i]=', im[:,:,i].shape,  'list_img_test_25[j][:,:,i]=', list_img_test_25[j][:,:,i].shape)
-                IMG = np.concatenate((np.expand_dims(im[:, :, i] * 255, 2),
-                                      np.expand_dims(list_img_test_25[j][:, :, i] * 255, 2), np.zeros((SIZE, SIZE, 1))),
-                                     axis=-1)
-                # plt.imshow(np.uint8(IMG))
-                # ============================================
-                '''
+            # print('333333', 'im[:,:,i]=', im[:,:,i].shape,  'list_img_test_25[j][:,:,i]=', list_img_test_25[j][:,:,i].shape)
+            IMG = np.concatenate((np.expand_dims(im[:, :, i] * 255, 2),
+                                  np.expand_dims(list_img_test_25[j][:, :, i] * 255, 2), np.zeros((SIZE, SIZE, 1))),
+                                 axis=-1)
+            # ============================================
+            '''
                 Вычисляет абсолютную разницу для каждого элемента между двумя массивами или между массивом и скаляром.
                 '''
-                image_eta = Image.fromarray(list_img_test_25[j][:, :, i], 'L')
-                image_gan = Image.fromarray(im[:, :, i], 'L')
-                
-                differ = cv2.absdiff(list_img_test_25[j][:, :, i].astype(np.float64), im[:, :, i].astype(np.float64))
-                differ = differ.astype(np.uint8)
-                percentage = (np.count_nonzero(differ) * 100) / differ.size                
-                precentage_list.append(percentage)
-                
-                # ============================================
-                IMG_res = cv2.resize(IMG, (int(SIZE * 2), int(SIZE * 2)), interpolation=cv2.INTER_NEAREST)
-                IMG_res = IMG_res[:, :, ::-1]
-                
-                cv2.imwrite(f'{img_test}/{rakurs[i]}_{dir_test[j][75:-20]}.jpg', np.uint8(IMG_res))
-                with open(log_file, 'a+') as file:
-                    file.write(f'{filename_model_NN}\nMetricks: {mean(precentage_list)}\n')
-        print(mean(precentage_list))
-            
+            image_eta = Image.fromarray(list_img_test_25[j][:, :, i], 'L')
+            image_gan = Image.fromarray(im[:, :, i], 'L')
 
-# train pix2pix models
+            differ = cv2.absdiff(list_img_test_25[j][:, :, i].astype(np.float64), im[:, :, i].astype(np.float64))
+            differ = differ.astype(np.uint8)
+            percentage = (np.count_nonzero(differ) * 100) / differ.size
+            precentage_list.append(percentage)
+
+            # ============================================
+            IMG_res = cv2.resize(IMG, (int(SIZE * 2), int(SIZE * 2)), interpolation=cv2.INTER_NEAREST)
+            IMG_res = IMG_res[:, :, ::-1]
+            cv2.imwrite(f'{img_test}/{rakurs[i]}_{image_eta}.jpg', np.uint8(IMG_res))
+            cv2.imwrite(f'{test_img_path}/{rakurs[i]}_{dir_test[j][75:-20]}.jpg', np.uint8(IMG_res))
+        print(mean(precentage_list))
+    with open(log_file, 'a+') as file:
+        file.write(f'{filename_model_NN}\nMetricks: {mean(precentage_list)}\n')
+
+    # train pix2pix models
+
+
 def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufer=0):
     """
     Данная функция предназначена для обучения модели генеративно-состязательной сети (GAN) для задачи 
@@ -105,12 +105,11 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
     print(f'n_patch  {n_patch}\nn_epochs = {n_epochs}')
 
     for i in range(n_steps):  # n_steps
-        
+
         list_A, list_B, list_y = [], [], []
         list_rand_dir, list_rand_dir_25 = get_list_dir_2(root, list_models, batch)
 
         for i_d in range(batch):
-            
             list_dir_name, list_dir_name_25 = list_rand_dir[i_d], list_rand_dir_25[i_d]
             [X_A, X_B], y = generate_real_samples(list_dir_name, list_dir_name_25, n_patch)
             list_A.append(X_A)
@@ -122,9 +121,9 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
         y_real = np.concatenate(list_y, axis=0)
 
         X_fakeB, y_fake = generate_fake_samples(g_model, X_realA, n_patch)
-        
+
         d_loss1 = d_model.train_on_batch([X_realA, X_realB], y_real)
-        
+
         # update discriminator for generated samples
         d_loss2 = d_model.train_on_batch([X_realA, X_fakeB], y_fake)
 
@@ -144,8 +143,10 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
             summarize_performance(i_s, g_model, f=1)
             # break
 
+
 def shown_statics():
-     print(f'Lerning rate: {lr}\nBatch: {batch}')
+    print(f'Lerning rate: {lr}\nBatch: {batch}')
+
 
 if __name__ == '__main__':
     pass

@@ -12,7 +12,7 @@ img_test = 'data_a/img_test'
 root_25 = 'data_a/rendered_models'
 root = 'data_a/training_dataset'
 log_file = 'data_a/log.txt'
-
+test_img_path = 'data_a/img_from_test'
 
 rakurs = ['yaw_0',
           'yaw_55',
