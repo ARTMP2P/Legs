@@ -108,7 +108,7 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
 
         list_A, list_B, list_y = [], [], []
         list_rand_dir, list_rand_dir_25 = get_list_dir_2(root, list_models, batch)
-        print(list_rand_dir, '\n', list_rand_dir_25)
+        # print(list_rand_dir, '\n', list_rand_dir_25)
 
         for i_d in range(batch):
             list_dir_name, list_dir_name_25 = list_rand_dir[i_d], list_rand_dir_25[i_d]
