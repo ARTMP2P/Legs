@@ -63,7 +63,7 @@ def summarize_performance(step, g_model, f=0):
     for j, im in enumerate(X):
         precentage_list = []
         # fig = plt.figure(figsize=(24, 11))
-        print(dir_test[j][75:-20])
+        # print(dir_test[j][75:-20])
         for i in range(CHANEL):
             # try:
             # plt.subplot(2, CHANEL // 2, i + 1)
