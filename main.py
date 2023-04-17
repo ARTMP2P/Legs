@@ -9,7 +9,7 @@ import parser
 # ======================================================================
 
 
-n_epochs = 200
+n_epochs = 10
 image_shape = [SIZE, SIZE, CHANEL]
 d_model = define_discriminator(image_shape)
 parser = argparse.ArgumentParser()
