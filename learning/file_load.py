@@ -160,6 +160,7 @@ for d in dir_test:
     list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(img_test, d[20:-11]))[0]))), axis=-1))
     list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir(img_test, d[20:-11]))[1]))), axis=-1))
 list_img_test_array = np.array(list_img_test)
+list_img_test_array = np.transpose(list_img_test_array, axes=[0, 3])
 
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=', list_img_test_25[0].shape)
 
