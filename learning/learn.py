@@ -44,6 +44,14 @@ def summarize_performance(step, g_model, f=0):
     """
 
     print(f'list_img_test_array.shape= {list_img_test_array.shape}')
+    e = 0
+    plt.figure(figsize=(24, 12))
+    for batch in list_img_test_array:
+        for i in range(8):
+            plt.subplot(8, 8, i + 1 + e)
+            plt.axis('off')
+            plt.imshow(batch[:, :, i]);
+        e += 8
     try:
         X = g_model.predict(list_img_test_array)  # np.uint8()
     except:
