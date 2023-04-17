@@ -123,8 +123,8 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
         X_realB = np.concatenate(list_B, axis=0)
         y_real = np.concatenate(list_y, axis=0)
         print(f"X_realA shape is {X_realA.shape}\nX_realB shape is {X_realB.shape}")
-        for a in X_realA.shape[0]:
-            for b in X_realA.shape[3]:
+        for a in range(X_realA.shape[0]):
+            for b in range(X_realA.shape[3]):
                 img = Image.fromarray(X_realA[a, :, :, b], "L")
                 img.save(f"images/{a}a_b{b}.png")
         with open('X_realA.npy', 'wb') as f:
