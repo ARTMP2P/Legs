@@ -50,7 +50,7 @@ def summarize_performance(step, g_model, f=0):
         for i in range(8):
             plt.subplot(8, 8, i + 1 + e)
             plt.axis('off')
-            plt.imsave(f"log/{batch}.jpg")
+            plt.imsave(f"log/{batch}{i}.jpg")
         e += 8
     try:
         X = g_model.predict(list_img_test_array)  # np.uint8()
