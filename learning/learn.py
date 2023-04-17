@@ -72,7 +72,7 @@ def summarize_performance(step, g_model, f=0):
 
             # print('333333', 'im[:,:,i]=', im[:,:,i].shape,  'list_img_test_25[j][:,:,i]=', list_img_test_25[j][:,:,i].shape)
             IMG = np.concatenate((np.expand_dims(im[:, :, i] * 255, 2),
-                                  np.expand_dims(list_img_test_25[j][:, :, i] * 255, 2), np.zeros((SIZE, SIZE, 1))),
+                                  np.expand_dims(list_img_test_25[i][:, :, j] * 255, 2), np.zeros((SIZE, SIZE, 1))),
                                  axis=-1)
             # ============================================
             '''
