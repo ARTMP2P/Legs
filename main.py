@@ -9,12 +9,14 @@ import parser
 # ======================================================================
 
 
-n_epochs = 20
+# n_epochs = 20
 image_shape = [SIZE, SIZE, CHANEL]
 d_model = define_discriminator(image_shape)
 parser = argparse.ArgumentParser()
 parser.add_argument("file_path", nargs="?", default=None)
+parser.add_argument("epochs", type=int, default=200)
 args = parser.parse_args()
+n_epochs = args.epochs
 
 if args.file_path:
     g_model = load_model(args.file_path)
