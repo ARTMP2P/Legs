@@ -51,9 +51,10 @@ def summarize_performance(step, g_model, f=0):
             # plt.subplot(8, 8, i + 1 + e)
             # plt.axis('off')
             # plt.imsave(f"log/{batch}{i}.jpg")
-            cv2.imwrite(f"log/{i}.jpg", np.uint8(batch[:, :, i]))
+            cv2.imwrite(f"log/{i}.jpg", np.uint8(batch[:, :, 0]))
+            print(f"Max:")
         e += 8
-        break
+
     try:
         X = g_model.predict(list_img_test_array)  # np.uint8()
     except:
