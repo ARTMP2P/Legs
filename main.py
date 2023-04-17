@@ -14,7 +14,7 @@ image_shape = [SIZE, SIZE, CHANEL]
 d_model = define_discriminator(image_shape)
 parser = argparse.ArgumentParser()
 parser.add_argument("file_path", nargs="?", default=None)
-parser.add_argument("epochs", type=int, default=200)
+parser.add_argument("epochs", type=int, default=200, required=False)
 args = parser.parse_args()
 n_epochs = args.epochs
 
