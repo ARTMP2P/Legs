@@ -52,7 +52,7 @@ def summarize_performance(step, g_model, f=0):
             # plt.axis('off')
             # plt.imsave(f"log/{batch}{i}.jpg")
             cv2.imwrite(f"log/{i}.jpg", np.uint8(batch[:, :, i]))
-            print(f"Max:")
+
         e += 8
 
     try:
