@@ -126,6 +126,7 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
         for a in range(X_realA.shape[0]):
             for b in range(X_realA.shape[3]):
                 img = Image.fromarray(X_realA[a, :, :, b], "L")
+                print(X_realA[a, :, :, b])
                 img.save(f"images/{a}a_b{b}.png")
         with open('X_realA.npy', 'wb') as f:
             np.save(f, X_realA)
