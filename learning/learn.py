@@ -43,10 +43,10 @@ def summarize_performance(step, g_model, f=0):
     list_metrics.extend(val_2)
     """
 
-    print(f'list_img_test_array.shape= {list_img_test_array.shape}')
+    print(f'list_img_test_array.shape= {np.array(list_img_test).shape}')
     e = 0
     # plt.figure(figsize=(24, 12))
-    for batch in list_img_test_array:
+    for batch in np.array(list_img_test):
         for i in range(8):
             # plt.subplot(8, 8, i + 1 + e)
             # plt.axis('off')
@@ -56,25 +56,17 @@ def summarize_performance(step, g_model, f=0):
         e += 8
 
     try:
-        X = g_model.predict(list_img_test_array)  # np.uint8()
+        X = g_model.predict(np.array(list_img_test))  # np.uint8()
     except:
         print('ошибка !!!')
 
     for j, im in enumerate(X):
         precentage_list = []
-        # fig = plt.figure(figsize=(24, 11))
-        # print(dir_test[j][75:-20])
-        for i in range(CHANEL):
-            # try:
-            # plt.subplot(2, CHANEL // 2, i + 1)
-            # plt.title(list_metrics[i])
-            # pyplot.axis('off')
 
-            # print('333333', 'im[:,:,i]=', im[:,:,i].shape,  'list_img_test_25[j][:,:,i]=', list_img_test_25[j][:,:,i].shape)
+        for i in range(CHANEL):
             IMG = np.concatenate((np.expand_dims(im[:, :, i] * 255, 2),
                                   np.expand_dims(list_img_test_25[i][:, :, j] * 255, 2), np.zeros((SIZE, SIZE, 1))),
                                  axis=-1)
-            # ============================================
             '''
             Вычисляет абсолютную разницу для каждого элемента между двумя массивами или между массивом и скаляром.
             '''
