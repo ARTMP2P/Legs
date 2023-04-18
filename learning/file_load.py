@@ -124,7 +124,8 @@ def find_files_by_name(root_dir, file_name):
     for dirpath, dirnames, filenames in os.walk(root_dir):
         for filename in filenames:
             for rakurs_ in rakurs:
-                if filename == file_name and :
+                if filename == file_name and rakurs_ in dirpath:
+                    print(dirpath)
                     # если имя файла совпадает, добавить путь к файлу в список
                     file_paths.append(os.path.join(dirpath, filename))
 
