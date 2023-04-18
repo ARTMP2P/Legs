@@ -125,12 +125,10 @@ def find_files_by_name(root_dir, file_name):
         for filename in filenames:
             for rakurs_ in rakurs:
                 if filename == file_name and rakurs_ in dirpath:
-                    print(dirpath)
                     # если имя файла совпадает, добавить путь к файлу в список
                     file_paths.append(os.path.join(dirpath, filename))
 
     # вернуть список найденных путей к файлам
-    print(f"Len filepaths list with {file_name}: {len(file_paths)}")
     return file_paths
 
 
@@ -142,7 +140,7 @@ dir_260_clear = get_dirs(dir_260_clear_file_txt)
 
 # dir_test = np.load('data_a/dir_test.npy')
 dir_test = np.array(sorted(find_files_by_name(img_test, '9_segmap.png'))[:8])
-print(dir_test)
+print(find_files_by_name(img_test, '9_segmap.png'))
 
 for d in dir_260_clear:
     name_model = get_name_model(d)
@@ -154,8 +152,6 @@ print('len(list_models)=', len(list_models))
 for d in dir_test:
     list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(img_test, d[20:-11]))[0]))), axis=-1))
     list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir(img_test, d[20:-11]))[1]))), axis=-1))
-list_img_test_array = np.array(list_img_test)
-# list_img_test_array = np.transpose(list_img_test_array, axes=[3, 1, 2, 0])
 
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=', list_img_test_25[0].shape)
 
