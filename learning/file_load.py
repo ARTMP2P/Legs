@@ -139,14 +139,8 @@ dir = get_dirs(dir_file_txt)
 dir_260_clear = get_dirs(dir_260_clear_file_txt)
 
 # dir_test = np.load('data_a/dir_test.npy')
-dir_test = np.array(random.choices(find_files_by_name(img_test, '9_segmap.png'), k=8))
+dir_test = np.array(sorted(find_files_by_name(img_test, '9_segmap.png'))[:8])
 print(dir_test)
-# dir_test = ['/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3145left.pos/12/9_segmap.png',
-#             '/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3091right.pos/12/9_segmap.png',
-#             '/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3200right.pos/12/9_segmap.png',
-#             '/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/287left.pos/12/9_segmap.png',
-#             '/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3122right.pos/12/9_segmap.png',
-#             '/content/drive/MyDrive/Ступни/8channal_77/ready_renders/output_part1/yaw_0/3057left.pos/12/9_segmap.png', ]
 
 for d in dir_260_clear:
     name_model = get_name_model(d)
@@ -156,7 +150,6 @@ for d in dir_260_clear:
 print('len(list_models)=', len(list_models))
 
 for d in dir_test:
-    print(d[20:-11])
     list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(img_test, d[20:-11]))[0]))), axis=-1))
     list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir(img_test, d[20:-11]))[1]))), axis=-1))
 list_img_test_array = np.array(list_img_test)
