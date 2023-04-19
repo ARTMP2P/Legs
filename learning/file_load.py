@@ -63,17 +63,17 @@ def get_img(dir):
     return img
 
 
-def get_list_dir(root, dir):
+def get_list_dir(dir):
     """
-    возвращает список директорий для заданного файла и ракурсов.
+    Возвращает список директорий для заданного файла и ракурсов.
     """
     # d = os.path.join(root, 'output_part' + dir + '_segmap.png')
-    d = os.path.join(root, dir + '_segmap.png')
+    d = os.path.join(dir + '_segmap.png')
 
     i = dir.find('/', -3)
 
     # d_25 = os.path.join(root, 'output_part' + dir[:i+1], '25_segmap.png')
-    d_25 = os.path.join(root, dir[:i + 1], '49_segmap.png')
+    d_25 = os.path.join(dir[:i + 1], '49_segmap.png')
 
     list_dir, list_dir_25 = [], []
     for r in rakurs:
@@ -141,7 +141,7 @@ def find_files_by_name(root_dir, file_name):
                 file_paths.append(os.path.join(dirpath, filename))
 
     # вернуть отсортированный список найденных путей к файлам
-    return sorted(file_paths)
+    return file_paths
 
 
 # ======================================================================
