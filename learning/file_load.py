@@ -137,6 +137,7 @@ def find_files_by_name(root_dir, file_name):
     for dirpath, dirnames, filenames in os.walk(root_dir):
         for filename in filenames:
             if filename == file_name and 'yaw_0' in dirpath:
+                print(f'Dirpath: {dirpath}, filename: {filename}')
                 # если имя файла совпадает, добавить путь к файлу в список
                 file_paths.append(os.path.join(dirpath, filename))
 
