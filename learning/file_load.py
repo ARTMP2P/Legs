@@ -82,7 +82,7 @@ def get_list_dir(dir):
         list_dir.append(d_r)
         d_r_25 = d_25.replace("yaw_0", r)
         list_dir_25.append(d_r_25)
-
+        print(d_r_25)
     return list_dir, list_dir_25
 
 
@@ -163,7 +163,7 @@ for d in dir_260_clear:
 for d in dir_test:
   list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[0]))), axis=-1))
   list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir(d))[1]))), axis=-1))
-print(list_img_test_25)
+
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=', list_img_test_25[0].shape)
 
 # ======================================================================
