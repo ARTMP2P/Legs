@@ -69,10 +69,10 @@ def get_list_dir(dir):
     """
     # d = os.path.join(root, 'output_part' + dir + '_segmap.png')
     print(f"Dir is: {dir}, type is: {type(dir)}")
-    d = os.path.join(dir[0][:-len('_segmap.png')] + '_segmap.png')
+    d = os.path.join(dir[:-len('_segmap.png')] + '_segmap.png')
 
     # d_25 = os.path.join(root, 'output_part' + dir[:i+1], '25_segmap.png')
-    d_25 = os.path.join(dir[0][:-len('_segmap.png')], '49_segmap.png')
+    d_25 = os.path.join(dir[:-len('_segmap.png')], '49_segmap.png')
 
     list_dir, list_dir_25 = [], []
     for r in rakurs:
@@ -159,8 +159,8 @@ for d in dir_260_clear:
         list_models.append(name_model)
 
 for d in dir_test:
-  list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir([d]))[0]))), axis=-1))
-  list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir([d]))[1]))), axis=-1))
+  list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[0]))), axis=-1))
+  list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir(d))[1]))), axis=-1))
 
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=', list_img_test_25[0].shape)
 
