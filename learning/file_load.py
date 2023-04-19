@@ -117,19 +117,33 @@ def get_dir_bug(s):
 
 
 def find_files_by_name(root_dir, file_name):
+    """
+    Описание изменений:
+
+    Вместо итерации по каталогам с помощью os.walk, мы используем предопределенный список каталогов, который мы хотим
+    обойти (список ['yaw_0', 'yaw_55', 'yaw_90', 'yaw_125', 'yaw_180', 'yaw_235', 'yaw_270', 'yaw_305']).
+    Для каждого из этих каталогов мы снова используем os.walk, чтобы найти файлы с заданным именем.
+    Вместо проверки подстроки в пути каталога, мы конкатенируем путь root_dir с каждым из предопределенных каталогов.
+    Найденные пути к файлам добавляются в список file_paths.
+    В конце функция возвращает отсортированный список найденных путей к файлам.
+    :param root_dir:
+    :param file_name:
+    :return:
+    """
     # список для хранения найденных путей к файлам
     file_paths = []
 
     # рекурсивно обойти все подкаталоги и найти файлы с заданным именем
-    for dirpath, dirnames, filenames in os.walk(root_dir):
-        for filename in filenames:
-            for rakurs_ in rakurs:
-                if filename == file_name and rakurs_ in dirpath:
+    for rakurs_ in ['yaw_0', 'yaw_55', 'yaw_90', 'yaw_125', 'yaw_180', 'yaw_235', 'yaw_270', 'yaw_305']:
+        dirpath = os.path.join(root_dir, rakurs_)
+        for dirpath2, dirnames, filenames in os.walk(dirpath):
+            for filename in filenames:
+                if filename == file_name:
                     # если имя файла совпадает, добавить путь к файлу в список
-                    file_paths.append(os.path.join(dirpath, filename))
+                    file_paths.append(os.path.join(dirpath2, filename))
 
-    # вернуть список найденных путей к файлам
-    return file_paths
+    # вернуть отсортированный список найденных путей к файлам
+    return sorted(file_paths)
 
 
 # ======================================================================
@@ -138,20 +152,17 @@ list_img_test, list_img_test_25 = [], []
 dir = get_dirs(dir_file_txt)
 dir_260_clear = get_dirs(dir_260_clear_file_txt)
 
-# dir_test = np.load('data_a/dir_test.npy')
-dir_test = np.array(sorted(find_files_by_name(img_test, '9_segmap.png'))[:8])
-print(dir_test)
+dir_test = np.array(find_files_by_name(img_test, '9_segmap.png'))
+print(dir_test.shape)
 
 for d in dir_260_clear:
     name_model = get_name_model(d)
     if name_model not in list_models:
         list_models.append(name_model)
 
-print('len(list_models)=', len(list_models))
-
 for d in dir_test:
-    list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(img_test, d[20:-11]))[0]))), axis=-1))
-    list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir(img_test, d[20:-11]))[1]))), axis=-1))
+  list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir([d]))[0]))), axis=-1))
+  list_img_test_25.append(np.concatenate(list(map(read_img25, ((get_list_dir([d]))[1]))), axis=-1))
 
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=', list_img_test_25[0].shape)
 
