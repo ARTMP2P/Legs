@@ -69,10 +69,10 @@ def get_list_dir(dir):
     """
     # d = os.path.join(root, 'output_part' + dir + '_segmap.png')
     print(f"Dir is: {dir}, type is: {type(dir)}")
-    d = os.path.join(dir[:-len('_segmap.png')] + '_segmap.png')
+    d = os.path.join(dir[0][:-len('_segmap.png')] + '_segmap.png')
 
     # d_25 = os.path.join(root, 'output_part' + dir[:i+1], '25_segmap.png')
-    d_25 = os.path.join(dir[:-len('_segmap.png')], '49_segmap.png')
+    d_25 = os.path.join(dir[0][:-len('_segmap.png')], '49_segmap.png')
 
     list_dir, list_dir_25 = [], []
     for r in rakurs:
