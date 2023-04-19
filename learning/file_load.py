@@ -48,7 +48,7 @@ def read_img25(dir):
     if os.path.exists(dir):
         img = cv2.imread(dir, 0).astype(np.bool_).astype(np.int8)
     else:
-        print(f"File exist: {os.path.exists(dir)}")
+        print(f"Path {dir} exist: {os.path.exists(dir)}")
     return np.expand_dims(img, axis=2)
 
 
