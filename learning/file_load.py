@@ -68,7 +68,6 @@ def get_list_dir(dir):
     Возвращает список директорий для заданного файла и ракурсов.
     """
     # d = os.path.join(root, 'output_part' + dir + '_segmap.png')
-    print(f"Dir is: {dir}, type is: {type(dir)}")
     d = os.path.join(dir[:-len('_segmap.png')] + '_segmap.png')
 
     # d_25 = os.path.join(root, 'output_part' + dir[:i+1], '25_segmap.png')
