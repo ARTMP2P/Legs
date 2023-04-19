@@ -134,7 +134,7 @@ def find_files_by_name(root_dir, file_name):
     file_paths = []
 
     # рекурсивно обойти все подкаталоги и найти файлы с заданным именем
-    for rakurs_ in ['yaw_0', 'yaw_55', 'yaw_90', 'yaw_125', 'yaw_180', 'yaw_235', 'yaw_270', 'yaw_305']:
+    for rakurs_ in rakurs:
         dirpath = os.path.join(root_dir, rakurs_)
         for dirpath2, dirnames, filenames in os.walk(dirpath):
             for filename in filenames:
