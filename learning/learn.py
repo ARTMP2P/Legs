@@ -71,10 +71,10 @@ def summarize_performance(step, g_model, f=0):
             '''
             Вычисляет абсолютную разницу для каждого элемента между двумя массивами или между массивом и скаляром.
             '''
-            image_eta = Image.fromarray(list_img_test_25[j][:, :, i])
-            image_eta.save(f"log/images/true_{i}.jpg")
-            image_gan = Image.fromarray(im[:, :, i])
-            image_gan.save(f"log/images/gan_{i}.jpg")
+            # image_eta = Image.fromarray(list_img_test_25[j][:, :, i])
+            # image_eta.save(f"log/images/true_{i}.jpg", "L")
+            # image_gan = Image.fromarray(im[:, :, i])
+            # image_gan.save(f"log/images/gan_{i}.jpg", "L")
 
             differ = cv2.absdiff(list_img_test_25[j][:, :, i].astype(np.float64), im[:, :, i].astype(np.float64))
             differ = differ.astype(np.uint8)
