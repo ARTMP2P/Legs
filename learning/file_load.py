@@ -141,7 +141,9 @@ def find_files_by_name(root_dir, file_name):
 
                 # если имя файла совпадает, добавить путь к файлу в список
                 file_paths.append(os.path.join(dirpath, filename))
-
+    print(len(file_paths))
+    file_paths = list(set(file_paths))
+    print(len(file_paths))
     # вернуть отсортированный список найденных путей к файлам
     return file_paths
 
