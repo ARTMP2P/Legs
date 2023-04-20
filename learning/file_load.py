@@ -125,9 +125,7 @@ def find_files_by_name(root_dir, file_name):
             if filename == file_name and 'yaw_0' in dirpath:
                 # если имя файла совпадает, добавить путь к файлу в список
                 file_paths.append(os.path.join(dirpath, filename))
-    print(len(file_paths))
-    file_paths = list(set(file_paths))
-    print(len(file_paths))
+
     # вернуть отсортированный список найденных путей к файлам
     return file_paths
 
@@ -147,7 +145,7 @@ for d in dir_260_clear:
 for d in dir_test:
     list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[0]))), axis=-1))
     list_img_test_25.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[1]))), axis=-1))
-list_img_test = np.transpose(list_img_test, (3, 1, 2, 0))
+# list_img_test = np.transpose(list_img_test, (3, 1, 2, 0))
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=', list_img_test_25[0].shape)
 
 # ======================================================================
