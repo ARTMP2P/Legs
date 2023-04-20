@@ -60,7 +60,7 @@ def get_list_dir(dir):
     d = os.path.join(dir[:-len('_segmap.png')] + '_segmap.png')
 
     # d_25 = os.path.join(root, 'output_part' + dir[:i+1], '25_segmap.png')
-    d_25 = os.path.join(dir[:-(len('_segmap.png')+1)], '49_segmap.png')
+    d_25 = os.path.join(dir[:-(len('_segmap.png') + 1)], '49_segmap.png')
 
     list_dir, list_dir_25 = [], []
     for r in rakurs:
@@ -123,7 +123,6 @@ def find_files_by_name(root_dir, file_name):
     for dirpath, dirnames, filenames in os.walk(root_dir):
         for filename in filenames:
             if filename == file_name and 'yaw_0' in dirpath:
-
                 # если имя файла совпадает, добавить путь к файлу в список
                 file_paths.append(os.path.join(dirpath, filename))
     print(len(file_paths))
@@ -146,9 +145,9 @@ for d in dir_260_clear:
         list_models.append(name_model)
 
 for d in dir_test:
-  list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[0]))), axis=-1))
-  list_img_test_25.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[1]))), axis=-1))
-
+    list_img_test.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[0]))), axis=-1))
+    list_img_test_25.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[1]))), axis=-1))
+list_img_test = list_img_test[:6, :, :, :]
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=', list_img_test_25[0].shape)
 
 # ======================================================================
