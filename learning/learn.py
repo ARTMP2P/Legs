@@ -43,7 +43,7 @@ def summarize_performance(step, g_model, f=0):
     list_metrics.extend(val_2)
     """
 
-    print(f'list_img_test_array.shape= {np.array(list_img_test).shape}')
+    '''print(f'list_img_test_array.shape= {np.array(list_img_test).shape}')
     e = 0
     # plt.figure(figsize=(24, 12))
     for batch in np.array(list_img_test):
@@ -53,7 +53,7 @@ def summarize_performance(step, g_model, f=0):
             # plt.imsave(f"log/{batch}{i}.jpg")
             cv2.imwrite(f"log/{i}.jpg", np.uint8(batch[:, :, i]))
 
-        e += 8
+        e += 8'''
 
     try:
         X = g_model.predict(np.array(list_img_test))  # np.uint8()
@@ -70,9 +70,9 @@ def summarize_performance(step, g_model, f=0):
             '''
             Вычисляет абсолютную разницу для каждого элемента между двумя массивами или между массивом и скаляром.
             '''
-            image_eta = Image.fromarray(list_img_test_25[j][:, :, i] * 255, 'L')
+            image_eta = Image.fromarray(list_img_test_25[j][:, :, i], 'L')
             image_eta.save(f"log/images/true_{i}.jpg")
-            image_gan = Image.fromarray(im[:, :, i] * 255, 'L')
+            image_gan = Image.fromarray(im[:, :, i], 'L')
             image_gan.save(f"log/images/gan_{i}.jpg")
 
             differ = cv2.absdiff(list_img_test_25[j][:, :, i].astype(np.float64), im[:, :, i].astype(np.float64))
