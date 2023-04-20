@@ -65,7 +65,7 @@ def summarize_performance(step, g_model, f=0):
 
         for i in range(CHANEL):
             IMG = np.concatenate((np.expand_dims(im[:, :, i] * 255, 2),
-                                  np.expand_dims(list_img_test_25[i][:, :, j] * 255, 2), np.zeros((SIZE, SIZE, 1))),
+                                  np.expand_dims(list_img_test_25[j][:, :, i] * 255, 2), np.zeros((SIZE, SIZE, 1))),
                                  axis=-1)
             '''
             Вычисляет абсолютную разницу для каждого элемента между двумя массивами или между массивом и скаляром.
