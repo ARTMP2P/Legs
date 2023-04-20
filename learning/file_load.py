@@ -52,20 +52,6 @@ def read_img25(dir):
     return np.expand_dims(img, axis=2)
 
 
-def get_img(dir):
-    """
-    читает изображение из директории, обрезает его, преобразует в черно-белое, 
-    изменяет размер и возвращает его в виде массива numpy.
-    """
-    try:
-        img = cv2.imread(dir, 0)[y1:y2, x1:x2].astype(np.bool_).astype(np.int8)
-    except:
-        print('get_img(dir)=', dir)
-    # img[:960] = 0
-    img = cv2.resize(img, (SIZE, SIZE), interpolation=cv2.INTER_NEAREST)
-    return img
-
-
 def get_list_dir(dir):
     """
     Возвращает список директорий для заданного файла и ракурсов.
