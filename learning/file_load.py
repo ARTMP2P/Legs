@@ -68,7 +68,6 @@ def get_list_dir(dir):
         list_dir.append(d_r)
         d_r_25 = d_25.replace("yaw_0", r)
         list_dir_25.append(d_r_25)
-        print(d_r_25)
     return list_dir, list_dir_25
 
 
