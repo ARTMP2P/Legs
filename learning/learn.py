@@ -121,8 +121,7 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
 
         for i_d in range(batch):
             list_dir_name, list_dir_name_25 = list_rand_dir[i_d], list_rand_dir_25[i_d]
-            with open("paths.txt", 'w+') as file:
-                file.write(f'list_dir_name is: {list_dir_name}\nlist_dir_name_25 is: {list_dir_name_25}\n')
+
             [X_A, X_B], y = generate_real_samples(list_dir_name, list_dir_name_25, n_patch)
             list_A.append(X_A)
             list_B.append(X_B)

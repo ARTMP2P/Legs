@@ -90,8 +90,7 @@ def get_list_dir_2(root, list_models, batch):
             list_model_dir_25.append(dir_rand_25)
         list_rand_dir.append(list_model_dir)
         list_rand_dir_25.append(list_model_dir_25)
-    with open(log_file, 'a+') as file:
-        file.write(f'list_rand_dir: {list_rand_dir}\nlist_rand_dir_25: {list_rand_dir_25}\n')
+
     return list_rand_dir, list_rand_dir_25
 
 
