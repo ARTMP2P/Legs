@@ -87,7 +87,7 @@ def summarize_performance(step, g_model, f=0):
             IMG_res = cv2.resize(IMG, (int(SIZE * 2), int(SIZE * 2)), interpolation=cv2.INTER_NEAREST)
             IMG_res = IMG_res[:, :, ::-1]
             cv2.imwrite(f'{img_test_group}/{rakurs[i]}_{dir_test[j][75:-20]}{j}.jpg', np.uint8(IMG_res))
-
+            print(f"Percentage for {rakurs[i]} is: {round(percentage, 2)}")
         print(f"Mean percentage for model {j} is: {round(mean(precentage_list), 2)}")
     print(f"Mean percentage for all models is: {round(mean(precentage_list), 2)}")
     with open(log_file, 'a+') as file:
