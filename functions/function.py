@@ -23,7 +23,7 @@ def get_img_for_predict(dir_folder):
 
 
 def predict_img(img):
-    img = input_data.g_model.predict(img)[0] * 127.5 + 127.5
+    img = g_model.predict(img)[0] * 127.5 + 127.5
     return np.where(img < 128, 0, 255)  # shape np.array (2048, 2048, 8)
 
 
