@@ -208,11 +208,11 @@ def define_generator(image_shape):
     b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
     nn.init.normal_(b.weight, mean=0.0, std=0.02)
 
-    # Add dimension
-    b = b(in_image)
-
-    # Apply ReLU
-    b = nn.ReLU(inplace=True)(b)
+    # # Add dimension
+    # b = b(in_image)
+    #
+    # # Apply ReLU
+    # b = nn.ReLU(inplace=True)(b)
 
     # Decoder model
     d1 = decoder_block(b, e7, 512)
