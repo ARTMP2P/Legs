@@ -143,7 +143,7 @@ def decoder_block(x, e, out_channels, dropout=True):
     x = nn.Upsample(scale_factor=2)(x)
 
     # Concatenate with corresponding encoder layer
-    x = torch.cat([x, e], 1)
+    x = torch.cat([x, e.unsqueeze(1)], 1)
 
     # Convolution layer with batchnorm
     x = nn.Conv2d(in_channels=(e.shape[1] + x.shape[1]),
