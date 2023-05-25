@@ -138,46 +138,43 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
 
 
 # Define a decoder block
-def decoder_block(in_tensor, enc_tensor, channels, dropout=True):
+def decoder_block(x, e, out_channels, dropout=True):
     """
-    Function to define a single decoder block. The decoder block is composed of two convolutional
-    layers and optionally a dropout layer.
+    Decoder block for the generator model. It is used to up-sample the
+    hidden representation to match the size of the input image.
+
     Args:
-        in_tensor: Input tensor to the decoder block.
-        enc_tensor: Output tensor of the encoder block that serves as input to the decoder block.
-        channels: Number of channels of the decoder block output.
-        dropout: Boolean indicating whether to use dropout after the first convolutional layer.
+        x: input tensor of shape (batch_size, width, height, in_channels)
+        e: encoder output tensor of shape (batch_size, width, height, in_channels)
+        out_channels: number of output channels
+        dropout: whether or not to apply dropout
 
     Returns:
-        Output tensor of the decoder block.
+        Decoder output tensor of shape (batch_size, 1024, 1024, 8)
     """
 
-    # Upsample
-    up_sample = nn.Upsample(scale_factor=2, mode='nearest')
-    up_tensor = up_sample(in_tensor)
-    print(f"In tensor shape is: {in_tensor.shape[1]}\nOut tensor shape: {enc_tensor.shape[1]}")
-    # Concatenation
-    concat_tensor = torch.cat([enc_tensor, up_tensor], dim=1)
+    # Batchnorm
+    b = nn.BatchNorm2d(num_features=e.shape[3])(x)
 
-    # Convolutional layers
-    conv1 = nn.Conv2d(concat_tensor.shape[1], channels, kernel_size=3, stride=1, padding=1)
-    conv2 = nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1)
+    # Convolutional layer
+    c = nn.Conv2d(in_channels=e.shape[3], out_channels=out_channels, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(c.weight, mean=0.0, std=0.02)
+    c = c(b)
 
-    # Batch norm
-    bn1 = nn.BatchNorm2d(channels)
-    bn2 = nn.BatchNorm2d(channels)
+    # Up-sample
+    u = nn.Upsample(scale_factor=2)(c)
 
-    # ReLU for all conv layers
-    relu = nn.ReLU()
+    # Concatenate
+    v = torch.cat((u, e), dim=1)
 
     # Dropout
     if dropout:
-        drop = nn.Dropout2d(0.25)
-        out_tensor = drop(relu(bn2(conv2(relu(bn1(conv1(concat_tensor)))))))
-    else:
-        out_tensor = relu(bn2(conv2(relu(bn1(conv1(concat_tensor))))))
+        v = nn.Dropout2d()(v)
 
-    return out_tensor
+    # ReLU
+    r = nn.ReLU(inplace=True)(v)
+
+    return r
 
 
 # Define the standalone generator model
@@ -200,16 +197,15 @@ def define_generator(image_shape):
 
     # Encoder model
     e1 = define_encoder_block(in_image, 64, batchnorm=True)
-    print(e1.shape[2])
     e2 = define_encoder_block(e1, 128)
     e3 = define_encoder_block(e2, 256)
     e4 = define_encoder_block(e3, 512)
     e5 = define_encoder_block(e4, 512)
     e6 = define_encoder_block(e5, 512)
-    e7 = define_encoder_block(e6, 1024)
+    e7 = define_encoder_block(e6, 512)
 
     # Bottleneck, no batch norm and ReLU
-    b = nn.Conv2d(1024, 1024, kernel_size=4, stride=2, padding=1, bias=False)
+    b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
     nn.init.normal_(b.weight, mean=0.0, std=0.02)
 
     # Add dimension
