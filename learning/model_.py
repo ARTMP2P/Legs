@@ -117,19 +117,15 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
         Output layer tensor.
     """
     # Weight initialization
-    init = nn.init.normal_(layer_in)
+    init = nn.init.normal_(layer_in, mean=0.0, std=0.02)
 
     # Add downsampling layer
-    g = nn.Conv2d(layer_in.shape[0],
+    g = nn.Conv2d(layer_in.shape[1],
                   n_filters,
                   kernel_size=4,
                   stride=2,
                   padding=1,
-                  bias=False)
-    nn.init.normal_(g.weight,
-                    mean=0.0,
-                    std=0.02)
-    g = g(layer_in)
+                  bias=False)(layer_in)
 
     # Conditionally add batch normalization
     if batchnorm:
