@@ -49,73 +49,62 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-# Define the discriminator model
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
 def define_discriminator(image_shape):
     """
     Function to define the discriminator model in the CycleGAN architecture.
     Args:
-        image_shape: Shape of the input image tensor.
-
+        image_shape: Shape of the input images.
     Returns:
-        Compiled discriminator model.
+        The compiled discriminator model.
     """
+
     # Weight initialization
-    init = nn.init.normal_
+    def init_weights(m):
+        if isinstance(m, nn.Conv2d):
+            nn.init.normal_(m.weight.data, 0.0, 0.02)
 
     # Source image input
-    in_src_image = nn.Input(shape=image_shape)
+    in_src_image = nn.Identity()
 
     # Target image input
-    in_target_image = nn.Input(shape=image_shape)
+    in_target_image = nn.Identity()
 
     # Concatenate images channel-wise
-    merged = torch.cat([in_src_image, in_target_image], dim=1)
+    merged = torch.cat((in_src_image, in_target_image), dim=1)
 
-    # C64
-    d = nn.Conv2d(2, 64, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(d.weight, mean=0.0, std=0.02)
-    d = nn.LeakyReLU(0.2, inplace=True)(d)
-
-    # C128
-    d = nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(d.weight, mean=0.0, std=0.02)
-    d = nn.BatchNorm2d(128)(d)
-    d = nn.LeakyReLU(0.2, inplace=True)(d)
-
-    # C256
-    d = nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(d.weight, mean=0.0, std=0.02)
-    d = nn.BatchNorm2d(256)(d)
-    d = nn.LeakyReLU(0.2, inplace=True)(d)
-
-    # C512
-    d = nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(d.weight, mean=0.0, std=0.02)
-    d = nn.BatchNorm2d(512)(d)
-    d = nn.LeakyReLU(0.2, inplace=True)(d)
-
-    # Second last output layer
-    d = nn.Conv2d(512, 512, kernel_size=4, padding=1, bias=False)
-    nn.init.normal_(d.weight, mean=0.0, std=0.02)
-    d = nn.BatchNorm2d(512)(d)
-    d = nn.LeakyReLU(0.2, inplace=True)(d)
-
-    # Patch output
-    d = nn.Conv2d(512, 1, kernel_size=4, padding=1, bias=False)
-    nn.init.normal_(d.weight, mean=0.0, std=0.02)
-    patch_out = nn.Sigmoid()(d)
-
-    # Define model
+    # Define the discriminator model
     model = nn.Sequential(
-        in_src_image,
-        in_target_image,
-        merged,
-        d,
-        patch_out
+        # C64
+        nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        # C128
+        nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),
+        nn.BatchNorm2d(128),
+        nn.LeakyReLU(0.2),
+        # C256
+        nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),
+        nn.BatchNorm2d(256),
+        nn.LeakyReLU(0.2),
+        # C512
+        nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1),
+        nn.BatchNorm2d(512),
+        nn.LeakyReLU(0.2),
+        # Second last output layer
+        nn.Conv2d(512, 512, kernel_size=4, padding=1),
+        nn.BatchNorm2d(512),
+        nn.LeakyReLU(0.2),
+        # Patch output
+        nn.Conv2d(512, 1, kernel_size=4, padding=1),
+        nn.Sigmoid()
     )
 
-    # Define optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.5, 0.999))
+    # Apply weight initialization
+    model.apply(init_weights)
 
     return model
 
