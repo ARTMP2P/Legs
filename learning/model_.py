@@ -189,7 +189,7 @@ def define_generator(image_shape):
     init = nn.init.normal_
 
     # Image input
-    in_image = nn.Input(shape=image_shape)
+    in_image = torch.zeros(image_shape)
 
     # Encoder model
     e1 = define_encoder_block(in_image, 64, batchnorm=False)
@@ -252,7 +252,7 @@ def define_gan(g_model, d_model, image_shape):
         param.requires_grad = False
 
     # Define the source image
-    in_src = nn.Input(shape=image_shape)
+    in_src = torch.zeros(image_shape)
 
     # Connect the source image to the generator input
     gen_out = g_model(in_src)
