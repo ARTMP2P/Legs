@@ -120,7 +120,7 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
     init = nn.init.normal_(layer_in)
 
     # Add downsampling layer
-    g = nn.Conv2d(init.shape[0],
+    g = nn.Conv2d(layer_in.shape[0],
                   n_filters,
                   kernel_size=4,
                   stride=2,
@@ -129,7 +129,7 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
     nn.init.normal_(g.weight,
                     mean=0.0,
                     std=0.02)
-    g = g(init)
+    g = g(layer_in)
 
     # Conditionally add batch normalization
     if batchnorm:
