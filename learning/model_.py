@@ -218,6 +218,9 @@ def define_generator(image_shape):
                             bias=False)
     nn.init.normal_(conv_reduce.weight, mean=0.0, std=0.02)
 
+    # Set running_mean to have 512 elements
+    conv_reduce.running_mean = [i * 0.02 for i in range(512)]
+
     # Apply 1x1 Convolutional Layer
     x = conv_reduce(in_image)
 
