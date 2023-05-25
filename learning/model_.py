@@ -205,6 +205,7 @@ def define_generator(image_shape):
 
     # Encoder model
     e1 = define_encoder_block(in_image, 64, batchnorm=True)
+    print(e1.shape[0])
     e2 = define_encoder_block(e1, 128)
     e3 = define_encoder_block(e2, 256)
     e4 = define_encoder_block(e3, 512)
