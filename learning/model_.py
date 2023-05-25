@@ -1,26 +1,12 @@
-from keras.initializers import RandomNormal
-from tensorflow.keras.optimizers import Adam
-
 from .vars import *
-
-from keras.initializers import RandomNormal
-from keras.models import Model
-
-from keras.layers import Input
-from keras.layers import Conv2D
-from keras.layers import Conv2DTranspose
-from keras.layers import LeakyReLU
-from keras.layers import Activation
-from keras.layers import Concatenate
-from keras.layers import Dropout
-from keras.layers import BatchNormalization
-from keras.layers import LeakyReLU
-from keras.models import load_model
 import cv2
 import os
 import numpy as np
 from numpy import ones
 from numpy import zeros
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
 
 # ======================================================================
@@ -58,122 +44,169 @@ def get_name_model(s):
     """
     # end = s.find('.pos')
     # start = s.find('/', s.find('yaw_'))
-    
+
     m_name = s.split('/')[0]
     return m_name  # s[start + 1:end] + '.pos'
 
 
-# define the discriminator model
+# Define the discriminator model
 def define_discriminator(image_shape):
     """
-    Функция define_discriminator определяет модель дискриминатора в архитектуре CycleGAN. На вход функции подаются
-    два тензора, представляющие исходное изображение и изображение целевого домена. Далее, изображения объединяются
-    по каналам, и проходят через несколько слоев свертки, с каждым слоем количество фильтров увеличивается,
-    а размер изображения уменьшается в два раза. Последний слой выдает карту признаков размером 1x1, которая проходит
-    через сигмоиду, чтобы получить вероятность того, что пара изображений является настоящей. В результате,
-    функция возвращает скомпилированную модель дискриминатора. :param image_shape: :return:
+    Function to define the discriminator model in the CycleGAN architecture.
+    Args:
+        image_shape: Shape of the input image tensor.
+
+    Returns:
+        Compiled discriminator model.
     """
-    # weight initialization
-    init = RandomNormal(stddev=0.02)
-    # source image input
-    in_src_image = Input(shape=image_shape)
-    # target image input
-    in_target_image = Input(shape=image_shape)
-    # concatenate images channel-wise
-    merged = Concatenate()([in_src_image, in_target_image])
+    # Weight initialization
+    init = nn.init.normal_
+
+    # Source image input
+    in_src_image = nn.Input(shape=image_shape)
+
+    # Target image input
+    in_target_image = nn.Input(shape=image_shape)
+
+    # Concatenate images channel-wise
+    merged = torch.cat([in_src_image, in_target_image], dim=1)
+
     # C64
-    d = Conv2D(64, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(merged)
-    d = LeakyReLU(alpha=0.2)(d)
+    d = nn.Conv2d(2, 64, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(d.weight, mean=0.0, std=0.02)
+    d = nn.LeakyReLU(0.2, inplace=True)(d)
+
     # C128
-    d = Conv2D(128, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(d)
-    d = BatchNormalization()(d)
-    d = LeakyReLU(alpha=0.2)(d)
+    d = nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(d.weight, mean=0.0, std=0.02)
+    d = nn.BatchNorm2d(128)(d)
+    d = nn.LeakyReLU(0.2, inplace=True)(d)
+
     # C256
-    d = Conv2D(256, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(d)
-    d = BatchNormalization()(d)
-    d = LeakyReLU(alpha=0.2)(d)
+    d = nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(d.weight, mean=0.0, std=0.02)
+    d = nn.BatchNorm2d(256)(d)
+    d = nn.LeakyReLU(0.2, inplace=True)(d)
+
     # C512
-    d = Conv2D(512, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(d)
-    d = BatchNormalization()(d)
-    d = LeakyReLU(alpha=0.2)(d)
-    # second last output layer
-    d = Conv2D(512, (4, 4), padding='same', kernel_initializer=init)(d)
-    d = BatchNormalization()(d)
-    d = LeakyReLU(alpha=0.2)(d)
-    # patch output
-    d = Conv2D(1, (4, 4), padding='same', kernel_initializer=init)(d)
-    patch_out = Activation('sigmoid')(d)
-    # define model
-    model = Model([in_src_image, in_target_image], patch_out)
-    # compile model
-    opt = Adam(learning_rate=lr, beta_1=0.5)
-    model.compile(loss='binary_crossentropy', optimizer=opt, loss_weights=[0.5])
+    d = nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(d.weight, mean=0.0, std=0.02)
+    d = nn.BatchNorm2d(512)(d)
+    d = nn.LeakyReLU(0.2, inplace=True)(d)
+
+    # Second last output layer
+    d = nn.Conv2d(512, 512, kernel_size=4, padding=1, bias=False)
+    nn.init.normal_(d.weight, mean=0.0, std=0.02)
+    d = nn.BatchNorm2d(512)(d)
+    d = nn.LeakyReLU(0.2, inplace=True)(d)
+
+    # Patch output
+    d = nn.Conv2d(512, 1, kernel_size=4, padding=1, bias=False)
+    nn.init.normal_(d.weight, mean=0.0, std=0.02)
+    patch_out = nn.Sigmoid()(d)
+
+    # Define model
+    model = nn.Sequential(
+        in_src_image,
+        in_target_image,
+        merged,
+        d,
+        patch_out
+    )
+
+    # Define optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.5, 0.999))
+
     return model
 
 
-# define an encoder block
+# Define an encoder block
 def define_encoder_block(layer_in, n_filters, batchnorm=True):
     """
-    Функция define_encoder_block определяет блок кодировщика для модели генератора в архитектуре Pix2Pix. Она
-    принимает на вход слой layer_in и число фильтров n_filters, которое определяет количество фильтров в сверточном
-    слое. Параметр batchnorm определяет, следует ли применять слой нормализации по батчу. Функция добавляет
-    сверточный слой с заданным числом фильтров и ядром размером (4, 4), используя метод инициализации весов
-    RandomNormal. Если параметр batchnorm установлен в True, функция также добавляет слой нормализации по батчу.
-    Затем функция применяет активацию LeakyReLU с коэффициентом отрицательной области равным 0.2. Функция возвращает
-    выходной слой. :param layer_in: :param n_filters: :param batchnorm: :return:
+    Function to define an encoder block for the generator model in the Pix2Pix architecture.
+    Args:
+        layer_in: Input layer tensor.
+        n_filters: Number of filters for the convolutional layer.
+        batchnorm: Boolean flag indicating whether to apply batch normalization.
+
+    Returns:
+        Output layer tensor.
     """
-    # weight initialization
-    init = RandomNormal(stddev=0.02)
-    # add downsampling layer
-    g = Conv2D(n_filters, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(layer_in)
-    # conditionally add batch normalization
+    # Weight initialization
+    init = nn.init.normal_
+
+    # Add downsampling layer
+    g = nn.Conv2d(layer_in.shape[1], n_filters, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(g.weight, mean=0.0, std=0.02)
+    g = g(layer_in)
+
+    # Conditionally add batch normalization
     if batchnorm:
-        g = BatchNormalization()(g, training=True)
-    # leaky relu activation
-    g = LeakyReLU(alpha=0.2)(g)
+        g = nn.BatchNorm2d(n_filters)(g)
+
+    # LeakyReLU activation
+    g = nn.LeakyReLU(0.2, inplace=True)(g)
+
     return g
 
 
-# define a decoder block
+# Define a decoder block
 def decoder_block(layer_in, skip_in, n_filters, dropout=True):
     """
-    Функция decoder_block() представляет собой один блок декодера модели генератора в архитектуре U-Net. Она
-    принимает на вход тензор layer_in - входной слой блока декодера и тензор skip_in - соответствующий слой
-    кодировщика. Затем функция добавляет слой Transposed Convolution для увеличения размерности входного тензора,
-    применяет слой Batch Normalization, Dropout (если dropout=True) и выполняет операцию конкатенации со слоем
-    кодировщика. Затем функция применяет функцию активации ReLU и возвращает выходной тензор блока декодера. :param
-    layer_in: :param skip_in: :param n_filters: :param dropout: :return:
+    Function to define a decoder block for the generator model in the U-Net architecture.
+    Args:
+        layer_in: Input layer tensor.
+        skip_in: Skip connection tensor from the corresponding encoder block.
+        n_filters: Number of filters for the transposed convolutional layer.
+        dropout: Boolean flag indicating whether to apply dropout.
+
+    Returns:
+        Output layer tensor.
     """
-    # weight initialization
-    init = RandomNormal(stddev=0.02)
-    # add upsampling layer
-    g = Conv2DTranspose(n_filters, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(layer_in)
-    # add batch normalization
-    g = BatchNormalization()(g, training=True)
-    # conditionally add dropout
+    # Weight initialization
+    init = nn.init.normal_
+
+    # Add upsampling layer
+    g = nn.ConvTranspose2d(layer_in.shape[1], n_filters, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(g.weight, mean=0.0, std=0.02)
+    g = g(layer_in)
+
+    # Add batch normalization
+    g = nn.BatchNorm2d(n_filters)(g)
+
+    # Conditionally add dropout
     if dropout:
-        g = Dropout(0.5)(g, training=True)
-    # merge with skip connection
-    g = Concatenate()([g, skip_in])
-    # relu activation
-    g = Activation('relu')(g)
+        g = nn.Dropout(0.5)(g)
+
+    # Merge with skip connection
+    g = torch.cat([g, skip_in], dim=1)
+
+    # ReLU activation
+    g = nn.ReLU(inplace=True)(g)
+
     return g
 
 
-# define the standalone generator model
+# Define the standalone generator model
 def define_generator(image_shape):
     """
-    Функция define_generator определяет архитектуру и возвращает модель генератора для преобразования изображений.
-    Генератор использует сверточные слои для преобразования входного изображения в скрытое представление,
-    а затем использует слои декодирования, чтобы преобразовать скрытое представление в выходное изображение той же
-    формы и размера, что и входное изображение. Функция возвращает Keras модель генератора. :param image_shape:
-    :return:
+    Function to define the architecture and return the generator model for image transformation.
+    The generator uses convolutional layers to transform the input image into a hidden representation,
+    and then uses decoder layers to transform the hidden representation into an output image of the same
+    shape and size as the input image.
+    Args:
+        image_shape: Shape of the input image tensor.
+
+    Returns:
+        Generator model.
     """
-    # weight initialization
-    init = RandomNormal(stddev=0.02)
-    # image input
-    in_image = Input(shape=image_shape)
-    # encoder model
+    # Weight initialization
+    init = nn.init.normal_
+
+    # Image input
+    in_image = nn.Input(shape=image_shape)
+
+    # Encoder model
     e1 = define_encoder_block(in_image, 64, batchnorm=False)
     e2 = define_encoder_block(e1, 128)
     e3 = define_encoder_block(e2, 256)
@@ -181,10 +214,13 @@ def define_generator(image_shape):
     e5 = define_encoder_block(e4, 512)
     e6 = define_encoder_block(e5, 512)
     e7 = define_encoder_block(e6, 512)
-    # bottleneck, no batch norm and relu
-    b = Conv2D(512, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(e7)
-    b = Activation('relu')(b)
-    # decoder model
+
+    # Bottleneck, no batch norm and ReLU
+    b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(b.weight, mean=0.0, std=0.02)
+    b = nn.ReLU(inplace=True)(b)
+
+    # Decoder model
     d1 = decoder_block(b, e7, 512)
     d2 = decoder_block(d1, e6, 512)
     d3 = decoder_block(d2, e5, 512)
@@ -192,38 +228,60 @@ def define_generator(image_shape):
     d5 = decoder_block(d4, e3, 256, dropout=False)
     d6 = decoder_block(d5, e2, 128, dropout=False)
     d7 = decoder_block(d6, e1, 64, dropout=False)
-    # output
-    g = Conv2DTranspose(CHANEL, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(d7)
-    out_image = Activation('tanh')(g)
-    # define model
-    model = Model(in_image, out_image)
+
+    # Output
+    g = nn.ConvTranspose2d(d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(g.weight, mean=0.0, std=0.02)
+    out_image = nn.Tanh()(g)
+
+    # Define model
+    model = nn.Sequential(
+        in_image,
+        e1, e2, e3, e4, e5, e6, e7,
+        b,
+        d1, d2, d3, d4, d5, d6, d7,
+        out_image
+    )
+
     return model
 
 
-# define the combined generator and discriminator model, for updating the generator
+# Define the combined generator and discriminator model for updating the generator
 def define_gan(g_model, d_model, image_shape):
     """
-    Функция define_gan определяет и возвращает модель GAN (Generative Adversarial Network), которая состоит из
-    генератора (g_model) и дискриминатора (d_model). Она объединяет генератор и дискриминатор в единую модель и
-    компилирует ее. Оптимизатор Adam используется для обучения модели, веса потерь указаны как [1, 100]. Входным
-    слоем модели является исходное изображение (in_src), а выходными слоями являются результат дискриминации и
-    сгенерированное изображение (dis_out и gen_out). :param g_model: :param d_model: :param image_shape: :return:
+    Function to define and return the GAN (Generative Adversarial Network) model, which consists of
+    the generator (g_model) and discriminator (d_model). It combines the generator and discriminator into
+    a single model and compiles it. Adam optimizer is used for training the model with loss weights [1, 100].
+    The input layer of the model is the source image (in_src), and the output layers are the discrimination result
+    and the generated image (dis_out and gen_out).
+    Args:
+        g_model: Generator model.
+        d_model: Discriminator model.
+        image_shape: Shape of the input image tensor.
+
+    Returns:
+        GAN model.
     """
-    # make weights in the discriminator not trainable
-    for layer in d_model.layers:
-        if not isinstance(layer, BatchNormalization):
-            layer.trainable = False
-    # define the source image
-    in_src = Input(shape=image_shape)
-    # connect the source image to the generator input
+    # Make weights in the discriminator not trainable
+    for param in d_model.parameters():
+        param.requires_grad = False
+
+    # Define the source image
+    in_src = nn.Input(shape=image_shape)
+
+    # Connect the source image to the generator input
     gen_out = g_model(in_src)
-    # connect the source input and generator output to the discriminator input
-    dis_out = d_model([in_src, gen_out])
-    # src image as input, generated image and classification output
-    model = Model(in_src, [dis_out, gen_out])
-    # compile model
-    opt = Adam(learning_rate=lr, beta_1=0.5)
-    model.compile(loss=['binary_crossentropy', 'mae'], optimizer=opt, loss_weights=[1, 100])
+
+    # Connect the source input and generator output to the discriminator input
+    dis_out = d_model(torch.cat([in_src, gen_out], dim=1))
+
+    # Source image as input, generated image and classification output
+    model = nn.Model(in_src, [dis_out, gen_out])
+
+    # Define optimizer and loss function
+    opt = optim.Adam(model.parameters(), lr=lr, betas=(0.5, 0.999))
+    loss_fn = [nn.BCELoss(), nn.L1Loss()]
+
     return model
 
 
@@ -248,10 +306,11 @@ def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape):
     return [X1, X2], y
 
 
-# generate a batch of images, returns images and targets
+# Generate a batch of images, returns images and targets
 def generate_fake_samples(g_model, samples, patch_shape):
-    X = g_model.predict(samples)
-    y = zeros((len(X), patch_shape, patch_shape, 1))
+    with torch.no_grad():
+        X = g_model(samples)
+        y = torch.zeros((len(X), 1, patch_shape, patch_shape))
 
     return X, y
 
