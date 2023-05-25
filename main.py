@@ -20,10 +20,10 @@ args = parser.parse_args()
 n_epochs = args.epochs
 
 if args.file_path:
-    g_model = load_model(args.file_path)
+    g_model = torch.load(args.file_path)
     print(f'Learning running from {args.file_path}')
 else:
-    g_model = define_generator(image_shape)
+    g_model = define_generator(image_shape, batch)
     print('Learning running with start')
 gan_model = define_gan(g_model, d_model, image_shape)
 train(d_model, g_model, gan_model, dir, n_epochs)
@@ -34,6 +34,7 @@ train(d_model, g_model, gan_model, dir, n_epochs)
 # ======================================================================
 
 if __name__ == '__main__':
-    gpu_devices = tf.config.experimental.list_physical_devices('GPU')
-    for device in gpu_devices:
-        tf.config.experimental.set_memory_growth(device, True)
+    pass
+    # gpu_devices = tf.config.experimental.list_physical_devices('GPU')
+    # for device in gpu_devices:
+    #     tf.config.experimental.set_memory_growth(device, True)

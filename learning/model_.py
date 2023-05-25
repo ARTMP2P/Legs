@@ -186,7 +186,7 @@ def decoder_block(layer_in, skip_in, n_filters, dropout=True):
 
 
 # Define the standalone generator model
-def define_generator(image_shape):
+def define_generator(image_shape, batch):
     """
     Function to define the architecture and return the generator model for image transformation.
     The generator uses convolutional layers to transform the input image into a hidden representation,
@@ -202,7 +202,7 @@ def define_generator(image_shape):
     init = nn.init.normal_
     print(f"image shape: {image_shape}")
     # Image input
-    in_image = torch.zeros(image_shape)
+    in_image = torch.zeros(image_shape.append(batch))
 
     # Encoder model
     e1 = define_encoder_block(in_image, 64, batchnorm=False)
