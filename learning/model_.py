@@ -157,7 +157,12 @@ def decoder_block(x, e, out_channels, dropout=True):
     b = nn.BatchNorm2d(num_features=e.shape[3])(x)
 
     # Convolutional layer
-    c = nn.Conv2d(in_channels=e.shape[3], out_channels=out_channels, kernel_size=4, stride=2, padding=1, bias=False)
+    c = nn.Conv2d(in_channels=e.shape[3],
+                  out_channels=out_channels,
+                  kernel_size=3,
+                  stride=2,
+                  padding=1,
+                  bias=False)
     nn.init.normal_(c.weight, mean=0.0, std=0.02)
     c = c(b)
 
