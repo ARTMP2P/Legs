@@ -138,46 +138,45 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
 
 
 # Define a decoder block
-def decoder_block(layer_in, skip_in, n_filters, dropout=True):
+def decoder_block(in_tensor, enc_tensor, channels, dropout=True):
     """
-    Function to define a decoder block for the generator model in the U-Net architecture.
+    Function to define a single decoder block. The decoder block is composed of two convolutional
+    layers and optionally a dropout layer.
     Args:
-        layer_in: Input layer tensor.
-        skip_in: Skip connection tensor from the corresponding encoder block.
-        n_filters: Number of filters for the transposed convolutional layer.
-        dropout: Boolean flag indicating whether to apply dropout.
+        in_tensor: Input tensor to the decoder block.
+        enc_tensor: Output tensor of the encoder block that serves as input to the decoder block.
+        channels: Number of channels of the decoder block output.
+        dropout: Boolean indicating whether to use dropout after the first convolutional layer.
 
     Returns:
-        Output layer tensor.
+        Output tensor of the decoder block.
     """
-    # Weight initialization
-    init = nn.init.normal_(layer_in, mean=0.0, std=0.02)
-    # Add upsampling layer
-    g = nn.ConvTranspose2d(layer_in.shape[1],
-                           n_filters,
-                           kernel_size=4,
-                           stride=2,
-                           padding=1,
-                           bias=False)
-    nn.init.normal_(g.weight,
-                    mean=0.0,
-                    std=0.02)
-    g = g(layer_in)
+    # Upsample
+    up_sample = nn.Upsample(scale_factor=2, mode='nearest')
+    up_tensor = up_sample(in_tensor)
 
-    # Add batch normalization
-    g = nn.BatchNorm2d(n_filters)(g)
+    # Concatenation
+    concat_tensor = torch.cat([enc_tensor, up_tensor], dim=1)
 
-    # Conditionally add dropout
+    # Convolutional layers
+    conv1 = nn.Conv2d(concat_tensor.shape[1], channels, kernel_size=3, stride=1, padding=1)
+    conv2 = nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1)
+
+    # Batch norm
+    bn1 = nn.BatchNorm2d(channels)
+    bn2 = nn.BatchNorm2d(channels)
+
+    # ReLU for all conv layers
+    relu = nn.ReLU()
+
+    # Dropout
     if dropout:
-        g = nn.Dropout(0.5)(g)
+        drop = nn.Dropout2d(0.25)
+        out_tensor = drop(relu(bn2(conv2(relu(bn1(conv1(concat_tensor)))))))
+    else:
+        out_tensor = relu(bn2(conv2(relu(bn1(conv1(concat_tensor))))))
 
-    # Merge with skip connection
-    g = torch.cat([g, skip_in], dim=1)
-
-    # ReLU activation
-    g = nn.ReLU(inplace=True)(g)
-
-    return g
+    return out_tensor
 
 
 # Define the standalone generator model
