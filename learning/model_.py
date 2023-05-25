@@ -204,12 +204,20 @@ def define_generator(image_shape):
     e6 = define_encoder_block(e5, 512)
     e7 = define_encoder_block(e6, 512)
 
+    # 1x1 Convolutional Layer to reduce number of channels in input
+    conv_reduce = nn.Conv2d(in_channels=in_image.shape[3], out_channels=512, kernel_size=1, stride=1, padding=0,
+                            bias=False)
+    nn.init.normal_(conv_reduce.weight, mean=0.0, std=0.02)
+
+    # Apply 1x1 Convolutional Layer
+    x = conv_reduce(in_image)
+
     # Bottleneck, no batch norm and ReLU
     b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
     nn.init.normal_(b.weight, mean=0.0, std=0.02)
 
     # Add dimension
-    b = b(in_image)
+    b = b(x)
 
     # Apply ReLU
     b = nn.ReLU(inplace=True)(b)
