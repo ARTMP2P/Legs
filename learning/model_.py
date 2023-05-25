@@ -211,6 +211,11 @@ def define_generator(image_shape):
     # Bottleneck, no batch norm and ReLU
     b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
     nn.init.normal_(b.weight, mean=0.0, std=0.02)
+
+    # Add dimension
+    b = b(in_image)
+
+    # Apply ReLU
     b = nn.ReLU(inplace=True)(b)
 
     # Decoder model
