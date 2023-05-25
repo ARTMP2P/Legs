@@ -206,7 +206,7 @@ def define_generator(image_shape):
     e4 = define_encoder_block(e3, 512)
     e5 = define_encoder_block(e4, 512)
     e6 = define_encoder_block(e5, 512)
-    e7 = define_encoder_block(e6, 512)
+    e7 = define_encoder_block(e6, 1024)
 
     # Bottleneck, no batch norm and ReLU
     b = nn.Conv2d(1024, 1024, kernel_size=4, stride=2, padding=1, bias=False)
