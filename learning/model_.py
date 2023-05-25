@@ -151,10 +151,11 @@ def decoder_block(in_tensor, enc_tensor, channels, dropout=True):
     Returns:
         Output tensor of the decoder block.
     """
+
     # Upsample
     up_sample = nn.Upsample(scale_factor=2, mode='nearest')
     up_tensor = up_sample(in_tensor)
-
+    print(f"In tensor shape is: {up_tensor.shape()}\nOut tensor shape: {enc_tensor.shape()}")
     # Concatenation
     concat_tensor = torch.cat([enc_tensor, up_tensor], dim=1)
 
