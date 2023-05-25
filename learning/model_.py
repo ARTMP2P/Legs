@@ -139,47 +139,26 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
 
 # Define a decoder block
 def decoder_block(x, e, out_channels, dropout=True):
-    """
-    Decoder block for the generator model. It is used to up-sample the
-    hidden representation to match the size of the input image.
+    # Upsample
+    x = nn.Upsample(scale_factor=2)(x)
 
-    Args:
-        x: input tensor of shape (batch_size, width, height, in_channels)
-        e: encoder output tensor of shape (batch_size, width, height, in_channels)
-        out_channels: number of output channels
-        dropout: whether or not to apply dropout
+    # Concatenate with corresponding encoder layer
+    x = torch.cat([x, e], 1)
 
-    Returns:
-        Decoder output tensor of shape (batch_size, 1024, 1024, 8)
-    """
-
-    # Batchnorm
-    b = nn.BatchNorm2d(num_features=e.shape[3])(x)
-
-    # Convolutional layer
-    c = nn.Conv2d(in_channels=e.shape[3],
+    # Convolution layer with batchnorm
+    x = nn.Conv2d(in_channels=(e.shape[1] + x.shape[1]),
                   out_channels=out_channels,
                   kernel_size=3,
-                  stride=2,
                   padding=1,
-                  bias=False)
-    nn.init.normal_(c.weight, mean=0.0, std=0.02)
-    c = c(b)
-
-    # Up-sample
-    u = nn.Upsample(scale_factor=2)(c)
-
-    # Concatenate
-    v = torch.cat((u, e), dim=1)
+                  bias=False)(x)
+    x = nn.BatchNorm2d(out_channels)(x)
+    x = nn.ReLU(inplace=True)(x)
 
     # Dropout
     if dropout:
-        v = nn.Dropout2d()(v)
+        x = nn.Dropout(0.5)(x)
 
-    # ReLU
-    r = nn.ReLU(inplace=True)(v)
-
-    return r
+    return x
 
 
 # Define the standalone generator model
