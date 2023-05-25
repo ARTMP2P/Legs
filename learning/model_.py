@@ -209,7 +209,7 @@ def define_generator(image_shape):
     nn.init.normal_(b.weight, mean=0.0, std=0.02)
 
     # Add dimension
-    b = b(in_image)
+    b = b([512, 512, 8, 4])
 
     # Apply ReLU
     b = nn.ReLU(inplace=True)(b)
