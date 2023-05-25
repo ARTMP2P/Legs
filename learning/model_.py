@@ -120,8 +120,15 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
     init = nn.init.normal_
 
     # Add downsampling layer
-    g = nn.Conv2d(layer_in.shape[0], n_filters, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(g.weight, mean=0.0, std=0.02)
+    g = nn.Conv2d(layer_in.shape[0],
+                  n_filters,
+                  kernel_size=4,
+                  stride=2,
+                  padding=1,
+                  bias=False)
+    nn.init.normal_(g.weight,
+                    mean=0.0,
+                    std=0.02)
     g = g(layer_in)
 
     # Conditionally add batch normalization
@@ -149,10 +156,17 @@ def decoder_block(layer_in, skip_in, n_filters, dropout=True):
     """
     # Weight initialization
     init = nn.init.normal_
-
+    print(layer_in.shape[0])
     # Add upsampling layer
-    g = nn.ConvTranspose2d(layer_in.shape[1], n_filters, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(g.weight, mean=0.0, std=0.02)
+    g = nn.ConvTranspose2d(layer_in.shape[0],
+                           n_filters,
+                           kernel_size=4,
+                           stride=2,
+                           padding=1,
+                           bias=False)
+    nn.init.normal_(g.weight,
+                    mean=0.0,
+                    std=0.02)
     g = g(layer_in)
 
     # Add batch normalization
