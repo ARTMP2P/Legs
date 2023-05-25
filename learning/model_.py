@@ -158,7 +158,7 @@ def decoder_block(layer_in, skip_in, n_filters, dropout=True):
     init = nn.init.normal_
     print(layer_in.shape[0])
     # Add upsampling layer
-    g = nn.ConvTranspose2d(layer_in.shape[0],
+    g = nn.ConvTranspose2d(layer_in.shape[1],
                            n_filters,
                            kernel_size=4,
                            stride=2,
