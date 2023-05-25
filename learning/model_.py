@@ -122,7 +122,7 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
     # Add downsampling layer
     g = nn.Conv2d(layer_in.shape[1],
                   n_filters,
-                  kernel_size=4,
+                  kernel_size=3,
                   stride=2,
                   padding=1,
                   bias=False)(layer_in)
