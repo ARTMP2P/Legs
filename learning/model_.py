@@ -7,6 +7,7 @@ from numpy import zeros
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 
 
 # ======================================================================
@@ -49,11 +50,6 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-
 def define_discriminator(image_shape):
     """
     Function to define the discriminator model in the CycleGAN architecture.
@@ -69,10 +65,10 @@ def define_discriminator(image_shape):
             nn.init.normal_(m.weight.data, 0.0, 0.02)
 
     # Source image input
-    in_src_image = nn.Identity()
+    in_src_image = torch.zeros(image_shape)
 
     # Target image input
-    in_target_image = nn.Identity()
+    in_target_image = torch.zeros(image_shape)
 
     # Concatenate images channel-wise
     merged = torch.cat((in_src_image, in_target_image), dim=1)
