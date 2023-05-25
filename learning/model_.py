@@ -200,7 +200,7 @@ def define_generator(image_shape, batch):
     """
     # Weight initialization
     init = nn.init.normal_
-    print(f"image shape: {image_shape.append(batch)}")
+    print(f"image shape: {type(image_shape)}")
     # Image input
     in_image = torch.zeros(image_shape.append(batch))
 
