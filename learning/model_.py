@@ -200,10 +200,11 @@ def define_generator(image_shape, batch):
     """
     # Weight initialization
     init = nn.init.normal_
+    image_shape = image_shape.append(batch)
     print(f"image shape: {image_shape}")
     print(f"image shape with batch: {image_shape.append(batch)} if batch is: {batch}")
     # Image input
-    in_image = torch.zeros(image_shape.append(batch))
+    in_image = torch.zeros(image_shape)
 
     # Encoder model
     e1 = define_encoder_block(in_image, 64, batchnorm=False)
