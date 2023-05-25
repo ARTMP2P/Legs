@@ -155,10 +155,10 @@ def decoder_block(layer_in, skip_in, n_filters, dropout=True):
         Output layer tensor.
     """
     # Weight initialization
-    init = nn.init.normal_
+    init = nn.init.normal_(layer_in)
     print(layer_in.shape[0])
     # Add upsampling layer
-    g = nn.ConvTranspose2d(layer_in.shape[1],
+    g = nn.ConvTranspose2d(init.shape[1],
                            n_filters,
                            kernel_size=4,
                            stride=2,
