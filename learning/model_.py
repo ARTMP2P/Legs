@@ -3,7 +3,6 @@ import cv2
 import os
 import numpy as np
 from numpy import ones
-from numpy import zeros
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -121,7 +120,7 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
     init = nn.init.normal_
 
     # Add downsampling layer
-    g = nn.Conv2d(layer_in.shape[1], n_filters, kernel_size=4, stride=2, padding=1, bias=False)
+    g = nn.Conv2d(layer_in.shape[0], n_filters, kernel_size=4, stride=2, padding=1, bias=False)
     nn.init.normal_(g.weight, mean=0.0, std=0.02)
     g = g(layer_in)
 
@@ -193,7 +192,7 @@ def define_generator(image_shape):
 
     # Encoder model
     e1 = define_encoder_block(in_image, 64, batchnorm=False)
-    e2 = define_encoder_block(e1, 128, 64)
+    e2 = define_encoder_block(e1, 128)
     e3 = define_encoder_block(e2, 256)
     e4 = define_encoder_block(e3, 512)
     e5 = define_encoder_block(e4, 512)
