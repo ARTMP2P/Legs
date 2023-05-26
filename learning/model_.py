@@ -61,7 +61,7 @@ def define_discriminator(in_image):
     """
 
     # Convolutional Layer
-    x = nn.Conv2d(in_image.shape[1], 64,
+    x = nn.Conv2d(in_image.shape[0], 64,
                   kernel_size=4, stride=2,
                   padding=1, bias=False)(in_image)
     nn.init.normal_(x.weight, mean=0.0, std=0.02)
