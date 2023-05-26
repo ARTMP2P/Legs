@@ -49,114 +49,126 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-def define_discriminator(image_shape):
+def define_discriminator(in_image):
     """
-    Function to define the discriminator model in the CycleGAN architecture.
-    Args:
-        image_shape: Shape of the input images.
+    Function to define a discriminator for the Pix-to-Pix torch model.
+
+    Parameters:
+        in_image (torch.Tensor): Input image
+
     Returns:
-        The compiled discriminator model.
+        discriminator (nn.Module): Discriminator network
     """
 
-    # Weight initialization
-    def init_weights(m):
-        if isinstance(m, nn.Conv2d):
-            nn.init.normal_(m.weight.data, 0.0, 0.02)
+    # Convolutional Layer
+    x = nn.Conv2d(in_image.shape[1], 64,
+                  kernel_size=4, stride=2,
+                  padding=1, bias=False)(in_image)
+    nn.init.normal_(x.weight, mean=0.0, std=0.02)
+    x = nn.LeakyReLU(0.2, inplace=True)(x)
 
-    # Source image input
-    in_src_image = torch.zeros(image_shape)
+    # Convolutional Layer + BatchNorm
+    x = nn.Conv2d(64, 128,
+                  kernel_size=4, stride=2,
+                  padding=1, bias=False)(x)
+    nn.init.normal_(x.weight, mean=0.0, std=0.02)
+    x = nn.BatchNorm2d(num_features=128)(x)
+    x = nn.LeakyReLU(0.2, inplace=True)(x)
 
-    # Target image input
-    in_target_image = torch.zeros(image_shape)
+    # Convolutional Layer + BatchNorm
+    x = nn.Conv2d(128, 256,
+                  kernel_size=4, stride=2,
+                  padding=1, bias=False)(x)
+    nn.init.normal_(x.weight, mean=0.0, std=0.02)
+    x = nn.BatchNorm2d(num_features=256)(x)
+    x = nn.LeakyReLU(0.2, inplace=True)(x)
 
-    # Concatenate images channel-wise
-    merged = torch.cat((in_src_image, in_target_image), dim=1)
+    # Convolutional Layer + BatchNorm
+    x = nn.Conv2d(256, 512,
+                  kernel_size=4, stride=1,
+                  padding=1, bias=False)(x)
+    nn.init.normal_(x.weight, mean=0.0, std=0.02)
+    x = nn.BatchNorm2d(num_features=512)(x)
+    x = nn.LeakyReLU(0.2, inplace=True)(x)
 
-    # Define the discriminator model
-    model = nn.Sequential(
-        # C64
-        nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1),
-        nn.LeakyReLU(0.2),
-        # C128
-        nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),
-        nn.BatchNorm2d(128),
-        nn.LeakyReLU(0.2),
-        # C256
-        nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),
-        nn.BatchNorm2d(256),
-        nn.LeakyReLU(0.2),
-        # C512
-        nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1),
-        nn.BatchNorm2d(512),
-        nn.LeakyReLU(0.2),
-        # Second last output layer
-        nn.Conv2d(512, 512, kernel_size=4, padding=1),
-        nn.BatchNorm2d(512),
-        nn.LeakyReLU(0.2),
-        # Patch output
-        nn.Conv2d(512, 1, kernel_size=4, padding=1),
-        nn.Sigmoid()
-    )
-
-    # Apply weight initialization
-    model.apply(init_weights)
-
-    return model
+    # Output
+    x = nn.Conv2d(512, 1,
+                  kernel_size=4, stride=1,
+                  padding=1, bias=False)(x)
+    return nn.Sigmoid()(x)
 
 
 # Define an encoder block
-def define_encoder_block(layer_in, n_filters, batchnorm=True):
+def define_encoder_block(input_tensor, channels, batchnorm=True):
     """
-    Function to define an encoder block for the generator model in the Pix2Pix architecture.
-    Args:
-        layer_in: Input layer tensor.
-        n_filters: Number of filters for the convolutional layer.
-        batchnorm: Boolean flag indicating whether to apply batch normalization.
+    Function to define an encoder block for the Pix-to-Pix torch model.
+
+    Parameters:
+        input_tensor (torch.Tensor): Input tensor
+        channels (int): Number of channels in output tensor
+        batchnorm (bool): Whether to use batchnorm layers
 
     Returns:
-        Output layer tensor.
+        encoded_tensor (torch.Tensor): Encoded tensor
     """
-    # Weight initialization
-    init = nn.init.normal_(layer_in, mean=0.0, std=0.02)
 
-    # Add downsampling layer
-    g = nn.Conv2d(layer_in.shape[1],
-                  n_filters,
-                  kernel_size=3,
-                  stride=2,
-                  padding=1,
-                  bias=False)(layer_in)
+    # 3x3 Convolutional Layer
+    x = nn.Conv2d(input_tensor.shape[1], channels,
+                  kernel_size=3, stride=2,
+                  padding=1, bias=False)(input_tensor)
+    nn.init.normal_(x.weight, mean=0.0, std=0.02)
 
-    # Conditionally add batch normalization
+    # BatchNorm + ReLU
     if batchnorm:
-        g = nn.BatchNorm2d(n_filters)(g)
+        x = nn.BatchNorm2d(num_features=channels)(x)
+        x = nn.ReLU(inplace=True)(x)
 
-    # LeakyReLU activation
-    g = nn.LeakyReLU(0.2, inplace=True)(g)
-
-    return g
+    return x
 
 
 # Define a decoder block
-def decoder_block(x, e, out_channels, dropout=True):
+def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
+    """
+    Function to define a decoder block for the Pix-to-Pix torch model.
+
+    Parameters:
+        input_tensor (torch.Tensor): Input tensor
+        concat_tensor (torch.Tensor): Tensor to concatenate with
+        channels (int): Number of channels in output tensor
+        dropout (bool): Whether to use dropout layers
+
+    Returns:
+        decoded_tensor (torch.Tensor): Decoded tensor
+    """
+
     # Upsample
-    x = nn.Upsample(scale_factor=2)(x)
+    x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
 
-    # Concatenate with corresponding encoder layer
-    x = torch.cat([x, e.unsqueeze(1).unsqueeze(2)], 1)
+    # Concatenate
+    x = torch.cat([x, concat_tensor], dim=1)
 
-    # Convolution layer with batchnorm
-    x = nn.Conv2d(in_channels=(e.shape[1] + x.shape[1]),
-                  out_channels=out_channels,
-                  kernel_size=3,
-                  padding=1,
-                  bias=False)(x)
-    x = nn.BatchNorm2d(out_channels)(x)
-    x = nn.ReLU(inplace=True)(x)
+    # 1x1 Convolutional Layer
+    x = nn.Conv2d(x.shape[1], channels,
+                  kernel_size=1, stride=1,
+                  padding=0, bias=False)(x)
+    nn.init.normal_(x.weight, mean=0.0, std=0.02)
 
-    # Dropout
+    # BatchNorm + ReLU
     if dropout:
-        x = nn.Dropout(0.5)(x)
+        x = nn.BatchNorm2d(num_features=channels)(x)
+        x = nn.ReLU(inplace=True)(x)
+        x = nn.Dropout(p=0.5)(x)
+
+    # 3x3 Convolutional Layer
+    x = nn.Conv2d(channels, channels,
+                  kernel_size=3, stride=1,
+                  padding=1, bias=False)(x)
+    nn.init.normal_(x.weight, mean=0.0, std=0.02)
+
+    # BatchNorm + ReLU
+    x = nn.BatchNorm2d(num_features=channels)(x)
+    x = nn.ReLU(inplace=True)(x)
+    x = nn.Dropout(p=0.5)(x)
 
     return x
 
