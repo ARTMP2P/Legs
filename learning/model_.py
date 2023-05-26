@@ -49,53 +49,53 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-def define_discriminator(in_image):
-    """
-    Function to define a discriminator for the Pix-to-Pix torch model.
-
-    Parameters:
-        in_image (torch.Tensor): Input image
-
-    Returns:
-        discriminator (nn.Module): Discriminator network
-    """
-
-    # Convolutional Layer
-    x = nn.Conv2d(in_image.shape[0], 64,
-                  kernel_size=4, stride=2,
-                  padding=1, bias=False)(in_image)
-    nn.init.normal_(x.weight, mean=0.0, std=0.02)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
-
-    # Convolutional Layer + BatchNorm
-    x = nn.Conv2d(64, 128,
-                  kernel_size=4, stride=2,
-                  padding=1, bias=False)(x)
-    nn.init.normal_(x.weight, mean=0.0, std=0.02)
-    x = nn.BatchNorm2d(num_features=128)(x)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
-
-    # Convolutional Layer + BatchNorm
-    x = nn.Conv2d(128, 256,
-                  kernel_size=4, stride=2,
-                  padding=1, bias=False)(x)
-    nn.init.normal_(x.weight, mean=0.0, std=0.02)
-    x = nn.BatchNorm2d(num_features=256)(x)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
-
-    # Convolutional Layer + BatchNorm
-    x = nn.Conv2d(256, 512,
-                  kernel_size=4, stride=1,
-                  padding=1, bias=False)(x)
-    nn.init.normal_(x.weight, mean=0.0, std=0.02)
-    x = nn.BatchNorm2d(num_features=512)(x)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
-
-    # Output
-    x = nn.Conv2d(512, 1,
-                  kernel_size=4, stride=1,
-                  padding=1, bias=False)(x)
-    return nn.Sigmoid()(x)
+# def define_discriminator(in_image):
+#     """
+#     Function to define a discriminator for the Pix-to-Pix torch model.
+#
+#     Parameters:
+#         in_image (torch.Tensor): Input image
+#
+#     Returns:
+#         discriminator (nn.Module): Discriminator network
+#     """
+#
+#     # Convolutional Layer
+#     x = nn.Conv2d(in_image.shape[0], 64,
+#                   kernel_size=4, stride=2,
+#                   padding=1, bias=False)(in_image)
+#     nn.init.normal_(x.weight, mean=0.0, std=0.02)
+#     x = nn.LeakyReLU(0.2, inplace=True)(x)
+#
+#     # Convolutional Layer + BatchNorm
+#     x = nn.Conv2d(64, 128,
+#                   kernel_size=4, stride=2,
+#                   padding=1, bias=False)(x)
+#     nn.init.normal_(x.weight, mean=0.0, std=0.02)
+#     x = nn.BatchNorm2d(num_features=128)(x)
+#     x = nn.LeakyReLU(0.2, inplace=True)(x)
+#
+#     # Convolutional Layer + BatchNorm
+#     x = nn.Conv2d(128, 256,
+#                   kernel_size=4, stride=2,
+#                   padding=1, bias=False)(x)
+#     nn.init.normal_(x.weight, mean=0.0, std=0.02)
+#     x = nn.BatchNorm2d(num_features=256)(x)
+#     x = nn.LeakyReLU(0.2, inplace=True)(x)
+#
+#     # Convolutional Layer + BatchNorm
+#     x = nn.Conv2d(256, 512,
+#                   kernel_size=4, stride=1,
+#                   padding=1, bias=False)(x)
+#     nn.init.normal_(x.weight, mean=0.0, std=0.02)
+#     x = nn.BatchNorm2d(num_features=512)(x)
+#     x = nn.LeakyReLU(0.2, inplace=True)(x)
+#
+#     # Output
+#     x = nn.Conv2d(512, 1,
+#                   kernel_size=4, stride=1,
+#                   padding=1, bias=False)(x)
+#     return nn.Sigmoid()(x)
 
 
 # Define an encoder block
