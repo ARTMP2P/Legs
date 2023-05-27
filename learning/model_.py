@@ -375,6 +375,7 @@ if __name__ == '__main__':
         b = nn.ReLU(inplace=True)(b)
         print(f"b shape {b.shape}")
 
-        decode = decoder_block(b, e4, 512)
-        print(type(decode))
-        print(f"Shape of OUTPUT: {decode.shape}\nDtype of OUTPUT: {decode.dtype}")
+        d1 = decoder_block(b, e4, 512)
+        d2 = decoder_block(d1, e3, 512)
+        print(type(d2))
+        print(f"Shape of OUTPUT: {d2.shape}\nDtype of OUTPUT: {d2.dtype}")
