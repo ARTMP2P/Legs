@@ -336,6 +336,7 @@ def generate_fake_samples(g_model, samples, patch_shape):
 if __name__ == '__main__':
     shape_input = [batch, CHANEL, SIZE, SIZE]
     in_image = torch.zeros(shape_input)
+    print(in_image.shape)
     e1 = define_encoder_block(in_image, 64, batchnorm=True)
     e2 = define_encoder_block(e1, 128)
     e3 = define_encoder_block(e2, 256)
@@ -343,6 +344,7 @@ if __name__ == '__main__':
     e5 = define_encoder_block(e4, 512)
     e6 = define_encoder_block(e5, 512)
     e7 = define_encoder_block(e6, 512)
+    print(e7.shape)
 
     # 1x1 Convolutional Layer to reduce number of channels in input
     conv_reduce = nn.Conv2d(in_channels=in_image.shape[1],
@@ -368,6 +370,7 @@ if __name__ == '__main__':
 
     # Apply ReLU
     b = nn.ReLU(inplace=True)(b)
+    print(b.shape)
 
     decode = decoder_block(b, e7, 512)
     print(type(decode))
