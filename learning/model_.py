@@ -248,9 +248,8 @@ def define_generator(image_shape):
     out_image = g(d7)
     nn.init.normal_(g.weight, mean=0.0, std=0.02)
     out_image = nn.Tanh()(out_image)
-    out_image = nn.Sequential(
-        out_image
-    )
+    out_image = torch.nn.Module(out_image)
+
     # Define model
     model = nn.Sequential(
         in_image,
