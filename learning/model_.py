@@ -369,6 +369,6 @@ if __name__ == '__main__':
     # Apply ReLU
     b = nn.ReLU(inplace=True)(b)
 
-    decode = define_generator(b, e7, 512)
+    decode = decoder_block(b, e7, 512)
     print(type(decode))
     print(f"Shape of OUTPUT: {decode.shape}\nDtype of OUTPUT: {decode.dtype}")
