@@ -150,7 +150,7 @@ def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
     """
 
     # Upsample
-    x = nn.Upsample(scale_factor=64, mode='bilinear', align_corners=True)(input_tensor)
+    x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
     print(f"First: {x.shape}\nSecond: {concat_tensor.shape}")
 
     # Concatenate
