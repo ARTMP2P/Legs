@@ -346,10 +346,7 @@ if __name__ == '__main__':
         e2 = define_encoder_block(e1, 128)
         e3 = define_encoder_block(e2, 256)
         e4 = define_encoder_block(e3, 512)
-        e5 = define_encoder_block(e4, 512)
-        e6 = define_encoder_block(e5, 512)
-        e7 = define_encoder_block(e6, 512)
-        print(e7.shape)
+        print(e4.shape)
 
         # 1x1 Convolutional Layer to reduce number of channels in input
         conv_reduce = nn.Conv2d(in_channels=in_image.shape[1],
