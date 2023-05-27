@@ -292,10 +292,16 @@ class Generator(nn.Module):
         nn.init.normal_(self.conv_reduce.weight, mean=0.0, std=0.02)
         # Set running_mean to have 512 elements
         self.conv_reduce.running_mean = [i * 0.02 for i in range(512)]
-
+        x = self.conv_reduce(self.in_image)
         # Bottleneck, no batch norm and ReLU
         self.b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
         nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
+
+        # Add dimension
+        self.b = self.b(x)
+
+        # Apply ReLU
+        self.b = nn.ReLU(inplace=True)(self.b)
 
         # Decoder model
         self.d1 = decoder_block(self.b, self.e7, 512)
