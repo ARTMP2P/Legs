@@ -10,9 +10,8 @@ import parser
 
 
 # n_epochs = 20
-image_shape = [SIZE, SIZE, CHANEL]
 shape = [batch, CHANEL, SIZE, SIZE]
-d_model = define_discriminator(image_shape)
+d_model = define_discriminator(shape)
 parser = argparse.ArgumentParser()
 parser.add_argument("file_path", nargs="?", default=None)
 parser.add_argument("epochs", type=int, default=200)
