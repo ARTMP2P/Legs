@@ -339,7 +339,7 @@ if __name__ == '__main__':
     print(device)
     with torch.cuda.device(device):
         print(torch.cuda.is_available())
-        shape_input = [batch, CHANEL, SIZE, SIZE]
+        shape_input = [1, CHANEL, SIZE, SIZE]
         in_image = torch.zeros(shape_input)
 
         e1 = define_encoder_block(in_image, 64, batchnorm=True)
