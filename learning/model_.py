@@ -335,7 +335,8 @@ def generate_fake_samples(g_model, samples, patch_shape):
 # ======================================================================
 
 if __name__ == '__main__':
-    device = 'cuda'
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(device)
     with torch.cuda.device(device):
         print(torch.cuda.is_available())
         shape_input = [batch, CHANEL, SIZE, SIZE]
