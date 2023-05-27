@@ -296,7 +296,7 @@ class Generator(nn.Module):
         # Bottleneck, no batch norm and ReLU
         self.b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
         nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
-
+        print(type(self.b))
         # Add dimension
         # self.b = self.b(x)
 
