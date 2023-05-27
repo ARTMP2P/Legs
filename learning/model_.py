@@ -209,7 +209,7 @@ def define_generator(image_shape):
     e7 = define_encoder_block(e6, 512)
 
     # 1x1 Convolutional Layer to reduce number of channels in input
-    conv_reduce = nn.Conv2d(in_channels=in_image.shape[0],
+    conv_reduce = nn.Conv2d(in_channels=in_image.shape[1],
                             out_channels=512,
                             kernel_size=3,
                             stride=2,
@@ -335,6 +335,6 @@ def generate_fake_samples(g_model, samples, patch_shape):
 
 if __name__ == '__main__':
     shape_input = [batch, CHANEL, SIZE, SIZE]
-    generator = define_generator(shape_input)
-    print(type(generator))
-    print(f"Shape of OUTPUT: {generator.shape}\nDtype of OUTPUT: {generator.dtype}")
+    decode = define_generator(shape_input)
+    print(type(decode))
+    print(f"Shape of OUTPUT: {decode.shape}\nDtype of OUTPUT: {decode.dtype}")
