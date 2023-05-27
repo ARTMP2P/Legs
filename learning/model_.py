@@ -152,7 +152,6 @@ def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
     # Upsample
     x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
     decoded_tensor = nn.functional.interpolate(x, size=(concat_tensor.shape[2], concat_tensor.shape[3]))
-    print(f"First: {decoded_tensor.shape}\nSecond: {concat_tensor.shape}")
 
     # Concatenate
     x = torch.cat([decoded_tensor, concat_tensor], dim=1)
@@ -246,6 +245,7 @@ def define_generator(image_shape):
 
     # Output
     g = nn.ConvTranspose2d(d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
+    print(g.shape)
     nn.init.normal_(g.weight, mean=0.0, std=0.02)
     out_image = nn.Tanh()(g)
 
