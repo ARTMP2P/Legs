@@ -298,7 +298,7 @@ class Generator(nn.Module):
         nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
         print(type(self.b))
         # Add dimension
-        # self.b = self.b(x)
+        self.b = torch.Tensor(self.b.shape[1], self.b.kernel_size, self.b.stride, self.b.padding)
 
         # Apply ReLU
         # self.b = nn.ReLU(inplace=True)(self.b)
