@@ -337,7 +337,7 @@ def generate_fake_samples(g_model, samples, patch_shape):
 if __name__ == '__main__':
     device = 'cuda'
     with torch.cuda.device(device):
-        print(torch.cuda.cudaStatus)
+        print(torch.cuda.is_available())
         shape_input = [batch, CHANEL, SIZE, SIZE]
         in_image = torch.zeros(shape_input)
 
