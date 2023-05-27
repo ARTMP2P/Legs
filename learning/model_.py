@@ -248,33 +248,100 @@ def define_generator(image_shape):
     out_image = g(d7)
     nn.init.normal_(g.weight, mean=0.0, std=0.02)
     out_image = nn.Tanh()(out_image)
-    print(f"in_image {type(in_image)}\n"
-          f"e1 {type(e1)}\n"
-          f"e2 {type(e2)}\n"
-          f"e3 {type(e3)}\n"
-          f"e4 {type(e4)}\n"
-          f"e5 {type(e5)}\n"
-          f"e6 {type(e6)}\n"
-          f"e7 {type(e7)}\n"
-          f"b {type(b)}\n"
-          f"d1 {type(d1)}\n"
-          f"d2 {type(d2)}\n"
-          f"d3 {type(d3)}\n"
-          f"d4 {type(d4)}\n"
-          f"d5 {type(d5)}\n"
-          f"d6 {type(d6)}\n"
-          f"d7 {type(d7)}\n"
-          f"out_image {type(out_image)}\n")
-    # Define model
-    model = nn.Sequential(
-        in_image,
-        e1, e2, e3, e4, e5, e6, e7,
-        b,
-        d1, d2, d3, d4, d5, d6, d7,
-        out_image
-    )
 
-    return model
+    # Initialize and optimize model
+    # model = init_and_optimize_model(model, image_shape)
+
+    # Return the model
+    # return model
+    # Define model
+    # model = nn.Sequential(
+    #     in_image,
+    #     e1, e2, e3, e4, e5, e6, e7,
+    #     b,
+    #     d1, d2, d3, d4, d5, d6, d7,
+    #     out_image
+    # )
+
+    # return model
+
+
+class Generator(nn.Module):
+    def __init__(self, image_shape):
+        super(Generator, self).__init__()
+
+        # Image input
+        self.in_image = torch.zeros(image_shape)
+
+        # Encoder model
+        self.e1 = define_encoder_block(self.in_image, 64, batchnorm=True)
+        self.e2 = define_encoder_block(self.e1, 128)
+        self.e3 = define_encoder_block(self.e2, 256)
+        self.e4 = define_encoder_block(self.e3, 512)
+        self.e5 = define_encoder_block(self.e4, 512)
+        self.e6 = define_encoder_block(self.e5, 512)
+        self.e7 = define_encoder_block(self.e6, 512)
+
+        # 1x1 Convolutional Layer to reduce number of channels in input
+        self.conv_reduce = nn.Conv2d(in_channels=self.in_image.shape[1],
+                                     out_channels=512,
+                                     kernel_size=3,
+                                     stride=2,
+                                     padding=1,
+                                     bias=False)
+        nn.init.normal_(self.conv_reduce.weight, mean=0.0, std=0.02)
+        # Set running_mean to have 512 elements
+        self.conv_reduce.running_mean = [i * 0.02 for i in range(512)]
+
+        # Bottleneck, no batch norm and ReLU
+        self.b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
+        nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
+
+        # Decoder model
+        self.d1 = decoder_block(self.b, self.e7, 512)
+        self.d2 = decoder_block(self.d1, self.e6, 512)
+        self.d3 = decoder_block(self.d2, self.e5, 512)
+        self.d4 = decoder_block(self.d3, self.e4, 512, dropout=False)
+        self.d5 = decoder_block(self.d4, self.e3, 256, dropout=False)
+        self.d6 = decoder_block(self.d5, self.e2, 128, dropout=False)
+        self.d7 = decoder_block(self.d6, self.e1, 64, dropout=False)
+
+        # Output
+        self.g = nn.ConvTranspose2d(self.d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
+        self.out_image = self.g(self.d7)
+        nn.init.normal_(self.g.weight, mean=0.0, std=0.02)
+        self.out_image = nn.Tanh()(self.out_image)
+
+    def forward(self, x):
+        # Encoder
+        e1 = self.e1(x)
+        e2 = self.e2(e1)
+        e3 = self.e3(e2)
+        e4 = self.e4(e3)
+        e5 = self.e5(e4)
+        e6 = self.e6(e5)
+        e7 = self.e7(e6)
+
+        # Reduce number of channels
+        reduce_conv = self.conv_reduce(x)
+
+        # Bottleneck
+        bottleneck = self.b(reduce_conv)
+
+        # Decoder
+        d1 = self.d1(bottleneck, e7)
+        d2 = self.d2(d1, e6)
+        d3 = self.d3(d2, e5)
+        d4 = self.d4(d3, e4)
+        d5 = self.d5(d4, e3)
+        d6 = self.d6(d5, e2)
+        d7 = self.d7(d6, e1)
+
+        # Output
+        out = self.g(d7)
+        out = nn.Tanh()(out)
+
+        return out
 
 
 # Define the combined generator and discriminator model for updating the generator
@@ -355,6 +422,6 @@ if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
     image_shape = [batch, CHANEL, SIZE, SIZE]
-    gan_net = define_generator(image_shape)
-    print(type(gan_net))
-    print(f"Shape of OUTPUT: {gan_net.shape}\nDtype of OUTPUT: {gan_net.dtype}")
+    generator = Generator(image_shape)
+    print(type(generator))
+    print(f"Shape of OUTPUT: {generator.shape}\nDtype of OUTPUT: {generator.dtype}")
