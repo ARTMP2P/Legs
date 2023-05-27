@@ -248,7 +248,23 @@ def define_generator(image_shape):
     out_image = g(d7)
     nn.init.normal_(g.weight, mean=0.0, std=0.02)
     out_image = nn.Tanh()(out_image)
-
+    print(f"in_image {type(in_image)}\n"
+          f"e1 {type(e1)}\n"
+          f"e2 {type(e2)}\n"
+          f"e3 {type(e3)}\n"
+          f"e4 {type(e4)}\n"
+          f"e5 {type(e5)}\n"
+          f"e6 {type(e6)}\n"
+          f"e7 {type(e7)}\n"
+          f"b {type(b)}\n"
+          f"d1 {type(d1)}\n"
+          f"d2 {type(d2)}\n"
+          f"d3 {type(d3)}\n"
+          f"d4 {type(d4)}\n"
+          f"d5 {type(d5)}\n"
+          f"d6 {type(d6)}\n"
+          f"d7 {type(d7)}\n"
+          f"out_image {type(out_image)}\n")
     # Define model
     model = nn.Sequential(
         in_image,
