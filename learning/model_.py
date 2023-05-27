@@ -372,7 +372,7 @@ if __name__ == '__main__':
         print(b.shape)
         # Apply ReLU
         b = nn.ReLU(inplace=True)(b)
-        print(b.shape)
+        print(f"b shape {b.shape}")
 
         decode = decoder_block(b, e4, 512)
         print(type(decode))
