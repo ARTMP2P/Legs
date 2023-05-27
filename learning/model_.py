@@ -151,7 +151,7 @@ def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
 
     # Upsample
     x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
-    print(x.shape, "\n", concat_tensor.shape)
+    print(f"First: {x.shape}\nSecond: {concat_tensor.shape}")
 
     # Concatenate
     x = torch.cat([x, concat_tensor], dim=1)
