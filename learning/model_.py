@@ -335,6 +335,40 @@ def generate_fake_samples(g_model, samples, patch_shape):
 
 if __name__ == '__main__':
     shape_input = [batch, CHANEL, SIZE, SIZE]
-    decode = define_generator(shape_input)
+    in_image = torch.zeros(shape_input)
+    e1 = define_encoder_block(in_image, 64, batchnorm=True)
+    e2 = define_encoder_block(e1, 128)
+    e3 = define_encoder_block(e2, 256)
+    e4 = define_encoder_block(e3, 512)
+    e5 = define_encoder_block(e4, 512)
+    e6 = define_encoder_block(e5, 512)
+    e7 = define_encoder_block(e6, 512)
+
+    # 1x1 Convolutional Layer to reduce number of channels in input
+    conv_reduce = nn.Conv2d(in_channels=in_image.shape[1],
+                            out_channels=512,
+                            kernel_size=3,
+                            stride=2,
+                            padding=1,
+                            bias=False)
+    nn.init.normal_(conv_reduce.weight, mean=0.0, std=0.02)
+
+    # Set running_mean to have 512 elements
+    # conv_reduce.running_mean = [i * 0.02 for i in range(512)]
+
+    # Apply 1x1 Convolutional Layer
+    x = conv_reduce(in_image)
+
+    # Bottleneck, no batch norm and ReLU
+    b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(b.weight, mean=0.0, std=0.02)
+
+    # Add dimension
+    b = b(x)
+
+    # Apply ReLU
+    b = nn.ReLU(inplace=True)(b)
+
+    decode = define_generator(b, e7, 512)
     print(type(decode))
     print(f"Shape of OUTPUT: {decode.shape}\nDtype of OUTPUT: {decode.dtype}")
