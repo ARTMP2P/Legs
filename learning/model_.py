@@ -366,6 +366,7 @@ if __name__ == '__main__':
         # Bottleneck, no batch norm and ReLU
         b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
         nn.init.normal_(b.weight, mean=0.0, std=0.02)
+        print(b.shape)
 
         # Add dimension
         b = b(x)
