@@ -151,7 +151,7 @@ def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
 
     # Upsample
     x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
-    decoded_tensor = nn.functional.interpolate(x, size=(64, 64))
+    decoded_tensor = nn.functional.interpolate(x, size=(concat_tensor.shape[2], concat_tensor.shape[3]))
     print(f"First: {decoded_tensor.shape}\nSecond: {concat_tensor.shape}")
 
     # Concatenate
@@ -338,44 +338,7 @@ def generate_fake_samples(g_model, samples, patch_shape):
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
-    with torch.cuda.device(device):
-        print(torch.cuda.is_available())
-        shape_input = [1, CHANEL, SIZE, SIZE]
-        in_image = torch.zeros(shape_input)
-
-        e1 = define_encoder_block(in_image, 64, batchnorm=True)
-        e2 = define_encoder_block(e1, 128)
-        e3 = define_encoder_block(e2, 256)
-        e4 = define_encoder_block(e3, 512)
-        print(e4.shape)
-
-        # 1x1 Convolutional Layer to reduce number of channels in input
-        conv_reduce = nn.Conv2d(in_channels=in_image.shape[1],
-                                out_channels=512,
-                                kernel_size=3,
-                                stride=2,
-                                padding=1,
-                                bias=False)
-        nn.init.normal_(conv_reduce.weight, mean=0.0, std=0.02)
-
-        # Set running_mean to have 512 elements
-        # conv_reduce.running_mean = [i * 0.02 for i in range(512)]
-
-        # Apply 1x1 Convolutional Layer
-        x = conv_reduce(in_image)
-
-        # Bottleneck, no batch norm and ReLU
-        b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
-        nn.init.normal_(b.weight, mean=0.0, std=0.02)
-
-        # Add dimension
-        b = b(x)
-        print(b.shape)
-        # Apply ReLU
-        b = nn.ReLU(inplace=True)(b)
-        print(f"b shape {b.shape}")
-
-        d1 = decoder_block(b, e4, 512)
-        d2 = decoder_block(d1, e3, 512)
-        print(type(d2))
-        print(f"Shape of OUTPUT: {d2.shape}\nDtype of OUTPUT: {d2.dtype}")
+    image_shape = [batch, CHANEL, SIZE, SIZE]
+    gan_net = define_generator(image_shape)
+    print(type(gan_net))
+    print(f"Shape of OUTPUT: {gan_net.shape}\nDtype of OUTPUT: {gan_net.dtype}")
