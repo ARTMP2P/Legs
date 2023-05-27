@@ -302,7 +302,7 @@ class Generator(nn.Module):
 
         # Apply ReLU
         # self.b = nn.ReLU(inplace=True)(self.b)
-        print(f"Shape of OUTPUT: {self.b.shape}\nDtype of OUTPUT: {self.b.dtype}")
+        # print(f"Shape of OUTPUT: {self.b.shape}\nDtype of OUTPUT: {self.b.dtype}")
         # Decoder model
         self.d1 = decoder_block(self.b, self.e7, 512)
         self.d2 = decoder_block(self.d1, self.e6, 512)
