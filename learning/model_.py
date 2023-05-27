@@ -151,6 +151,7 @@ def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
 
     # Upsample
     x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
+    print(x.shape, "\n", concat_tensor.shape)
 
     # Concatenate
     x = torch.cat([x, concat_tensor], dim=1)
@@ -336,7 +337,7 @@ def generate_fake_samples(g_model, samples, patch_shape):
 if __name__ == '__main__':
     shape_input = [batch, CHANEL, SIZE, SIZE]
     in_image = torch.zeros(shape_input)
-    print(in_image.shape)
+
     e1 = define_encoder_block(in_image, 64, batchnorm=True)
     e2 = define_encoder_block(e1, 128)
     e3 = define_encoder_block(e2, 256)
