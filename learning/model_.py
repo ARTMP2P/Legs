@@ -152,6 +152,21 @@ def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
     # Upsample
     x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
 
+    # 1x1 Convolutional Layer to adjust the shape of concat_tensor
+    conv_reshape = nn.Conv2d(in_channels=concat_tensor.shape[1],
+                             out_channels=512,
+                             kernel_size=3,
+                             stride=2,
+                             padding=1,
+                             bias=False)
+    nn.init.normal_(conv_reduce.weight, mean=0.0, std=0.02)
+
+    # Set running_mean to have 512 elements
+    conv_reshape.running_mean = [i * 0.02 for i in range(512)]
+
+    # Apply 1x1 Convolutional Layer
+    concat_tensor = conv_reshape(concat_tensor)
+
     # Concatenate
     x = torch.cat([x, concat_tensor], dim=1)
 
@@ -222,9 +237,6 @@ def define_generator(image_shape):
 
     # Apply 1x1 Convolutional Layer
     x = conv_reduce(in_image)
-
-    # Concatenate
-    x = torch.cat([x, in_image], dim=1)
 
     # Bottleneck, no batch norm and ReLU
     b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
