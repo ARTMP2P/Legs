@@ -245,9 +245,9 @@ def define_generator(image_shape):
     d7 = decoder_block(d6, e1, 64, dropout=False)
 
     # Output
-    g = nn.ConvTranspose2d(d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(g.weight, mean=0.0, std=0.02)
-    out_image = nn.Tanh()(d7)
+    out_image = nn.ConvTranspose2d(d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
+    nn.init.normal_(out_image.weight, mean=0.0, std=0.02)
+    # out_image = nn.Tanh()(g)
 
     # Define model
     model = nn.Sequential(
