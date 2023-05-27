@@ -247,7 +247,7 @@ def define_generator(image_shape):
     # Output
     g = nn.ConvTranspose2d(d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
     nn.init.normal_(g.weight, mean=0.0, std=0.02)
-    out_image = nn.Tanh()(g)
+    out_image = nn.Tanh()(d7)
 
     # Define model
     model = nn.Sequential(
