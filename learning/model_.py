@@ -122,7 +122,7 @@ class EncoderBlock(nn.Module):
             x = self.batchnorm2d(x)
             x = self.relu(x)
 
-        return x
+        return torch.tensor(x)
 
 
 # Define a decoder block
