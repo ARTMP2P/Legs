@@ -294,12 +294,12 @@ class Generator(nn.Module):
         self.conv_reduce.running_mean = [i * 0.02 for i in range(512)]
         # x = self.conv_reduce(self.in_image)
         # Bottleneck, no batch norm and ReLU
-        self.b = nn.Sequential(nn.Conv2d(512, 512,
-                                         kernel_size=4,
-                                         stride=2,
-                                         padding=1,
-                                         bias=False))
-        # nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
+        self.b = nn.Conv2d(512, 512,
+                           kernel_size=4,
+                           stride=2,
+                           padding=1,
+                           bias=False)
+        nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
 
         self.b = self.b(self.e7)
         # Add dimension
