@@ -281,6 +281,8 @@ class Generator(nn.Module):
         self.e5 = define_encoder_block(self.e4, 512)
         self.e6 = define_encoder_block(self.e5, 512)
         self.e7 = define_encoder_block(self.e6, 512)
+        print(self.e7.shape)
+
 
         # 1x1 Convolutional Layer to reduce number of channels in input
         self.conv_reduce = nn.Conv2d(in_channels=self.in_image.shape[1],
