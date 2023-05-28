@@ -49,223 +49,161 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-def define_discriminator(input_shape):
-    """
-    Function to define a discriminator for the Pix-to-Pix torch model.
+@torch.cuda.device(0)
+class Discriminator(torch.nn.Module):
+    def __init__(self, input_shape):
+        super(Discriminator, self).__init__()
+        self.in_image = torch.zeros(input_shape)
 
-    Parameters:
-        :param input_shape: (torch.Tensor): Input image
-        list (N, C, H, W) where N is the number of images,
-        C is the number of channels, H is the height of the image,
-        and W is the width of the image by calling.
-    Returns:
-        :return discriminator (nn.Module): Discriminator network
-        <class 'torch.Tensor'>
-        Shape of OUTPUT: torch.Size([4, 1, 126, 126])
-        Dtype of OUTPUT: torch.float32
-    """
-    in_image = torch.zeros(input_shape)
-    # Convolutional Layer
-    x = nn.Conv2d(in_image.shape[1], 64,
-                  kernel_size=4, stride=2,
-                  padding=1, bias=False)(in_image)
-    nn.init.normal_(x, mean=0.0, std=0.02)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
+        # Convolutional Layer
+        self.conv1 = torch.nn.Conv2d(in_image.shape[1], 64,
+                                     kernel_size=4, stride=2, padding=1, bias=False)
+        self.relu1 = torch.nn.LeakyReLU(0.2, inplace=True)
 
-    # Convolutional Layer + BatchNorm
-    x = nn.Conv2d(64, 128,
-                  kernel_size=4, stride=2,
-                  padding=1, bias=False)(x)
-    nn.init.normal_(x, mean=0.0, std=0.02)
-    x = nn.BatchNorm2d(num_features=128)(x)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
+        # Convolutional Layer + BatchNorm
+        self.conv2 = torch.nn.Conv2d(64, 128,
+                                     kernel_size=4, stride=2, padding=1, bias=False)
+        self.bn2 = torch.nn.BatchNorm2d(num_features=128)
+        self.relu2 = torch.nn.LeakyReLU(0.2, inplace=True)
 
-    # Convolutional Layer + BatchNorm
-    x = nn.Conv2d(128, 256,
-                  kernel_size=4, stride=2,
-                  padding=1, bias=False)(x)
-    nn.init.normal_(x, mean=0.0, std=0.02)
-    x = nn.BatchNorm2d(num_features=256)(x)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
+        # Convolutional Layer + BatchNorm
+        self.conv3 = torch.nn.Conv2d(128, 256,
+                                     kernel_size=4, stride=2, padding=1, bias=False)
+        self.bn3 = torch.nn.BatchNorm2d(num_features=256)
+        self.relu3 = torch.nn.LeakyReLU(0.2, inplace=True)
 
-    # Convolutional Layer + BatchNorm
-    x = nn.Conv2d(256, 512,
-                  kernel_size=4, stride=1,
-                  padding=1, bias=False)(x)
-    nn.init.normal_(x, mean=0.0, std=0.02)
-    x = nn.BatchNorm2d(num_features=512)(x)
-    x = nn.LeakyReLU(0.2, inplace=True)(x)
+        # Convolutional Layer + BatchNorm
+        self.conv4 = torch.nn.Conv2d(256, 512,
+                                     kernel_size=4, stride=1, padding=1, bias=False)
+        self.bn4 = torch.nn.BatchNorm2d(num_features=512)
+        self.relu4 = torch.nn.LeakyReLU(0.2, inplace=True)
 
-    # Output
-    x = nn.Conv2d(512, 1,
-                  kernel_size=4, stride=1,
-                  padding=1, bias=False)(x)
-    return nn.Sigmoid()(x)
+    def forward(self):
+        # Forward propagation
+        out = self.conv1(self.in_image)
+        out = self.relu1(out)
+        out = self.conv2(out)
+        out = self.bn2(out)
+        out = self.relu2(out)
+        out = self.conv3(out)
+        out = self.bn3(out)
+        out = self.relu3(out)
+        out = self.conv4(out)
+        out = self.bn4(out)
+        out = self.relu4(out)
+
+        # Output Layer
+        out = torch.nn.Conv2d(512, 1,
+                              kernel_size=4, stride=1,
+                              padding=1, bias=False)(out)
+
+        return torch.nn.Sigmoid()(out)
 
 
 # Define an encoder block
-def define_encoder_block(input_tensor, channels, batchnorm=True):
-    """
-    Function to define an encoder block for the Pix-to-Pix torch model.
+@torch.cuda.device(0)
+class EncoderBlock(nn.Module):
+    def __init__(self, input_tensor, channels, batchnorm=True):
+        super(EncoderBlock, self).__init__()
 
-    Parameters:
-        :param input_tensor (torch.Tensor): Input tensor
-        :param channels (int): Number of channels in output tensor
-        :param batchnorm (bool): Whether to use batchnorm layers
+        self.input_tensor = input_tensor
+        self.channels = channels
+        self.batchnorm = batchnorm
 
-    Returns:
-        :return encoded_tensor (torch.Tensor): Encoded tensor
-        <class 'torch.Tensor'>
-        Shape of OUTPUT: torch.Size([4, 64, 512, 512])
-        Dtype of OUTPUT: torch.float32
-    """
+        self.conv2d = nn.Conv2d(self.input_tensor.shape[1], self.channels,
+                                kernel_size=3, stride=2, padding=1, bias=False)
+        self.batchnorm2d = nn.BatchNorm2d(self.num_features)
+        self.relu = nn.ReLU(inplace=True)
 
-    # 3x3 Convolutional Layer
-    x = nn.Conv2d(input_tensor.shape[1], channels,
-                  kernel_size=3, stride=2,
-                  padding=1, bias=False)(input_tensor)
-    nn.init.normal_(x, mean=0.0, std=0.02)
+    def forward(self):
+        x = self.conv2d(self.input_tensor)
+        nn.init.normal_(x, mean=0.0, std=0.02)
+        # BatchNorm + ReLU
+        if self.batchnorm:
+            x = self.batchnorm2d(x)
+            x = self.relu(x)
 
-    # BatchNorm + ReLU
-    if batchnorm:
-        x = nn.BatchNorm2d(num_features=channels)(x)
-        x = nn.ReLU(inplace=True)(x)
-
-    return x
+        return x
 
 
 # Define a decoder block
-def decoder_block(input_tensor, concat_tensor, channels, dropout=True):
-    """
-    Function to define a decoder block for the Pix-to-Pix torch model.
+@torch.cuda.device(0)
+class DecoderBlock(nn.Module):
+    def __init__(self, input_tensor, concat_tensor, channels, dropout=True):
+        super(DecoderBlock, self).__init__()
 
-    Parameters:
-        input_tensor (torch.Tensor): Input tensor
-        concat_tensor (torch.Tensor): Tensor to concatenate with
-        channels (int): Number of channels in output tensor
-        dropout (bool): Whether to use dropout layers
+        self.input_tensor = input_tensor
+        self.concat_tensor = concat_tensor
+        self.channels = channels
+        self.dropout = dropout
+        self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+        self.conv2d1 = nn.Conv2d(self.input_tensor.shape[1], self.channels,
+                                kernel_size=1, stride=1, padding=0, bias=False)
+        self.batchnorm2d = nn.BatchNorm2d(self.num_features)
+        self.relu = nn.ReLU(inplace=True)
+        self.dropout_layer = nn.Dropout(p=0.5)
+        self.conv2d2 = nn.Conv2d(self.channels, self.channels,
+                                kernel_size=3, stride=1, padding=1, bias=False)
 
-    Returns:
-        decoded_tensor (torch.Tensor): Decoded tensor
-    """
+    def forward(self):
+        x = self.upsample(self.input_tensor)
+        decoded_tensor = nn.functional.interpolate(x, size=(self.concat_tensor.shape[2], self.concat_tensor.shape[3]))
+        # Concatenate
+        x = torch.cat([decoded_tensor, self.concat_tensor], dim=1)
+        # 1x1 Convolutional Layer
+        x = self.conv2d1(x)
+        nn.init.normal_(x, mean=0.0, std=0.02)
+        # BatchNorm + ReLU
+        if self.dropout:
+            x = self.batchnorm2d(x)
+            x = self.relu(x)
+            x = self.dropout_layer(x)
+        # 3x3 Convolutional Layer
+        x = self.conv2d2(x)
+        nn.init.normal_(x, mean=0.0, std=0.02)
+        # BatchNorm + ReLU
+        x = self.batchnorm2d(x)
+        x = self.relu(x)
+        x = self.dropout_layer(x)
 
-    # Upsample
-    x = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)(input_tensor)
-    decoded_tensor = nn.functional.interpolate(x, size=(concat_tensor.shape[2], concat_tensor.shape[3]))
-
-    # Concatenate
-    x = torch.cat([decoded_tensor, concat_tensor], dim=1)
-
-    # 1x1 Convolutional Layer
-    x = nn.Conv2d(x.shape[1], channels,
-                  kernel_size=1, stride=1,
-                  padding=0, bias=False)(x)
-    nn.init.normal_(x, mean=0.0, std=0.02)
-
-    # BatchNorm + ReLU
-    if dropout:
-        x = nn.BatchNorm2d(num_features=channels)(x)
-        x = nn.ReLU(inplace=True)(x)
-        x = nn.Dropout(p=0.5)(x)
-
-    # 3x3 Convolutional Layer
-    x = nn.Conv2d(channels, channels,
-                  kernel_size=3, stride=1,
-                  padding=1, bias=False)(x)
-    nn.init.normal_(x, mean=0.0, std=0.02)
-
-    # BatchNorm + ReLU
-    x = nn.BatchNorm2d(num_features=channels)(x)
-    x = nn.ReLU(inplace=True)(x)
-    x = nn.Dropout(p=0.5)(x)
-
-    return x
+        return x
 
 
-# Define the standalone generator model
-def define_generator(image_shape):
-    """
-    Function to define the architecture and return the generator model for image transformation.
-    The generator uses convolutional layers to transform the input image into a hidden representation,
-    and then uses decoder layers to transform the hidden representation into an output image of the same
-    shape and size as the input image.
-    Args:
-        image_shape: Shape of the input image tensor.
+@torch.cuda.device(0)
+class UNetDownModule(nn.Module):
+    def __init__(self, in_image, out_channels):
+        super(UNetDownModule, self).__init__()
 
-    Returns:
-        Generator model.
-    """
-    # Weight initialization
-    init = nn.init.normal_
-    # Image input
-    in_image = torch.zeros(image_shape)
+        self.in_image = in_image
+        self.out_channels = out_channels
 
-    # Encoder model
-    e1 = define_encoder_block(in_image, 64, batchnorm=True)
-    e2 = define_encoder_block(e1, 128)
-    e3 = define_encoder_block(e2, 256)
-    e4 = define_encoder_block(e3, 512)
-    e5 = define_encoder_block(e4, 512)
-    e6 = define_encoder_block(e5, 512)
-    e7 = define_encoder_block(e6, 512)
+        self.conv_reduce = nn.Conv2d(in_channels=self.in_image.shape[1],
+                                     out_channels=512,
+                                     kernel_size=3,
+                                     stride=2,
+                                     padding=1,
+                                     bias=False)
+        nn.init.normal_(self.conv_reduce.weight, mean=0.0, std=0.02)
+        self.conv_reduce.running_mean = [i * 0.02 for i in range(512)]
+        self.b = nn.Conv2d(512, 512,
+                           kernel_size=4,
+                           stride=2,
+                           padding=1,
+                           bias=False)
+        nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
+        self.batchnorm2d = nn.BatchNorm2d(num_features=self.out_channels)
+        self.relu = nn.ReLU(inplace=True)
 
-    # 1x1 Convolutional Layer to reduce number of channels in input
-    conv_reduce = nn.Conv2d(in_channels=in_image.shape[1],
-                            out_channels=512,
-                            kernel_size=3,
-                            stride=2,
-                            padding=1,
-                            bias=False)
-    nn.init.normal_(conv_reduce.weight, mean=0.0, std=0.02)
+    def forward(self):
+        x = self.conv_reduce(self.in_image)
+        x = self.b(x)
+        x = self.batchnorm2d(x)
+        x = self.relu(x)
 
-    # Set running_mean to have 512 elements
-    conv_reduce.running_mean = [i * 0.02 for i in range(512)]
-
-    # Apply 1x1 Convolutional Layer
-    x = conv_reduce(in_image)
-
-    # Bottleneck, no batch norm and ReLU
-    b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
-    nn.init.normal_(b.weight, mean=0.0, std=0.02)
-
-    # Add dimension
-    b = b(x)
-
-    # Apply ReLU
-    b = nn.ReLU(inplace=True)(b)
-
-    # Decoder model
-    d1 = decoder_block(b, e7, 512)
-    d2 = decoder_block(d1, e6, 512)
-    d3 = decoder_block(d2, e5, 512)
-    d4 = decoder_block(d3, e4, 512, dropout=False)
-    d5 = decoder_block(d4, e3, 256, dropout=False)
-    d6 = decoder_block(d5, e2, 128, dropout=False)
-    d7 = decoder_block(d6, e1, 64, dropout=False)
-
-    # Output
-    g = nn.ConvTranspose2d(d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
-    out_image = g(d7)
-    nn.init.normal_(g.weight, mean=0.0, std=0.02)
-    out_image = nn.Tanh()(out_image)
-
-    # Initialize and optimize model
-    # model = init_and_optimize_model(model, image_shape)
-
-    # Return the model
-    # return model
-    # Define model
-    # model = nn.Sequential(
-    #     in_image,
-    #     e1, e2, e3, e4, e5, e6, e7,
-    #     b,
-    #     d1, d2, d3, d4, d5, d6, d7,
-    #     out_image
-    # )
-
-    # return model
+        return x
 
 
+@torch.cuda.device(0)
 class Generator(nn.Module):
     def __init__(self, image_shape):
         super(Generator, self).__init__()
@@ -274,48 +212,24 @@ class Generator(nn.Module):
         self.in_image = torch.zeros(image_shape)
 
         # Encoder model
-        self.e1 = define_encoder_block(self.in_image, 64, batchnorm=True)
-        self.e2 = define_encoder_block(self.e1, 128)
-        self.e3 = define_encoder_block(self.e2, 256)
-        self.e4 = define_encoder_block(self.e3, 512)
-        self.e5 = define_encoder_block(self.e4, 512)
-        self.e6 = define_encoder_block(self.e5, 512)
-        self.e7 = define_encoder_block(self.e6, 512)
+        self.e1 = EncoderBlock(self.in_image, 64, batchnorm=True)
+        self.e2 = EncoderBlock(self.e1, 128)
+        self.e3 = EncoderBlock(self.e2, 256)
+        self.e4 = EncoderBlock(self.e3, 512)
+        self.e5 = EncoderBlock(self.e4, 512)
+        self.e6 = EncoderBlock(self.e5, 512)
+        self.e7 = EncoderBlock(self.e6, 512)
 
-        # 1x1 Convolutional Layer to reduce number of channels in input
-        self.conv_reduce = nn.Conv2d(in_channels=self.in_image.shape[1],
-                                     out_channels=512,
-                                     kernel_size=3,
-                                     stride=2,
-                                     padding=1,
-                                     bias=False)
-        nn.init.normal_(self.conv_reduce.weight, mean=0.0, std=0.02)
-        # Set running_mean to have 512 elements
-        self.conv_reduce.running_mean = [i * 0.02 for i in range(512)]
-        # x = self.conv_reduce(self.in_image)
-        # Bottleneck, no batch norm and ReLU
-        self.b = nn.Conv2d(512, 512,
-                           kernel_size=4,
-                           stride=2,
-                           padding=1,
-                           bias=False)
-        nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
+        self.b = UNetDownModule(self.in_image, 512)
 
-        self.b = self.b(self.e7)
-        # Add dimension
-        # self.b = self.b(x)
-
-        # Apply ReLU
-        # self.b = nn.ReLU(inplace=True)(self.b)
-        # print(f"Shape of OUTPUT: {self.b.shape}\nDtype of OUTPUT: {self.b.dtype}")
         # Decoder model
-        self.d1 = decoder_block(self.b, self.e7, 512)
-        self.d2 = decoder_block(self.d1, self.e6, 512)
-        self.d3 = decoder_block(self.d2, self.e5, 512)
-        self.d4 = decoder_block(self.d3, self.e4, 512, dropout=False)
-        self.d5 = decoder_block(self.d4, self.e3, 256, dropout=False)
-        self.d6 = decoder_block(self.d5, self.e2, 128, dropout=False)
-        self.d7 = decoder_block(self.d6, self.e1, 64, dropout=False)
+        self.d1 = DecoderBlock(self.b, self.e7, 512)
+        self.d2 = DecoderBlock(self.d1, self.e6, 512)
+        self.d3 = DecoderBlock(self.d2, self.e5, 512)
+        self.d4 = DecoderBlock(self.d3, self.e4, 512, dropout=False)
+        self.d5 = DecoderBlock(self.d4, self.e3, 256, dropout=False)
+        self.d6 = DecoderBlock(self.d5, self.e2, 128, dropout=False)
+        self.d7 = DecoderBlock(self.d6, self.e1, 64, dropout=False)
 
         # Output
         self.g = nn.ConvTranspose2d(self.d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
@@ -430,9 +344,8 @@ def generate_fake_samples(g_model, samples, patch_shape):
 # ======================================================================
 
 if __name__ == '__main__':
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
     image_shape = [batch, CHANEL, SIZE, SIZE]
     generator = Generator(image_shape)
-    print(type(generator))
-    print(f"Shape of OUTPUT: {generator.shape}\nDtype of OUTPUT: {generator.dtype}")
+    discriminator = Discriminator(image_shape)
+    print(type(generator), )
+    print(f"Generator OUTPUT: {type(generator)}\nDiscriminator OUTPUT: {type(discriminator)}")
