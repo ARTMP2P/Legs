@@ -341,7 +341,8 @@ def generate_fake_samples(g_model, samples, patch_shape):
 
 if __name__ == '__main__':
     image_shape = [batch, CHANEL, SIZE, SIZE]
-    generator = Generator(image_shape)
+    in_image = torch.zeros(image_shape)
     discriminator = Discriminator(image_shape)
-    print(type(generator), )
-    print(f"Generator OUTPUT: {type(generator)}\nDiscriminator OUTPUT: {type(discriminator)}")
+    downBlock = EncoderBlock(in_image, 64)
+    print(type(discriminator), )
+    print(f"Generator OUTPUT: {type(discriminator)}\nDiscriminator OUTPUT: {type(downBlock)}")
