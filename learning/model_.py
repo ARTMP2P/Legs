@@ -299,7 +299,7 @@ class Generator(nn.Module):
                                          stride=2,
                                          padding=1,
                                          bias=False))
-        nn.init.xavier_uniform_(self.b.weight)
+        # nn.init.xavier_uniform_(self.b.weight)
 
         self.b = self.b(self.e7)
         # Add dimension
