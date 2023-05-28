@@ -196,7 +196,7 @@ class UNetDownModule(nn.Module):
         x = self.b(x)
         x = self.batchnorm2d(x)
         x = self.relu(x)
-
+        print(type(x))
         return torch.tensor(x)
 
 
