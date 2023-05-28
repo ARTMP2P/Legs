@@ -50,7 +50,6 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-@torch.cuda.device(0)
 class Discriminator(torch.nn.Module):
     def __init__(self, input_shape):
         super(Discriminator, self).__init__()
@@ -102,7 +101,6 @@ class Discriminator(torch.nn.Module):
 
 
 # Define an encoder block
-@torch.cuda.device(0)
 class EncoderBlock(nn.Module):
     def __init__(self, input_tensor, channels, batchnorm=True):
         super(EncoderBlock, self).__init__()
@@ -128,7 +126,6 @@ class EncoderBlock(nn.Module):
 
 
 # Define a decoder block
-@torch.cuda.device(0)
 class DecoderBlock(nn.Module):
     def __init__(self, input_tensor, concat_tensor, channels, dropout=True):
         super(DecoderBlock, self).__init__()
@@ -170,7 +167,6 @@ class DecoderBlock(nn.Module):
         return x
 
 
-@torch.cuda.device(0)
 class UNetDownModule(nn.Module):
     def __init__(self, in_image, out_channels):
         super(UNetDownModule, self).__init__()
@@ -204,7 +200,6 @@ class UNetDownModule(nn.Module):
         return x
 
 
-@torch.cuda.device(0)
 class Generator(nn.Module):
     def __init__(self, image_shape):
         super(Generator, self).__init__()
