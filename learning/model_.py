@@ -281,8 +281,6 @@ class Generator(nn.Module):
         self.e5 = define_encoder_block(self.e4, 512)
         self.e6 = define_encoder_block(self.e5, 512)
         self.e7 = define_encoder_block(self.e6, 512)
-        print(self.e7.shape)
-
 
         # 1x1 Convolutional Layer to reduce number of channels in input
         self.conv_reduce = nn.Conv2d(in_channels=self.in_image.shape[1],
@@ -298,8 +296,8 @@ class Generator(nn.Module):
         # Bottleneck, no batch norm and ReLU
         self.b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
         nn.init.xavier_uniform_(self.b.weight)
-        self.in_image = self.in_image.reshape([4, 512, 1024, 1024])
-        self.b = self.b(self.in_image)
+
+        self.b = self.b(self.e7)
         # Add dimension
         # self.b = self.b(x)
 
