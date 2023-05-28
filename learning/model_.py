@@ -111,7 +111,7 @@ class EncoderBlock(nn.Module):
 
         self.conv2d = nn.Conv2d(self.input_tensor.shape[1], self.channels,
                                 kernel_size=3, stride=2, padding=1, bias=False)
-        self.batchnorm2d = nn.BatchNorm2d(self.num_features)
+        self.batchnorm2d = nn.BatchNorm2d(self.channels)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self):
