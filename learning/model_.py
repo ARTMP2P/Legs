@@ -296,6 +296,7 @@ class Generator(nn.Module):
         # Bottleneck, no batch norm and ReLU
         self.b = nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1, bias=False)
         nn.init.xavier_uniform_(self.b.weight)
+        self.in_image = self.in_image.reshape([4, 512, 1024, 1024])
         self.b = self.b(self.in_image)
         # Add dimension
         # self.b = self.b(x)
