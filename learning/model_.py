@@ -164,7 +164,7 @@ class DecoderBlock(nn.Module):
         x = self.relu(x)
         x = self.dropout_layer(x)
 
-        return x
+        return torch.tensor(x)
 
 
 class UNetDownModule(nn.Module):
@@ -197,7 +197,7 @@ class UNetDownModule(nn.Module):
         x = self.batchnorm2d(x)
         x = self.relu(x)
 
-        return x
+        return torch.tensor(x)
 
 
 class Generator(nn.Module):
