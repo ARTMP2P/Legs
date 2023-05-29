@@ -328,8 +328,8 @@ if __name__ == '__main__':
     image_shape = [batch, CHANEL, SIZE, SIZE]
     in_image = torch.zeros(image_shape)
     downBlock = EncoderBlock(in_image, 512)
+    print(f"Generator OUTPUT: {type(downBlock)}")
     convBlock = UNetDownModule(in_image, 512)
-    print(type(convBlock))
+    print(f"Generator OUTPUT: {type(convBlock)}")
     upBlock = DecoderBlock(convBlock, downBlock, 512)
-    print(type(downBlock))
-    print(f"Generator OUTPUT: {type(convBlock)}\nDiscriminator OUTPUT: {type(upBlock)}")
+    print(f"Generator OUTPUT: {type(upBlock)}")
