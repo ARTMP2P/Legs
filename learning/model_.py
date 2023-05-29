@@ -221,21 +221,21 @@ class UNet(torch.nn.Module):
     def forward(self, x):
         out1 = self.down1(x)
         out2 = self.down2(out1)
-        out3 = self.down2(out2)
-        out4 = self.down2(out3)
-        out5 = self.down2(out4)
-        out6 = self.down2(out5)
-        out7 = self.down2(out6)
+        out3 = self.down3(out2)
+        out4 = self.down4(out3)
+        out5 = self.down5(out4)
+        out6 = self.down6(out5)
+        out7 = self.down7(out6)
 
         # Pass through the remaining 5 down layers
 
         out1 = self.up1(out7)
         out2 = self.up2(out1)
-        out3 = self.up2(out2)
-        out4 = self.up2(out3)
-        out5 = self.up2(out4)
-        out6 = self.up2(out5)
-        out = self.up2(out6)
+        out3 = self.up3(out2)
+        out4 = self.up4(out3)
+        out5 = self.up5(out4)
+        out6 = self.up6(out5)
+        out = self.up7(out6)
 
         # Pass through the remaining 5 up layers
 
