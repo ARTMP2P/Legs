@@ -247,7 +247,7 @@ class UNet(torch.nn.Module):
 # Define the combined generator and discriminator model for updating the generator
 def get_model(input_array):
     # Create generator and discriminator models
-    generator = UNet()
+    generator = UNet(input_array)
     discriminator = Discriminator(input_array)
 
     # Pass input through both models
