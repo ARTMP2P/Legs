@@ -56,7 +56,7 @@ class Discriminator(torch.nn.Module):
         self.in_image = torch.zeros(input_shape)
 
         # Convolutional Layer
-        self.conv1 = torch.nn.Conv2d(in_image.shape[1], 64,
+        self.conv1 = torch.nn.Conv2d(self.in_image.shape[1], 64,
                                      kernel_size=4, stride=2, padding=1, bias=False)
         self.relu1 = torch.nn.LeakyReLU(0.2, inplace=True)
 
@@ -101,138 +101,146 @@ class Discriminator(torch.nn.Module):
 
 
 # Define an encoder block
-class EncoderBlock(nn.Module):
-    def __init__(self, input_tensor, channels, batchnorm=True):
-        super(EncoderBlock, self).__init__()
+class UNet(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.down1 = torch.nn.Sequential(
+            # 1024x1024x8  => 512x512x64
+            torch.nn.Conv2d(8, 64, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2)
+        )
 
-        self.input_tensor = input_tensor
-        self.in_size = input_tensor.size[1]
-        self.size = self.in_size
-        self.channels = channels
-        self.batchnorm = batchnorm
+        self.down2 = torch.nn.Sequential(
+            # 512x512x64  => 256x256x128
+            torch.nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(128, 128, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2)
+        )
 
-        self.conv2d = nn.Conv2d(self.input_tensor.size()[1], self.channels,
-                                kernel_size=3, stride=2, padding=1, bias=False)
-        self.batchnorm2d = nn.BatchNorm2d(self.channels)
-        self.relu = nn.ReLU(inplace=True)
+        self.down3 = torch.nn.Sequential(
+            # 256x256x128  => 128x128x256
+            torch.nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2)
+        )
 
-    def forward(self):
-        x = self.conv2d(self.input_tensor)
-        nn.init.normal_(x, mean=0.0, std=0.02)
-        # BatchNorm + ReLU
-        if self.batchnorm:
-            x = self.batchnorm2d(x)
-            x = self.relu(x)
+        self.down4 = torch.nn.Sequential(
+            # 128x128x256  => 64x64x512
+            torch.nn.Conv2d(256, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2)
+        )
 
-        return torch.tensor(x)
+        self.down5 = torch.nn.Sequential(
+            # 64x64x512  => 64x64x512
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2)
+        )
 
+        self.down6 = torch.nn.Sequential(
+            # 64x64x512  => 64x64x512
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2)
+        )
 
-# Define a decoder block
-class DecoderBlock(nn.Module):
-    def __init__(self, in_features, out_features, dropout=True):
-        super(DecoderBlock, self).__init__()
+        self.down7 = torch.nn.Sequential(
+            # 64x64x512  => 64x64x512
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2)
+        )
 
-        # weight initialization
-        self.init = nn.init.normal_(nn.init.calculate_gain('relu'), 0.02)
-        # add upsampling layer
-        self.upsampling = nn.ConvTranspose2d(in_features, out_features, 4, stride=2, padding=1)
-        # add batch normalization
-        self.batch_norm = nn.BatchNorm2d(out_features)
-        # dropout
-        self.dropout = dropout
-        if self.dropout:
-            self.drop = nn.Dropout(0.5)
-        # merge with skip connection
-        self.concat = nn.Concatenate()
-        # relu activation
-        self.activation = nn.ReLU()
+        self.up1 = torch.nn.Sequential(
+            # 64x64x512   => 64x64x512
+            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU()
+        )
 
-    def forward(self, x, skip_in):
-        x = self.upsampling(x)
-        x = self.batch_norm(x)
-        if self.dropout:
-            x = self.drop(x)
-        x = self.concat([x, skip_in])
-        x = self.activation(x)
-        return x
+        self.up2 = torch.nn.Sequential(
+            # 64x64x512   => 64x64x512
+            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU()
+        )
 
+        self.up3 = torch.nn.Sequential(
+            # 64x64x512   => 64x64x512
+            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
+            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            torch.nn.ReLU()
+        )
+        self.up4 = torch.nn.Sequential(
+            # 64x64x512   => 128x128x256
+            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
+            torch.nn.Conv2d(512, 256, kernel_size=3, padding=1),
+            torch.nn.ReLU()
+        )
 
-class UNetMiddleBlock(nn.Module):
-    def __init__(self, input_tensor, n_filters):
-        super(UNetMiddleBlock, self).__init__()
-        self.conv = nn.Conv2d(torch.tensor(input_tensor).size()[1], n_filters, 4, stride=2, padding=1)
-        self.activation = nn.ReLU()
+        self.up5 = torch.nn.Sequential(
+            # 128x128x256   => 256x256x128
+            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
+            torch.nn.Conv2d(256, 128, kernel_size=3, padding=1),
+            torch.nn.ReLU()
+        )
 
-    def forward(self, e7):
-        x = self.conv(e7)
-        nn.init.normal_(x, mean=0.0, std=0.02)
-        x = self.activation(x)
-        return x
+        self.up6 = torch.nn.Sequential(
+            # 256x256x128   => 512x512x64
+            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
+            torch.nn.Conv2d(128, 64, kernel_size=3, padding=1),
+            torch.nn.ReLU()
+        )
 
-
-class Generator(nn.Module):
-    def __init__(self, image_shape):
-        super(Generator, self).__init__()
-
-        # Image input
-        self.in_image = torch.zeros(image_shape)
-
-        # Encoder model
-        self.e1 = EncoderBlock(self.in_image, 64, batchnorm=True)
-        self.e2 = EncoderBlock(self.e1, 128)
-        self.e3 = EncoderBlock(self.e2, 256)
-        self.e4 = EncoderBlock(self.e3, 512)
-        self.e5 = EncoderBlock(self.e4, 512)
-        self.e6 = EncoderBlock(self.e5, 512)
-        self.e7 = EncoderBlock(self.e6, 512)
-
-        self.b = UNetMiddleBlock(self.e7, 512)
-
-        # Decoder model
-        self.d1 = DecoderBlock(self.b, self.e7, 512)
-        self.d2 = DecoderBlock(self.d1, self.e6, 512)
-        self.d3 = DecoderBlock(self.d2, self.e5, 512)
-        self.d4 = DecoderBlock(self.d3, self.e4, 512, dropout=False)
-        self.d5 = DecoderBlock(self.d4, self.e3, 256, dropout=False)
-        self.d6 = DecoderBlock(self.d5, self.e2, 128, dropout=False)
-        self.d7 = DecoderBlock(self.d6, self.e1, 64, dropout=False)
-
-        # Output
-        self.g = nn.ConvTranspose2d(self.d7.shape[1], CHANEL, kernel_size=4, stride=2, padding=1, bias=False)
-        self.out_image = self.g(self.d7)
-        nn.init.normal_(self.g.weight, mean=0.0, std=0.02)
-        self.out_image = nn.Tanh()(self.out_image)
+        self.up7 = torch.nn.Sequential(
+            # 512x512x64   => 1024x1024x8
+            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
+            torch.nn.Conv2d(64, 8, kernel_size=3, padding=1),
+            torch.nn.ReLU()
+        )
+    # Repeat the same pattern for the remaining 5 up layers
 
     def forward(self, x):
-        # Encoder
-        e1 = self.e1(x)
-        e2 = self.e2(e1)
-        e3 = self.e3(e2)
-        e4 = self.e4(e3)
-        e5 = self.e5(e4)
-        e6 = self.e6(e5)
-        e7 = self.e7(e6)
+        out1 = self.down1(x)
+        out2 = self.down2(out1)
+        out3 = self.down2(out2)
+        out4 = self.down2(out3)
+        out5 = self.down2(out4)
+        out6 = self.down2(out5)
+        out7 = self.down2(out6)
 
-        # Reduce number of channels
-        reduce_conv = self.conv_reduce(x)
+        # Pass through the remaining 5 down layers
 
-        # Bottleneck
-        bottleneck = self.b(reduce_conv)
+        out1 = self.up1(out7)
+        out2 = self.up2(out1)
+        out3 = self.up2(out2)
+        out4 = self.up2(out3)
+        out5 = self.up2(out4)
+        out6 = self.up2(out5)
+        out = self.up2(out6)
 
-        # Decoder
-        d1 = self.d1(bottleneck, e7)
-        d2 = self.d2(d1, e6)
-        d3 = self.d3(d2, e5)
-        d4 = self.d4(d3, e4)
-        d5 = self.d5(d4, e3)
-        d6 = self.d6(d5, e2)
-        d7 = self.d7(d6, e1)
-
-        # Output
-        out = self.g(d7)
-        out = nn.Tanh()(out)
+        # Pass through the remaining 5 up layers
 
         return out
+
 
 
 # Define the combined generator and discriminator model for updating the generator
@@ -311,6 +319,6 @@ def generate_fake_samples(g_model, samples, patch_shape):
 
 if __name__ == '__main__':
     image_shape = [batch, CHANEL, SIZE, SIZE]
-    Unet = Generator(image_shape)
+    Unet = UNet()
     print(f"Generator OUTPUT: {type(Unet)}")
 
