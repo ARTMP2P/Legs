@@ -25,7 +25,7 @@ if args.file_path:
 else:
     g_model = UNet()
     print('Learning running with start')
-gan_model = define_gan(g_model, d_model, image_shape)
+gan_model = get_model(image_shape)
 train(d_model, g_model, gan_model, dir, n_epochs)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
