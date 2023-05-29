@@ -102,8 +102,9 @@ class Discriminator(torch.nn.Module):
 
 # Define an encoder block
 class UNet(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, input_shape):
         super().__init__()
+        self.in_image = torch.zeros(input_shape)
         self.down1 = torch.nn.Sequential(
             # 1024x1024x8  => 512x512x64
             torch.nn.Conv2d(8, 64, kernel_size=3, padding=1),
@@ -218,8 +219,8 @@ class UNet(torch.nn.Module):
         )
     # Repeat the same pattern for the remaining 5 up layers
 
-    def forward(self, x):
-        out1 = self.down1(x)
+    def forward(self):
+        out1 = self.down1(self.in_image)
         out2 = self.down2(out1)
         out3 = self.down3(out2)
         out4 = self.down4(out3)
