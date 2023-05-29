@@ -270,7 +270,7 @@ def define_gan(g_model, d_model, image_shape):
     gen_out = g_model(in_src)
 
     # Connect the source input and generator output to the discriminator input
-    dis_out = d_model(torch.cat([in_src, gen_out], dim=1))
+    dis_out = d_model(in_src)
 
     # Source image as input, generated image and classification output
     model = nn.Model(in_src, [dis_out, gen_out])
