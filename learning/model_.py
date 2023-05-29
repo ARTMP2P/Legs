@@ -155,15 +155,15 @@ class DecoderBlock(nn.Module):
         return x
 
 
-class UNetDownModule(nn.Module):
-    def __init__(self, in_features, out_features):
-        super(UNetDownModule, self).__init__()
-
-        self.conv = nn.Conv2d(in_features, out_features, 4, stride=2, padding=1)
+class UNetMiddleBlock(nn.Module):
+    def __init__(self, encode, n_filters):
+        super(UNetMiddleBlock, self).__init__()
+        self.conv = nn.Conv2d(encode.size()[1], n_filters, 4, stride=2, padding=1)
         self.activation = nn.ReLU()
 
-    def forward(self, x):
-        x = self.conv(x)
+    def forward(self, e7):
+        x = self.conv(e7)
+        nn.init.normal_(x, mean=0.0, std=0.02)
         x = self.activation(x)
         return x
 
@@ -184,7 +184,7 @@ class Generator(nn.Module):
         self.e6 = EncoderBlock(self.e5, 512)
         self.e7 = EncoderBlock(self.e6, 512)
 
-        self.b = UNetDownModule(512, (4, 4))
+        self.b = UNetMiddleBlock(self.e7, 512)
 
         # Decoder model
         self.d1 = DecoderBlock(self.b, self.e7, 512)
@@ -312,7 +312,7 @@ if __name__ == '__main__':
     in_image = torch.zeros(image_shape)
     downBlock = EncoderBlock(in_image, 512)
     print(f"Generator OUTPUT: {type(downBlock)}")
-    convBlock = UNetDownModule(512, (4, 4))
+    convBlock = UNetMiddleBlock(downBlock, 512)
     print(f"Generator OUTPUT: {type(convBlock)}")
     upBlock = DecoderBlock(convBlock, downBlock, 512)
     print(f"Generator OUTPUT: {type(upBlock)}")
