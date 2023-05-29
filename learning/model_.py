@@ -244,42 +244,17 @@ class UNet(torch.nn.Module):
 
 
 # Define the combined generator and discriminator model for updating the generator
-def define_gan(g_model, d_model, image_shape):
-    """
-    Function to define and return the GAN (Generative Adversarial Network) model, which consists of
-    the generator (g_model) and discriminator (d_model). It combines the generator and discriminator into
-    a single model and compiles it. Adam optimizer is used for training the model with loss weights [1, 100].
-    The input layer of the model is the source image (in_src), and the output layers are the discrimination result
-    and the generated image (dis_out and gen_out).
-    Args:
-        g_model: Generator model.
-        d_model: Discriminator model.
-        image_shape: Shape of the input image tensor.
+def get_model(input_array):
+    # Create generator and discriminator models
+    generator = UNet()
+    discriminator = Discriminator(input_array)
 
-    Returns:
-        GAN model.
-    """
-    # Make weights in the discriminator not trainable
-    for param in d_model.parameters():
-        param.requires_grad = False
+    # Pass input through both models
+    gen_output = generator(input_array)
+    disc_output = discriminator(gen_output)
 
-    # Define the source image
-    in_src = torch.zeros(image_shape)
-
-    # Connect the source image to the generator input
-    gen_out = g_model(in_src)
-
-    # Connect the source input and generator output to the discriminator input
-    dis_out = d_model()
-
-    # Source image as input, generated image and classification output
-    model = nn.Model(in_src, [dis_out, gen_out])
-
-    # Define optimizer and loss function
-    opt = optim.Adam(model.parameters(), lr=lr, betas=(0.5, 0.999))
-    loss_fn = [nn.BCELoss(), nn.L1Loss()]
-
-    return model
+    # Return output of discriminator with shape [8, 1024, 1024]
+    return disc_output
 
 
 def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape):
