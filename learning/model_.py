@@ -252,7 +252,7 @@ def get_model(input_array):
 
     # Pass input through both models
     gen_output = generator()
-    disc_output = discriminator(gen_output)
+    disc_output = discriminator()
 
     # Return output of discriminator with shape [8, 1024, 1024]
     return disc_output
