@@ -1,4 +1,4 @@
-from vars import *
+from .vars import *
 import cv2
 import os
 import numpy as np
