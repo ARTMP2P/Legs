@@ -156,9 +156,9 @@ class DecoderBlock(nn.Module):
 
 
 class UNetMiddleBlock(nn.Module):
-    def __init__(self, encode, n_filters):
+    def __init__(self, input_tensor, n_filters):
         super(UNetMiddleBlock, self).__init__()
-        self.conv = nn.Conv2d(encode.size()[1], n_filters, 4, stride=2, padding=1)
+        self.conv = nn.Conv2d(torch.tensor(input_tensor).size()[1], n_filters, 4, stride=2, padding=1)
         self.activation = nn.ReLU()
 
     def forward(self, e7):
