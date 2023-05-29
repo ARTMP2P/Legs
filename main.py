@@ -23,7 +23,7 @@ if args.file_path:
     g_model = torch.load(args.file_path)
     print(f'Learning running from {args.file_path}')
 else:
-    g_model = UNet()
+    g_model = UNet(image_shape)
     print('Learning running with start')
 gan_model = get_model(image_shape)
 train(d_model, g_model, gan_model, dir, n_epochs)
