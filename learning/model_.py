@@ -337,6 +337,7 @@ if __name__ == '__main__':
     in_image = torch.zeros(image_shape)
     downBlock = EncoderBlock(in_image, 512)
     convBlock = UNetDownModule(in_image, 512)
+    print(type(convBlock))
     upBlock = DecoderBlock(convBlock, downBlock, 512)
-    print(type(downBlock), )
+    print(type(downBlock))
     print(f"Generator OUTPUT: {type(convBlock)}\nDiscriminator OUTPUT: {type(upBlock)}")
