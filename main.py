@@ -11,7 +11,7 @@ import parser
 
 # n_epochs = 20
 shape = [batch, CHANEL, SIZE, SIZE]
-d_model = define_discriminator(shape)
+d_model = Discriminator(shape)
 parser = argparse.ArgumentParser()
 parser.add_argument("file_path", nargs="?", default=None)
 parser.add_argument("epochs", type=int, default=200)
@@ -23,7 +23,7 @@ if args.file_path:
     g_model = torch.load(args.file_path)
     print(f'Learning running from {args.file_path}')
 else:
-    g_model = define_generator(shape)
+    g_model = UNet()
     print('Learning running with start')
 gan_model = define_gan(g_model, d_model, image_shape)
 train(d_model, g_model, gan_model, dir, n_epochs)
