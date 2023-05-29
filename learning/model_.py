@@ -127,61 +127,44 @@ class EncoderBlock(nn.Module):
 
 # Define a decoder block
 class DecoderBlock(nn.Module):
-    def __init__(self, input_tensor, concat_tensor, channels, dropout=True):
+    def __init__(self, in_features, out_features, dropout=True):
         super(DecoderBlock, self).__init__()
 
-        self.input_tensor = input_tensor
-        self.concat_tensor = concat_tensor
-        self.channels = channels
+        # weight initialization
+        self.init = nn.init.normal_(nn.init.calculate_gain('relu'), 0.02)
+        # add upsampling layer
+        self.upsampling = nn.ConvTranspose2d(in_features, out_features, 4, stride=2, padding=1)
+        # add batch normalization
+        self.batch_norm = nn.BatchNorm2d(out_features)
+        # dropout
         self.dropout = dropout
-        self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
-        self.conv2d1 = nn.Conv2d(self.input_tensor.shape[1], self.channels,
-                                kernel_size=1, stride=1, padding=0, bias=False)
-        self.batchnorm2d = nn.BatchNorm2d(self.num_features)
-        self.relu = nn.ReLU(inplace=True)
-        self.dropout_layer = nn.Dropout(p=0.5)
-        self.conv2d2 = nn.Conv2d(self.channels, self.channels,
-                                kernel_size=3, stride=1, padding=1, bias=False)
-
-    def forward(self):
-        x = self.upsample(self.input_tensor)
-        decoded_tensor = nn.functional.interpolate(x, size=(self.concat_tensor.shape[2], self.concat_tensor.shape[3]))
-        # Concatenate
-        x = torch.cat([decoded_tensor, self.concat_tensor], dim=1)
-        # 1x1 Convolutional Layer
-        x = self.conv2d1(x)
-        nn.init.normal_(x, mean=0.0, std=0.02)
-        # BatchNorm + ReLU
         if self.dropout:
-            x = self.batchnorm2d(x)
-            x = self.relu(x)
-            x = self.dropout_layer(x)
-        # 3x3 Convolutional Layer
-        x = self.conv2d2(x)
-        nn.init.normal_(x, mean=0.0, std=0.02)
-        # BatchNorm + ReLU
-        x = self.batchnorm2d(x)
-        x = self.relu(x)
-        x = self.dropout_layer(x)
+            self.drop = nn.Dropout(0.5)
+        # merge with skip connection
+        self.concat = nn.Concatenate()
+        # relu activation
+        self.activation = nn.ReLU()
 
-        return torch.tensor(x)
+    def forward(self, x, skip_in):
+        x = self.upsampling(x)
+        x = self.batch_norm(x)
+        if self.dropout:
+            x = self.drop(x)
+        x = self.concat([x, skip_in])
+        x = self.activation(x)
+        return x
 
 
 class UNetDownModule(nn.Module):
-    def __init__(self, in_image, out_channels):
+    def __init__(self, in_features, out_features):
         super(UNetDownModule, self).__init__()
 
-        self.double_conv = nn.Sequential(
-            nn.Conv2d(in_image.shape[0], out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
-        )
+        self.conv = nn.Conv2d(in_features, out_features, 4, stride=2, padding=1)
+        self.activation = nn.ReLU()
 
     def forward(self, x):
-        x = self.double_conv(x)
+        x = self.conv(x)
+        x = self.activation(x)
         return x
 
 
@@ -201,7 +184,7 @@ class Generator(nn.Module):
         self.e6 = EncoderBlock(self.e5, 512)
         self.e7 = EncoderBlock(self.e6, 512)
 
-        self.b = UNetDownModule(self.in_image, 512)
+        self.b = UNetDownModule(512, (4, 4))
 
         # Decoder model
         self.d1 = DecoderBlock(self.b, self.e7, 512)
