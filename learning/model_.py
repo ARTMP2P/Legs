@@ -309,10 +309,6 @@ def generate_fake_samples(g_model, samples, patch_shape):
 
 if __name__ == '__main__':
     image_shape = [batch, CHANEL, SIZE, SIZE]
-    in_image = torch.zeros(image_shape)
-    downBlock = EncoderBlock(in_image, 512)
-    print(f"Generator OUTPUT: {type(downBlock)}")
-    convBlock = UNetMiddleBlock(downBlock, 512)
-    print(f"Generator OUTPUT: {type(convBlock)}")
-    upBlock = DecoderBlock(convBlock, downBlock, 512)
-    print(f"Generator OUTPUT: {type(upBlock)}")
+    Unet = Generator(image_shape)
+    print(f"Generator OUTPUT: {type(Unet)}")
+
