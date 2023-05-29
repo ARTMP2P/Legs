@@ -106,7 +106,7 @@ class EncoderBlock(nn.Module):
         super(EncoderBlock, self).__init__()
 
         self.input_tensor = input_tensor
-        self.size = input_tensor.size()[1]
+        self.size = input_tensor.shape[1]
         self.channels = channels
         self.batchnorm = batchnorm
 
