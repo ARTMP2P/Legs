@@ -177,13 +177,13 @@ class Generator(nn.Module):
         self.in_image = torch.zeros(image_shape)
 
         # Encoder model
-        self.e1 = EncoderBlock(self.in_image, 64, batchnorm=True, activation='relu')
-        self.e2 = EncoderBlock(self.e1, 128, activation='relu')
-        self.e3 = EncoderBlock(self.e2, 256, activation='relu')
-        self.e4 = EncoderBlock(self.e3, 512, activation='relu')
-        self.e5 = EncoderBlock(self.e4, 512, activation='relu')
-        self.e6 = EncoderBlock(self.e5, 512, activation='relu')
-        self.e7 = EncoderBlock(self.e6, 512, activation='relu')
+        self.e1 = EncoderBlock(self.in_image, 64, batchnorm=True)
+        self.e2 = EncoderBlock(self.e1, 128)
+        self.e3 = EncoderBlock(self.e2, 256)
+        self.e4 = EncoderBlock(self.e3, 512)
+        self.e5 = EncoderBlock(self.e4, 512)
+        self.e6 = EncoderBlock(self.e5, 512)
+        self.e7 = EncoderBlock(self.e6, 512)
 
         self.b = UNetMiddleBlock(self.e7, 512)
 
