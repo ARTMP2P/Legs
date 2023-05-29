@@ -63,7 +63,7 @@ def summarize_performance(step, g_model, f=0):
         file.write(f'{filename_model_NN}\nMetricks: {np.mean(precentage_list)}\n')
 
 
-def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufer=0):
+def train(d_model, dir, n_epochs=200, n_batch=1, i_s=0, bufer=0):
     """
     This function is used to train a Generative Adversarial Network (GAN) model for style transfer between images.
     It takes as input the discriminator model (d_model), generator model (g_model), and GAN model (gan_model),
@@ -129,6 +129,47 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
             i_s += 1
             summarize_performance(i_s, g_model, f=1)
             # break
+
+
+def train_on_dataset(model, dataset, epochs, optimizer, batch_size):
+    # Create DataLoader to iterate through dataset
+    data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    # Iterate over given number of epochs
+    for epoch in range(epochs):
+        running_loss = 0.0
+
+        # Iterate over data loader
+        for i, sample in enumerate(data_loader):
+            # Initialize gradients
+            optimizer.zero_grad()
+
+            # Get image and label
+            image, label = sample
+
+            # Pass image through model
+            output = model(image)
+
+            # Calculate loss
+            loss = criterion(output, label)
+
+            # Run backpropagation
+            loss.backward()
+
+            # Update model parameters
+            optimizer.step()
+
+            # Update running loss
+            running_loss += loss.item()
+
+            # Print logs after every 1000 iterations
+            if i % 1000 == 999:
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 1000))
+                running_loss = 0.0
+
+    # Return trained model
+    return model
 
 
 def shown_statics():

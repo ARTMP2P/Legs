@@ -26,7 +26,7 @@ else:
     g_model = UNet(image_shape)
     print('Learning running with start')
 gan_model = get_model(image_shape)
-train(d_model, g_model, gan_model, dir, n_epochs)
+train(gan_model, n_epochs=10)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
 
