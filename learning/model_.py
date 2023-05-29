@@ -172,7 +172,7 @@ class UNetDownModule(nn.Module):
         super(UNetDownModule, self).__init__()
 
         self.double_conv = nn.Sequential(
-            nn.Conv2d(in_image, out_channels, kernel_size=3, padding=1),
+            nn.Conv2d(in_image.shape[0], out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
