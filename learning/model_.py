@@ -182,15 +182,6 @@ class UNetDownModule(nn.Module):
 
     def forward(self, x):
         x = self.double_conv(x)
-        print(type(x))
-        return torch.tensor(x)
-
-    def forward(self):
-        x = self.conv_reduce(self.in_image)
-        x = self.b(x)
-        x = self.batchnorm2d(x)
-        x = self.relu(x)
-        print(type(x))
         return torch.tensor(x)
 
 
