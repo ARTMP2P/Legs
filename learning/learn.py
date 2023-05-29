@@ -63,7 +63,7 @@ def summarize_performance(step, g_model, f=0):
         file.write(f'{filename_model_NN}\nMetricks: {np.mean(precentage_list)}\n')
 
 
-def train(d_model, n_epochs=200, bufer=0, butch=4):
+def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
     """
     This function is used to train a Generative Adversarial Network (GAN) model for style transfer between images.
     It takes as input the discriminator model (d_model), generator model (g_model), and GAN model (gan_model),
@@ -76,8 +76,8 @@ def train(d_model, n_epochs=200, bufer=0, butch=4):
     shown_statics()
     i_s = 0
     # determine the output square shape of the discriminator
-    butch
-    print(f'n_patch {butch}\nn_epochs = {n_epochs}')
+    n_patch = d_model.output_shape[1]
+    print(f'n_patch {n_patch}\nn_epochs = {n_epochs}')
 
     for i in range(n_steps):  # n_steps
 
