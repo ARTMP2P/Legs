@@ -171,25 +171,18 @@ class UNetDownModule(nn.Module):
     def __init__(self, in_image, out_channels):
         super(UNetDownModule, self).__init__()
 
-        self.in_image = in_image
-        self.out_channels = out_channels
+        self.double_conv = nn.Sequential(
+            nn.Conv2d(in_image, out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+        )
 
-        self.conv_reduce = nn.Conv2d(in_channels=self.in_image.shape[1],
-                                     out_channels=512,
-                                     kernel_size=3,
-                                     stride=2,
-                                     padding=1,
-                                     bias=False)
-        nn.init.normal_(self.conv_reduce.weight, mean=0.0, std=0.02)
-        self.conv_reduce.running_mean = [i * 0.02 for i in range(512)]
-        self.b = nn.Conv2d(512, 512,
-                           kernel_size=4,
-                           stride=2,
-                           padding=1,
-                           bias=False)
-        nn.init.normal_(self.b.weight, mean=0.0, std=0.02)
-        self.batchnorm2d = nn.BatchNorm2d(num_features=self.out_channels)
-        self.relu = nn.ReLU(inplace=True)
+    def forward(self, x):
+        x = self.double_conv(x)
+        return torch.tensor(x)
 
     def forward(self):
         x = self.conv_reduce(self.in_image)
