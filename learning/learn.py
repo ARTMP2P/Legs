@@ -116,7 +116,7 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
         d_optimizer.step()
 
         # Train the generator
-        g_loss, _, _ = gan_model(X_realA, y_real, X_realB)  # Вычислить потерю генератора
+        g_loss = gan_model(X_realA, X_realB)  # Вычислить потерю генератора
 
         # Обновить параметры генератора
         g_optimizer.zero_grad()
