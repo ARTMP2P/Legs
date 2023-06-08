@@ -86,7 +86,7 @@ class Define_discriminator(nn.Module):
         self.conv5 = nn.Conv2d(256, 1, kernel_size=3, stride=2)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x, y):
+    def forward(self, x: torch.tensor, y: torch.tensor):
         # concat input images along channels
         xy = torch.cat([x, y], dim=1)
 
