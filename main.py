@@ -27,7 +27,7 @@ else:
     print('Learning running with start')
 y = torch.randn(CHANEL, SIZE, SIZE)
 gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
-train(d_model, g_model, gan_model, n_epochs=10)
+train(d_model, g_model, gan_model, n_epochs=10, n_batch=batch)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
 
