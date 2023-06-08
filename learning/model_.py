@@ -200,7 +200,7 @@ class DefineGenerator(torch.nn.Module):
 
 # Define the combined generator and discriminator model for updating the generator
 def define_gan(in_src: list, g_model, d_model, y):
-    in_src = torch.randn(in_src[1:3])
+    in_src = torch.randn(in_src[1:])
     print(f"{in_src.shape}\n{y.shape}")
     # Устанавливаем требуемые размерности
     in_channels, in_h, in_w = in_src.shape[0], in_src.shape[1], in_src.shape[2]
