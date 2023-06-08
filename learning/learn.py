@@ -106,8 +106,8 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
         print(f"X_fakeB {X_fakeB.shape}\ny_fake {y_fake.shape}")
 
         # Train the discriminator
-        d_loss1 = d_model(X_realA, X_realB)  # Вычислить потерю дискриминатора на реальных изображениях
-        d_loss2 = d_model(X_realA, X_fakeB)  # Вычислить потерю дискриминатора на сгенерированных изображениях
+        d_loss1 = torch.mean(d_model(X_realA, X_realB))
+        d_loss2 = torch.mean(d_model(X_realA, X_fakeB))
 
         # Обновить параметры дискриминатора
         d_optimizer.zero_grad()
