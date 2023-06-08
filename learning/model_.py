@@ -176,11 +176,11 @@ class DefineGenerator(torch.nn.Module):
             layer_out = encoder_block(layer_in)
             skip_connections.append(layer_out)
             layer_in = layer_out
-            print("Encoder layer output shape:", layer_out.shape)
+            # print("Encoder layer output shape:", layer_out.shape)
 
         # Bottleneck layer
         bottleneck_out = self.bottleneck(layer_out)
-        print("Bottleneck layer output shape:", bottleneck_out.shape)
+        # print("Bottleneck layer output shape:", bottleneck_out.shape)
 
         # Decoder layers
         out_channels = 1024
@@ -188,12 +188,12 @@ class DefineGenerator(torch.nn.Module):
             layer_in = decoder_block(bottleneck_out)  # Развернуть тензор bottleneck_out
 
             layer_in = torch.cat((layer_in, skip_connection))  # Конкатенировать развернутый тензор и skip_connection
-            print("Decoder layer output shape:", layer_in.shape)
+            # print("Decoder layer output shape:", layer_in.shape)
             bottleneck_out = layer_in
 
         output_img = self.output_layer(layer_in)
         output_img = torch.tanh(output_img)
-        print("Output image shape:", output_img.shape)
+        # print("Output image shape:", output_img.shape)
 
         return output_img
 
