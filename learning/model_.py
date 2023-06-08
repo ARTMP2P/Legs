@@ -201,10 +201,11 @@ class DefineGenerator(torch.nn.Module):
 # Define the combined generator and discriminator model for updating the generator
 def define_gan(in_src: list, g_model, d_model, y):
     in_src = torch.randn(in_src)
+    print(f"{in_src.shape}\n{y.shape}")
     # Устанавливаем требуемые размерности
     in_channels, in_h, in_w = in_src.shape[0], in_src.shape[1], in_src.shape[2]
     out_channels = d_model(in_src.unsqueeze(0), y.unsqueeze(0)).shape[1]  # Получаем размерность выхода дискриминатора
-    print((in_src.unsqueeze(0), y.unsqueeze(0)).shape[1])
+
 
     # Создаем модель GAN
     gan_model = nn.Sequential(
