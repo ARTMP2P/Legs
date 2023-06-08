@@ -249,7 +249,7 @@ def generate_fake_samples(g_model, samples, batch_size, patch_shape):
     with torch.no_grad():
         X = g_model(samples)
         X = X[:batch_size]  # Ограничиваем тензор X до нужного размера
-        y = torch.zeros((batch_size, 1, patch_shape, patch_shape))
+        y = torch.zeros((batch_size, 8, patch_shape, patch_shape))
 
     return X, y
 
