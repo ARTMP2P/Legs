@@ -23,7 +23,7 @@ if args.file_path:
     g_model = torch.load(args.file_path)
     print(f'Learning running from {args.file_path}')
 else:
-    g_model = DefineGenerator()
+    g_model = DefineGenerator(batch)
     print('Learning running with start')
 gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
 train(d_model, g_model, gan_model, n_epochs=10)
