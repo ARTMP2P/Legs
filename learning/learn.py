@@ -94,6 +94,7 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
         X_realA = torch.tensor(X_realA).float()
         X_realB = torch.tensor(X_realB).float()
         y_real = torch.tensor(y_real).float()
+        print(f"X_realA {X_realA.shape}\nX_realB {X_realB.shape}\ny_real {y_real.shape}")
 
         # Generate fake samples
         X_fakeB, y_fake = generate_fake_samples(g_model, X_realA, n_patch)
