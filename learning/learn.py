@@ -66,26 +66,18 @@ def summarize_performance(step, g_model, f=0):
 
 
 def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
-    """
-    This function is used to train a Generative Adversarial Network (GAN) model for style transfer between images.
-    It takes as input the discriminator model (d_model), generator model (g_model), and GAN model (gan_model),
-    the number of epochs (n_epochs), batch size (n_batch), start epoch index (i_s), and buffer (bufer).
-
-    Inside the function, it generates real and fake images, updates the parameters of the discriminator and generator,
-    and computes and prints the training results. The function also calls auxiliary functions to display statistics
-    and training results.
-    """
     shown_statics()
     i_s = 0
-    # determine the output square shape of the discriminator
-    n_patch = d_model.out.shape[1]
+    n_patch = d_model.conv5.out_channels  # Определение размерности выходной карты признаков дискриминатора
     print(f'n_patch {n_patch}\nn_epochs = {n_epochs}')
 
-    for i in range(n_steps):  # n_steps
+    # Оптимизаторы для дискриминатора и генератора
+    d_optimizer = optim.Adam(d_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
+    g_optimizer = optim.Adam(g_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
+    for i in range(n_steps):
         list_A, list_B, list_y = [], [], []
         list_rand_dir, list_rand_dir_25 = get_list_dir_2(root, list_models, batch)
-        # print(list_rand_dir, '\n', list_rand_dir_25)
 
         for i_d in range(batch):
             list_dir_name, list_dir_name_25 = list_rand_dir[i_d], list_rand_dir_25[i_d]
@@ -110,14 +102,28 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
         y_fake = torch.tensor(y_fake).float()
 
         # Train the discriminator
-        d_loss1 = d_model.train_on_batch([X_realA, X_realB], y_real)
-        d_loss2 = d_model.train_on_batch([X_realA, X_fakeB], y_fake)
+        d_loss1 = d_model([X_realA, X_realB], y_real)  # Вычислить потерю дискриминатора на реальных изображениях
+        d_loss2 = d_model([X_realA, X_fakeB], y_fake)  # Вычислить потерю дискриминатора на сгенерированных изображениях
+
+        # Обновить параметры дискриминатора
+        d_optimizer.zero_grad()
+        d_loss1.backward()
+        d_optimizer.step()
+
+        d_optimizer.zero_grad()
+        d_loss2.backward()
+        d_optimizer.step()
 
         # Train the generator
-        g_loss, _, _ = gan_model.train_on_batch(X_realA, [y_real, X_realB])
+        g_loss, _, _ = gan_model(X_realA, [y_real, X_realB])  # Вычислить потерю генератора
+
+        # Обновить параметры генератора
+        g_optimizer.zero_grad()
+        g_loss.backward()
+        g_optimizer.step()
 
         # Summarize performance
-        print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (i + 1, d_loss1, d_loss2, g_loss))
+        print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (i + 1, d_loss1.item(), d_loss2.item(), g_loss.item()))
 
         # Summarize model performance
         if (i + 1) % n_epochs == 0:
@@ -131,6 +137,7 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
             i_s += 1
             summarize_performance(i_s, g_model, f=1)
             # break
+
 
 
 def train_gan(d_model, g_model, gan_model, n_epochs, n_batch, i_s, buffer, dataloader):
