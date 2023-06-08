@@ -90,7 +90,7 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
         X_realA = np.concatenate(list_A, axis=0)
         X_realA = np.transpose(X_realA, (0, 3, 1, 2))
         X_realB = np.concatenate(list_B, axis=0)
-        X_realA = np.transpose(X_realA, (0, 3, 1, 2))
+        X_realB = np.transpose(X_realB, (0, 3, 1, 2))
         y_real = np.concatenate(list_y, axis=0)
 
         X_realA = torch.tensor(X_realA).float()
