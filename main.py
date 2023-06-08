@@ -25,6 +25,7 @@ if args.file_path:
 else:
     g_model = DefineGenerator(batch)
     print('Learning running with start')
+y = torch.randn(CHANEL, SIZE, SIZE)
 gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
 train(d_model, g_model, gan_model, n_epochs=10)
 
