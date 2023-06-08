@@ -245,10 +245,11 @@ def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape):
 
 
 # Generate a batch of images, returns images and targets
-def generate_fake_samples(g_model, samples, patch_shape):
+def generate_fake_samples(g_model, samples, batch_size, patch_shape):
     with torch.no_grad():
         X = g_model(samples)
-        y = torch.zeros((len(X), 1, patch_shape, patch_shape))
+        X = X[:batch_size]  # Ограничиваем тензор X до нужного размера
+        y = torch.zeros((batch_size, 1, patch_shape, patch_shape))
 
     return X, y
 
