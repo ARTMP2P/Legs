@@ -1,4 +1,6 @@
 import torch
+import torch.nn as nn
+import torch.optim as optim
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -131,45 +133,65 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
             # break
 
 
-def train_on_dataset(model, dataset, epochs, optimizer, batch_size):
-    # Create DataLoader to iterate through dataset
-    data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+def train_gan(d_model, g_model, gan_model, n_epochs, n_batch, i_s, buffer, dataloader):
+    # Определяем функцию потерь и оптимизаторы для дискриминатора и генератора
+    loss_fn = nn.BCELoss()
+    d_optimizer = optim.Adam(d_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
+    g_optimizer = optim.Adam(g_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
-    # Iterate over given number of epochs
-    for epoch in range(epochs):
-        running_loss = 0.0
+    # Итерация по эпохам
+    for epoch in range(i_s, n_epochs + i_s):
+        # Итерация по пакетам данных
+        for batch_idx, (real_images, labels) in enumerate(dataloader):
+            # Очищаем градиенты
+            d_model.zero_grad()
 
-        # Iterate over data loader
-        for i, sample in enumerate(data_loader):
-            # Initialize gradients
-            optimizer.zero_grad()
+            # Генерируем фейковые изображения
+            real_images = torch.stack(real_images)  # Преобразование списка в тензор
+            fake_images = g_model(real_images)
 
-            # Get image and label
-            image, label = sample
+            # Получаем настоящие и фейковые метки для дискриминатора
+            real_labels = torch.ones((real_images.size(0), 1))
+            fake_labels = torch.zeros((real_images.size(0), 1))
 
-            # Pass image through model
-            output = model(image)
+            # Обучаем дискриминатор на настоящих и фейковых изображениях
+            real_outputs = d_model(real_images)
+            fake_outputs = d_model(fake_images.detach())
+            d_loss_real = loss_fn(real_outputs, real_labels)
+            d_loss_fake = loss_fn(fake_outputs, fake_labels)
+            d_loss = d_loss_real + d_loss_fake
+            d_loss.backward()
+            d_optimizer.step()
 
-            # Calculate loss
-            loss = criterion(output, label)
+            # Обновляем параметры генератора
+            g_model.zero_grad()
+            fake_outputs = d_model(fake_images)
+            g_loss = loss_fn(fake_outputs, real_labels)
+            g_loss.backward()
+            g_optimizer.step()
 
-            # Run backpropagation
-            loss.backward()
+            # Обновляем буфер с изображениями
+            buffer.update_buffer(fake_images)
 
-            # Update model parameters
-            optimizer.step()
+            # Выводим промежуточную информацию об обучении
+            if batch_idx % 10 == 0:
+                print(
+                    f"Epoch [{epoch + 1}/{n_epochs + i_s}], "
+                    f"Batch [{batch_idx + 1}/{len(dataloader)}], "
+                    f"D_loss: {d_loss.item():.4f}, "
+                    f"G_loss: {g_loss.item():.4f}"
+                )
 
-            # Update running loss
-            running_loss += loss.item()
+        # Сохраняем сгенерированные изображения после каждой эпохи
+        with torch.no_grad():
+            fake_images = g_model(buffer.sample_buffer(n_batch))
+            save_image(fake_images, f"generated_images_epoch_{epoch + 1}.png", nrow=4, normalize=True)
 
-            # Print logs after every 1000 iterations
-            if i % 1000 == 999:
-                print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 1000))
-                running_loss = 0.0
+        # Уменьшаем learning rate для оптимизаторов
+        d_optimizer.param_groups[0]["lr"] *= 0.98
+        g_optimizer.param_groups[0]["lr"] *= 0.98
 
-    # Return trained model
-    return model
+    print("Training complete!")
 
 
 def shown_statics():

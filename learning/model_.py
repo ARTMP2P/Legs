@@ -1,3 +1,5 @@
+import random
+
 from .vars import *
 import cv2
 import os
@@ -11,6 +13,20 @@ import torch.nn.functional as F
 
 # ======================================================================
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+class ImageBuffer:
+    def __init__(self, buffer_size):
+        self.buffer_size = buffer_size
+        self.buffer = []
+
+    def add_images(self, images):
+        self.buffer.extend(images)
+        if len(self.buffer) > self.buffer_size:
+            self.buffer = self.buffer[-self.buffer_size:]
+
+    def get_random_images(self, num_images):
+        return random.sample(self.buffer, num_images)
 
 
 def read_img(dir):
@@ -50,212 +66,155 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-class Discriminator(torch.nn.Module):
-    def __init__(self, input_shape):
-        super(Discriminator, self).__init__()
-        self.in_image = torch.zeros(input_shape)
+class Define_discriminator(nn.Module):
+    """
+    Определяет модель дискриминатора в архитектуре CycleGAN. На вход функции подаются
+    два тензора, представляющие исходное изображение размерностью 8x1024x1024 и изображение целевого домена
+    размерностью 8x1024x1024. Далее, изображения объединяются по каналам, и проходят через 5 слоев свертки, с каждым
+    слоем количество фильтров увеличивается,
+    а размер изображения уменьшается в два раза. Последний слой выдает карту признаков размером 1x1, которая проходит
+    через сигмоиду, чтобы получить вероятность того, что пара изображений является настоящей. В результате
+    возвращает скомпилированную модель дискриминатора.
+    """
+    def __init__(self):
+        super(Define_discriminator, self).__init__()
 
-        # Convolutional Layer
-        self.conv1 = torch.nn.Conv2d(self.in_image.shape[1], 64,
-                                     kernel_size=4, stride=2, padding=1, bias=False)
-        self.relu1 = torch.nn.LeakyReLU(0.2, inplace=True)
+        self.conv1 = nn.Conv2d(16, 32, kernel_size=3, stride=2)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=2)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=2)
+        self.conv4 = nn.Conv2d(128, 256, kernel_size=3, stride=2)
+        self.conv5 = nn.Conv2d(256, 1, kernel_size=3, stride=2)
+        self.sigmoid = nn.Sigmoid()
 
-        # Convolutional Layer + BatchNorm
-        self.conv2 = torch.nn.Conv2d(64, 128,
-                                     kernel_size=4, stride=2, padding=1, bias=False)
-        self.bn2 = torch.nn.BatchNorm2d(num_features=128)
-        self.relu2 = torch.nn.LeakyReLU(0.2, inplace=True)
+    def forward(self, x, y):
+        # concat input images along channels
+        xy = torch.cat([x, y], dim=1)
 
-        # Convolutional Layer + BatchNorm
-        self.conv3 = torch.nn.Conv2d(128, 256,
-                                     kernel_size=4, stride=2, padding=1, bias=False)
-        self.bn3 = torch.nn.BatchNorm2d(num_features=256)
-        self.relu3 = torch.nn.LeakyReLU(0.2, inplace=True)
+        xy = self.conv1(xy)
+        xy = self.conv2(xy)
+        xy = self.conv3(xy)
+        xy = self.conv4(xy)
+        xy = self.conv5(xy)
+        xy = self.sigmoid(xy)
 
-        # Convolutional Layer + BatchNorm
-        self.conv4 = torch.nn.Conv2d(256, 512,
-                                     kernel_size=4, stride=1, padding=1, bias=False)
-        self.bn4 = torch.nn.BatchNorm2d(num_features=512)
-        self.relu4 = torch.nn.LeakyReLU(0.2, inplace=True)
-
-    def forward(self):
-        # Forward propagation
-        out = self.conv1(self.in_image)
-        out = self.relu1(out)
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu2(out)
-        out = self.conv3(out)
-        out = self.bn3(out)
-        out = self.relu3(out)
-        out = self.conv4(out)
-        out = self.bn4(out)
-        out = self.relu4(out)
-
-        # Output Layer
-        out = torch.nn.Conv2d(512, 1,
-                              kernel_size=4, stride=1,
-                              padding=1, bias=False)(out)
-
-        return torch.nn.Sigmoid()(out)
+        return xy
 
 
-# Define an encoder block
-class UNet(torch.nn.Module):
-    def __init__(self, input_shape):
-        super().__init__()
-        self.in_image = torch.zeros(input_shape)
-        self.down1 = torch.nn.Sequential(
-            # 1024x1024x8  => 512x512x64
-            torch.nn.Conv2d(8, 64, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.MaxPool2d(2)
-        )
+class DefineGenerator(torch.nn.Module):
+    """
+    определяет архитектуру и возвращает модель генератора для преобразования изображений.
+    Генератор использует 7 сверточных слоев, заданных функцией encoder_block,
+    (которая определяет блок кодировщика для модели генератора в архитектуре Pix2Pix.
+    Она принимает на вход слой layer_in и число фильтров n_filters, которое определяет
+    количество фильтров в сверточном слое. Параметр batchnorm определяет,
+    следует ли применять слой нормализации по батчу.
+    Функция добавляет сверточный слой с заданным числом фильтров и ядром
+    размером (4, 4), используя метод инициализации весов RandomNormal)
+    для преобразования входного изображения в скрытое представление,
+    а затем использует 7 слоев декодирования, которые задаются функцией
+    decoder_block (представляет собой один блок декодера модели
+    генератора в архитектуре U-Net. Она принимает на вход тензор layer_in -
+    входной слой блока декодера и тензор skip_in - соответствующий слой кодировщика.
+    Затем функция добавляет слой Transposed Convolution для увеличения размерности
+    входного тензора, применяет слой Batch Normalization, Dropout (если dropout=True)
+    и выполняет операцию конкатенации со слоем кодировщика), чтобы преобразовать
+    скрытое представление в выходное изображение той же формы и размера, что и входное изображение.
+    Функция возвращает torch модель генератора.
+    """
 
-        self.down2 = torch.nn.Sequential(
-            # 512x512x64  => 256x256x128
-            torch.nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.MaxPool2d(2)
-        )
+    def __init__(self, batch_size):
+        super(DefineGenerator, self).__init__()
+        self.batch_size = batch_size
 
-        self.down3 = torch.nn.Sequential(
-            # 256x256x128  => 128x128x256
-            torch.nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.MaxPool2d(2)
-        )
+        # Encoder layers
+        self.encoder_blocks = nn.ModuleList()
+        in_channels = 8
+        for n_filters in [32, 64, 128, 256, 512, 512, 512]:
+            self.encoder_blocks.append(self.encoder_block(in_channels, n_filters))
+            in_channels = n_filters
 
-        self.down4 = torch.nn.Sequential(
-            # 128x128x256  => 64x64x512
-            torch.nn.Conv2d(256, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.MaxPool2d(2)
-        )
+        # Bottleneck layer
+        self.bottleneck = self.encoder_block(in_channels, 512)
 
-        self.down5 = torch.nn.Sequential(
-            # 64x64x512  => 64x64x512
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.MaxPool2d(2)
-        )
+        # Decoder layers
+        self.decoder_blocks = nn.ModuleList()
+        out_channels = 512
+        for n_filters in [512, 512, 512, 256, 128, 64, 32]:
+            self.decoder_blocks.append(self.decoder_block(out_channels, out_channels // 2, n_filters))
+            out_channels = n_filters
 
-        self.down6 = torch.nn.Sequential(
-            # 64x64x512  => 64x64x512
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.MaxPool2d(2)
-        )
+        # Output layer
+        self.output_layer = nn.ConvTranspose2d(out_channels, 8, kernel_size=4, stride=2, padding=1, bias=False)
+        self.output_layer.weight.data.normal_(0.0, 0.02)
 
-        self.down7 = torch.nn.Sequential(
-            # 64x64x512  => 64x64x512
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.MaxPool2d(2)
-        )
+    def encoder_block(self, in_channels, out_channels, batchnorm=True):
+        layers = []
+        layers.append(nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False))
+        if batchnorm:
+            layers.append(nn.BatchNorm2d(out_channels))
+        layers.append(nn.LeakyReLU(negative_slope=0.2))
+        return nn.Sequential(*layers)
 
-        self.up1 = torch.nn.Sequential(
-            # 64x64x512   => 64x64x512
-            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU()
-        )
+    def decoder_block(self, in_channels, skip_channels, out_channels, dropout=True, batchnorm=True):
+        layers = []
 
-        self.up2 = torch.nn.Sequential(
-            # 64x64x512   => 64x64x512
-            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU()
-        )
+        # Upsampling layer
+        layers.append(nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1))
+        if batchnorm:
+            layers.append(nn.BatchNorm2d(out_channels))
+        if dropout:
+            layers.append(nn.Dropout(p=0.5))
+        layers.append(nn.ReLU())
 
-        self.up3 = torch.nn.Sequential(
-            # 64x64x512   => 64x64x512
-            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
-            torch.nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            torch.nn.ReLU()
-        )
-        self.up4 = torch.nn.Sequential(
-            # 64x64x512   => 128x128x256
-            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
-            torch.nn.Conv2d(512, 256, kernel_size=3, padding=1),
-            torch.nn.ReLU()
-        )
+        return nn.Sequential(*layers)
 
-        self.up5 = torch.nn.Sequential(
-            # 128x128x256   => 256x256x128
-            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
-            torch.nn.Conv2d(256, 128, kernel_size=3, padding=1),
-            torch.nn.ReLU()
-        )
+    def forward(self, input_img):
+        # Encoder layers
+        skip_connections = []
+        layer_in = input_img
+        for encoder_block in self.encoder_blocks:
+            layer_out = encoder_block(layer_in)
+            skip_connections.append(layer_out)
+            layer_in = layer_out
+            print("Encoder layer output shape:", layer_out.shape)
 
-        self.up6 = torch.nn.Sequential(
-            # 256x256x128   => 512x512x64
-            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
-            torch.nn.Conv2d(128, 64, kernel_size=3, padding=1),
-            torch.nn.ReLU()
-        )
+        # Bottleneck layer
+        bottleneck_out = self.bottleneck(layer_out)
+        print("Bottleneck layer output shape:", bottleneck_out.shape)
 
-        self.up7 = torch.nn.Sequential(
-            # 512x512x64   => 1024x1024x8
-            torch.nn.Upsample(scale_factor=2, mode='bilinear'),
-            torch.nn.Conv2d(64, 8, kernel_size=3, padding=1),
-            torch.nn.ReLU()
-        )
-    # Repeat the same pattern for the remaining 5 up layers
+        # Decoder layers
+        out_channels = 1024
+        for decoder_block, skip_connection in zip(self.decoder_blocks, reversed(skip_connections)):
+            layer_in = decoder_block(bottleneck_out)  # Развернуть тензор bottleneck_out
 
-    def forward(self):
-        out1 = self.down1(self.in_image)
-        out2 = self.down2(out1)
-        out3 = self.down3(out2)
-        out4 = self.down4(out3)
-        out5 = self.down5(out4)
-        out6 = self.down6(out5)
-        out7 = self.down7(out6)
+            layer_in = torch.cat((layer_in, skip_connection))  # Конкатенировать развернутый тензор и skip_connection
+            print("Decoder layer output shape:", layer_in.shape)
+            bottleneck_out = layer_in
 
-        # Pass through the remaining 5 down layers
+        output_img = self.output_layer(layer_in)
+        output_img = torch.tanh(output_img)
+        print("Output image shape:", output_img.shape)
 
-        out1 = self.up1(out7)
-        out2 = self.up2(out1)
-        out3 = self.up3(out2)
-        out4 = self.up4(out3)
-        out5 = self.up5(out4)
-        out6 = self.up6(out5)
-        out = self.up7(out6)
-
-        # Pass through the remaining 5 up layers
-
-        return out
-
+        return output_img
 
 
 # Define the combined generator and discriminator model for updating the generator
-def get_model(input_array):
-    # Create generator and discriminator models
-    generator = UNet(input_array)
-    discriminator = Discriminator(input_array)
+def define_gan(in_src, g_model, d_model, y):
+    # Устанавливаем требуемые размерности
+    in_channels, in_h, in_w = in_src.shape[0], in_src.shape[1], in_src.shape[2]
+    out_channels = d_model(in_src.unsqueeze(0), y.unsqueeze(0)).shape[1]  # Получаем размерность выхода дискриминатора
 
-    # Pass input through both models
-    gen_output = generator()
-    disc_output = discriminator()
+    # Создаем модель GAN
+    gan_model = nn.Sequential(
+        g_model,
+        d_model
+    )
 
-    # Return output of discriminator with shape [8, 1024, 1024]
-    return disc_output
+    # Определяем оптимизатор и функцию потерь
+    optimizer = optim.Adam(gan_model.parameters(), lr=0.0002, betas=(0.5, 0.999))
+    loss_fn = nn.BCELoss()
+
+    return gan_model, optimizer, loss_fn
 
 
 def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape):
@@ -263,8 +222,11 @@ def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape):
     Функция generate_real_samples генерирует реальные образцы данных, которые используются для обучения
     дискриминатора. Функция принимает список имен файлов и соответствующий им список файлов с масками,
     загружает изображения, объединяет их в единую матрицу и добавляет дополнительную размерность. Функция возвращает
-    два изображения и метки классов (все классы помечены как реальные). :param list_dir_name: :param
-    list_dir_name_25: :param n_samples: :param patch_shape: :return:
+    два изображения и метки классов (все классы помечены как реальные).
+    :param list_dir_name:
+    :param list_dir_name_25:
+    :param patch_shape:
+    :return:
     """
 
     list_img1 = list(map(read_img, list_dir_name))
