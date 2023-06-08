@@ -103,6 +103,7 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
 
         X_fakeB = torch.tensor(X_fakeB).float()
         y_fake = torch.tensor(y_fake).float()
+        print(f"X_fakeB {X_fakeB.shape}\ny_fake {y_fake.shape}")
 
         # Train the discriminator
         d_loss1 = d_model(X_realA, X_realB)  # Вычислить потерю дискриминатора на реальных изображениях
