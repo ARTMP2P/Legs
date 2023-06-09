@@ -220,7 +220,7 @@ def define_gan(in_src: list, g_model, d_model, y):
     return gan_model, optimizer, loss_fn
 
 
-def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape, n_batch):
+def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape, batch):
     """
     Функция generate_real_samples генерирует реальные образцы данных, которые используются для обучения
     дискриминатора. Функция принимает список имен файлов и соответствующий им список файлов с масками,
@@ -240,7 +240,7 @@ def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape, n_batch)
     X2 = np.expand_dims(X2, axis=0)
 
     # generate 'real' class labels (1)
-    y = ones((n_batch, 8, patch_shape, patch_shape))
+    y = ones((batch, 8, patch_shape, patch_shape))
     return [X1, X2], y
 
 
