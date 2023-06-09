@@ -82,7 +82,7 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
         for i_d in range(batch):
             list_dir_name, list_dir_name_25 = list_rand_dir[i_d], list_rand_dir_25[i_d]
 
-            [X_A, X_B], y = generate_real_samples(list_dir_name, list_dir_name_25, n_patch)
+            [X_A, X_B], y = generate_real_samples(list_dir_name, list_dir_name_25, n_patch, n_batch)
             list_A.append(X_A)
             list_B.append(X_B)
             list_y.append(y)
