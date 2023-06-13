@@ -179,6 +179,7 @@ def summarize_performance(step, generator, dataloader, f=0):
                     img_diff_resized = cv2.resize(img_diff, (int(SIZE * 2), int(SIZE * 2)),
                                                   interpolation=cv2.INTER_NEAREST)
                     img_diff_resized = img_diff_resized[:, :, ::-1]
+                    print(img_diff_resized.shape)
                     cv2.imwrite(f'{img_test_group}/{dir_test[j][75:-20]}{j}.jpg', np.uint8(img_diff_resized))
 
                     print(f"Percentage difference for image {j}-{i}: {round(percentage, 2)}")
