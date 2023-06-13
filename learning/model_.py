@@ -246,8 +246,6 @@ class Generator(nn.Module):
         x = self.adapt(x)
         x = self.decoder(x)
         x = x.permute(0, 2, 3, 1)  # Изменение порядка размерностей
-        x = torch.cat(torch.split(x, 1, dim=1), dim=4)  # Конкатенация по первой размерности
-        x = x.squeeze(dim=1)  # Убрать размерность 1
 
         return x
 
