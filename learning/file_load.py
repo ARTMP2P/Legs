@@ -154,9 +154,10 @@ print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=',
 
 
 class MyDataset(Dataset):
-    def __init__(self, list_dir_name, list_dir_name_25):
+    def __init__(self, list_dir_name, list_dir_name_25, train_dir):
         self.list_dir_name = list_dir_name
         self.list_dir_name_25 = list_dir_name_25
+        self.train_dir = train_dir
 
     def __len__(self):
         return len(self.list_dir_name)

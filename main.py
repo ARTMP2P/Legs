@@ -26,8 +26,7 @@ else:
     generator = Generator()
     print('Learning running with start')
 # gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
-print(dir, dir_test)
-dataset = MyDataset(dir_260_clear, dir_test)
+dataset = MyDataset(dir, dir_test, root)
 train(generator, dataset, n_epochs, batch, patch_shape)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
