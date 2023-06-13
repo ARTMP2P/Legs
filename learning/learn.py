@@ -191,7 +191,7 @@ def summarize_performance(step, generator, dataloader, f=0):
 
         generator.train()
     except Exception as e:
-        print('Error:', str(e), img_diff_resized.shape, outputs.shape, inputs.shape)
+        print('Error:', str(e), img_diff_resized.shape, generated_img.shape, original_img.shape)
 
 
 def train(generator, dataset, num_epochs, batch_size, patch_shape):
