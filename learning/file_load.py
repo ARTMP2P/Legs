@@ -149,10 +149,12 @@ for d in dir_test:
     list_img_test_25.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[1]))), axis=-1))
 # list_img_test = np.transpose(list_img_test, (3, 1, 2, 0))
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 49 shape=', list_img_test_25[0].shape)
-for d in dir:
-    for m in range(48):
-
-        list_img_train.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[m]))), axis=-1))
+# list_rand_dir, list_rand_dir_25 = get_list_dir_2(root, list_models, batch)
+#
+#         for i_d in range(batch):
+#             list_dir_name, list_dir_name_25 = list_rand_dir[i_d], list_rand_dir_25[i_d]
+#
+#             [X_A, X_B], y = generate_real_samples(list_dir_name, list_dir_name_25, 1, 4)
 # ======================================================================
 
 
