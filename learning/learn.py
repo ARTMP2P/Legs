@@ -161,7 +161,10 @@ def summarize_performance(step, g_model, f=0):
 
     X = None  # Инициализация переменной X перед использованием
     try:
-        X = g_model(torch.tensor(list_img_test)).detach().numpy()
+        g_model.eval()  # Переключаем модель в режим оценки (evaluation mode)
+        with torch.no_grad():
+            X = g_model(torch.tensor(list_img_test).float())  # Генерация изображений на основе тестовых данных
+
     except:
         print('Error!')
         # Обработка ошибки или предоставление альтернативного значения для X
