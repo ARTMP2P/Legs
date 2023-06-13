@@ -263,31 +263,54 @@ def define_gan(in_src: list, g_model, d_model, y):
     return gan_model, optimizer, loss_fn
 
 
-def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape, batch):
-    """
-    Функция generate_real_samples генерирует реальные образцы данных, которые используются для обучения
-    дискриминатора. Функция принимает список имен файлов и соответствующий им список файлов с масками,
-    загружает изображения, объединяет их в единую матрицу и добавляет дополнительную размерность. Функция возвращает
-    два изображения и метки классов (все классы помечены как реальные).
-    :param list_dir_name:
-    :param list_dir_name_25:
-    :param patch_shape:
-    :return:
-    """
+# def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape, batch):
+#     """
+#     Функция generate_real_samples генерирует реальные образцы данных, которые используются для обучения
+#     дискриминатора. Функция принимает список имен файлов и соответствующий им список файлов с масками,
+#     загружает изображения, объединяет их в единую матрицу и добавляет дополнительную размерность. Функция возвращает
+#     два изображения и метки классов (все классы помечены как реальные).
+#     :param list_dir_name:
+#     :param list_dir_name_25:
+#     :param patch_shape:
+#     :return:
+#     """
+#
+#     list_img1 = list(map(read_img, list_dir_name))
+#     X1 = np.concatenate(list_img1, axis=-1)
+#     X1 = np.expand_dims(X1, axis=0)
+#     list_img2 = list(map(read_img, list_dir_name_25))
+#     X2 = np.concatenate(list_img2, axis=-1)
+#     X2 = np.expand_dims(X2, axis=0)
+#
+#     # generate 'real' class labels (1)
+#     y = ones((batch, 8, patch_shape, patch_shape))
+#     return [X1, X2], y
+#
+#
+# # Generate a batch of images, returns images and targets
+# def generate_fake_samples(g_model, samples, batch_size, patch_shape):
+#     with torch.no_grad():
+#         X = g_model(samples)
+#         X = X[:batch_size]  # Ограничиваем тензор X до нужного размера
+#         y = torch.zeros((batch_size, 8, patch_shape, patch_shape))
+#
+#     return X, y
 
+def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape, batch):
     list_img1 = list(map(read_img, list_dir_name))
     X1 = np.concatenate(list_img1, axis=-1)
-    X1 = np.expand_dims(X1, axis=0)
+    X1 = np.transpose(X1, (2, 0, 1))  # Изменение порядка осей для PyTorch
+    X1 = torch.from_numpy(X1).unsqueeze(0)
+
     list_img2 = list(map(read_img, list_dir_name_25))
     X2 = np.concatenate(list_img2, axis=-1)
-    X2 = np.expand_dims(X2, axis=0)
+    X2 = np.transpose(X2, (2, 0, 1))  # Изменение порядка осей для PyTorch
+    X2 = torch.from_numpy(X2).unsqueeze(0)
 
-    # generate 'real' class labels (1)
-    y = ones((batch, 8, patch_shape, patch_shape))
+    y = torch.ones((batch, 8, patch_shape, patch_shape))
     return [X1, X2], y
 
 
-# Generate a batch of images, returns images and targets
 def generate_fake_samples(g_model, samples, batch_size, patch_shape):
     with torch.no_grad():
         X = g_model(samples)
