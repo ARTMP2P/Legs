@@ -138,59 +138,56 @@ from .model_ import *
 #             i_s += 1
 #             summarize_performance(i_s, g_model, f=1)
 #             # break
-def summarize_performance(step, g_model, f=0):
+def summarize_performance(step, generator, f=0, dataloader):
     """
     This function is used to save trained models and evaluate their performance on the test data.
-    The function takes as arguments the training step number, the trained model, and the flag f that controls
+    The function takes as arguments the training step number, the trained generator model, and the flag f that controls
     the model file name when saving. If f is equal to 1, the file name will include an additional 'good' label,
     and if f is equal to 0, the 'good' label is not added.
 
-    The function uses the saved model to generate images based on the test data. Then, it compares the generated
+    The function uses the generator model to generate images based on the test data. Then, it compares the generated
     images with the original images from the test data and computes the percentage difference between them.
     The results are saved as images in the 'img_test' folder and also printed on the screen as the average
     percentage difference for each test image.
     """
     if f:
         filename_model_NN = f'{dir_model_NN}/M_good{step}.pt'
-        torch.save(g_model.state_dict(), filename_model_NN)
+        torch.save(generator.state_dict(), filename_model_NN)
         print('> Saved:', filename_model_NN)
     else:
         filename_model_NN = f'{dir_model_NN}/M_{step}.pt'
-        torch.save(g_model.state_dict(), filename_model_NN)
+        torch.save(generator.state_dict(), filename_model_NN)
         print('> Saved:', filename_model_NN)
 
-    X = None  # Инициализация переменной X перед использованием
     try:
-        g_model.eval()  # Переключаем модель в режим оценки (evaluation mode)
+        generator.eval()
         with torch.no_grad():
-            X = g_model(torch.tensor(list_img_test).float())  # Генерация изображений на основе тестовых данных
+            for j, (inputs, labels) in enumerate(dataloader):
+                outputs = generator(inputs)
+                percentage_list = []
 
-    except:
-        print('Error!')
-        # Обработка ошибки или предоставление альтернативного значения для X
+                for i in range(len(outputs)):
+                    generated_img = outputs[i].detach().numpy()
+                    original_img = labels[i].detach().numpy()
 
-    if X is not None:  # Проверка, что X была успешно определена
-        for j, im in enumerate(X):
-            precentage_list = []
+                    difference = np.abs(generated_img - original_img)
+                    percentage = (np.count_nonzero(difference) * 100) / original_img.size
+                    percentage_list.append(percentage)
 
-            for i in range(CHANEL):
-                IMG = np.concatenate((np.expand_dims(im[:, :, i] * 255, 2),
-                                      np.expand_dims(list_img_test_25[j][:, :, i] * 255, 2),
-                                      np.zeros((SIZE, SIZE, 1))), axis=-1)
+                    # Сохраняем изображение с разницей
+                    img_diff = np.concatenate((generated_img * 255, original_img * 255, difference * 255), axis=-1)
+                    img_diff_resized = cv2.resize(img_diff, (int(SIZE * 2), int(SIZE * 2)),
+                                                  interpolation=cv2.INTER_NEAREST)
+                    img_diff_resized = img_diff_resized[:, :, ::-1]
+                    cv2.imwrite(f'{img_test_group}/{dir_test[j][75:-20]}{j}.jpg', np.uint8(img_diff_resized))
 
-                differ = torch.abs(list_img_test_25[j][:, :, i].numpy().astype(np.float32) - im[:, :, i].numpy().astype(np.float32))
-                differ = differ.astype(np.uint8)
-                percentage = (np.count_nonzero(differ) * 100) / differ.size
-                precentage_list.append(percentage)
+                    print(f"Percentage difference for image {j}-{i}: {round(percentage, 2)}")
 
-                IMG_res = cv2.resize(IMG, (int(SIZE * 2), int(SIZE * 2)), interpolation=cv2.INTER_NEAREST)
-                IMG_res = IMG_res[:, :, ::-1]
-                cv2.imwrite(f'{img_test_group}/{rakurs[i]}_{dir_test[j][75:-20]}{j}.jpg', np.uint8(IMG_res))
-                print(f"Percentage for {rakurs[i]} is: {round(percentage, 2)}")
-            print(f"Mean percentage for model {j} is: {round(np.mean(precentage_list), 2)}")
-        print(f"Mean percentage for all models is: {round(np.mean(precentage_list), 2)}")
-        with open(log_file, 'a+') as file:
-            file.write(f'{filename_model_NN}\nMetricks: {np.mean(precentage_list)}\n')
+                print(f"Mean percentage difference for image {j}: {round(np.mean(percentage_list), 2)}")
+
+        generator.train()
+    except Exception as e:
+        print('Error:', str(e))
 
 
 def train(generator, dataset, num_epochs, batch_size, patch_shape):
@@ -221,7 +218,7 @@ def train(generator, dataset, num_epochs, batch_size, patch_shape):
         print('Epoch [{}/{}], Average Loss: {:.4f}'.format(epoch + 1, num_epochs, average_loss))
 
         # Проверка производительности после каждой эпохи
-        summarize_performance(epoch + 1, generator, f=1)
+        summarize_performance(epoch + 1, generator, f=1, dataloader)
 
 
 def shown_statics():
