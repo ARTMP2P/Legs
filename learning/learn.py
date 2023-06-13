@@ -163,8 +163,6 @@ def summarize_performance(step, generator, dataloader, f=0):
         generator.eval()
         with torch.no_grad():
             for j, (inputs, labels) in enumerate(dataloader):
-                inputs = inputs.permute(0, 3, 1, 2)
-
                 outputs = generator(inputs)
                 percentage_list = []
 
