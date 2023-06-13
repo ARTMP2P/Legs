@@ -181,7 +181,7 @@ def summarize_performance(step, generator, dataloader, f=0):
                         img_diff = np.concatenate((generated_channel * 255, original_channel * 255, difference * 255),
                                                   axis=-1)
                         img_diff_resized = cv2.resize(img_diff, (int(SIZE), int(SIZE)), interpolation=cv2.INTER_NEAREST)
-                        img_diff_resized = img_diff_resized[:, :, ::-1]
+                        # img_diff_resized = img_diff_resized[:, :, ::-1]
                         cv2.imwrite(f'{img_test_group}/{dir_test[j][75:-20]}{j}_channel{c}.jpg',
                                     np.uint8(img_diff_resized))
 
