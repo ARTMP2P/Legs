@@ -202,7 +202,7 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 64, 4, stride=2, padding=1),
+            nn.Conv2d(8, 64, 4, stride=2, padding=1),
             nn.ReLU(),
             nn.Conv2d(64, 128, 4, stride=2, padding=1),
             nn.ReLU(),
@@ -215,6 +215,11 @@ class Generator(nn.Module):
             nn.Conv2d(512, 512, 4, stride=2, padding=1),
             nn.ReLU(),
             nn.Conv2d(512, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+        )
+
+        self.adapt = nn.Sequential(
+            nn.Conv2d(512, 512, 3, stride=1, padding=1),
             nn.ReLU(),
         )
 
@@ -231,14 +236,16 @@ class Generator(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 1, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(64, 8, 4, stride=2, padding=1),
             nn.Tanh(),
         )
 
     def forward(self, x):
         x = self.encoder(x)
+        x = self.adapt(x)
         x = self.decoder(x)
         return x
+
 
 
 # Define the combined generator and discriminator model for updating the generator
