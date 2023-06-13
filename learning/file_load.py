@@ -161,14 +161,12 @@ class MyDataset(Dataset):
     def __len__(self):
         return len(self.list_dir_name)
 
-    def __getitem__(self, idx):
-        img = np.concatenate([np.load(file) for file in self.list_dir_name[idx]], axis=-1)
-        img_25 = np.concatenate([np.load(file) for file in self.list_dir_name_25[idx]], axis=-1)
-
-        tensor_img = torch.from_numpy(img).float()
-        tensor_img_25 = torch.from_numpy(img_25).float()
-
-        return tensor_img, tensor_img_25
+    def __getitem__(self, index):
+        img = self.list_dir_name[index]
+        img_25 = self.list_dir_name_25[index]
+        img_tensor = torch.from_numpy(img).float()
+        img_25_tensor = torch.from_numpy(img_25).float()
+        return img_tensor, img_25_tensor
 
 
 if __name__ == '__main__':
