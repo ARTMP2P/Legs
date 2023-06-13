@@ -178,7 +178,7 @@ def summarize_performance(step, g_model, f=0):
                                       np.expand_dims(list_img_test_25[j][:, :, i] * 255, 2),
                                       np.zeros((SIZE, SIZE, 1))), axis=-1)
 
-                differ = torch.abs(list_img_test_25[j][:, :, i].float() - im[:, :, i].float()).numpy()
+                differ = torch.abs(list_img_test_25[j][:, :, i].numpy().astype(np.float32) - im[:, :, i].numpy().astype(np.float32))
                 differ = differ.astype(np.uint8)
                 percentage = (np.count_nonzero(differ) * 100) / differ.size
                 precentage_list.append(percentage)
