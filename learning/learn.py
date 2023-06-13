@@ -138,7 +138,7 @@ from .model_ import *
 #             i_s += 1
 #             summarize_performance(i_s, g_model, f=1)
 #             # break
-def summarize_performance(step, generator, dataloader, f=0):
+def summarize_performance(step, generator, f=0):
     """
     This function is used to save trained models and evaluate their performance on the test data.
     The function takes as arguments the training step number, the trained generator model, and the flag f that controls
@@ -162,7 +162,7 @@ def summarize_performance(step, generator, dataloader, f=0):
     try:
         generator.eval()
         with torch.no_grad():
-            for j, (inputs, labels) in enumerate(dataloader):
+            for j, (inputs, labels) in enumerate(test_dataloader):
                 outputs = generator(inputs)
                 percentage_list = []
 
@@ -170,19 +170,20 @@ def summarize_performance(step, generator, dataloader, f=0):
                     generated_img = outputs[i].detach().numpy()
                     original_img = labels[i].detach().numpy()
 
-                    difference = np.abs(generated_img - original_img)
-                    percentage = (np.count_nonzero(difference) * 100) / original_img.size
-                    percentage_list.append(percentage)
+                    for c in range(generated_img.shape[0]):
+                        generated_channel = generated_img[c]
+                        original_channel = original_img[c]
+                        difference = np.abs(generated_channel - original_channel)
+                        percentage = (np.count_nonzero(difference) * 100) / original_channel.size
+                        percentage_list.append(percentage)
 
-                    # Сохраняем изображение с разницей
-                    img_diff = np.concatenate((generated_img * 255, original_img * 255, difference * 255), axis=-1)
-                    img_diff_resized = cv2.resize(img_diff, (int(SIZE * 2), int(SIZE * 2)),
-                                                  interpolation=cv2.INTER_NEAREST)
-                    img_diff_resized = img_diff_resized[:, :, ::-1]
-                    print(img_diff_resized.shape)
-                    cv2.imwrite(f'{img_test_group}/{dir_test[j][75:-20]}{j}.jpg', np.uint8(img_diff_resized))
+                        # Сохраняем изображение с разницей
+                        img_diff = np.concatenate((generated_channel * 255, original_channel * 255, difference * 255), axis=-1)
+                        img_diff_resized = cv2.resize(img_diff, (int(SIZE), int(SIZE)), interpolation=cv2.INTER_NEAREST)
+                        img_diff_resized = img_diff_resized[:, :, ::-1]
+                        cv2.imwrite(f'{img_test_group}/{dir_test[j][75:-20]}{j}_channel{c}.jpg', np.uint8(img_diff_resized))
 
-                    print(f"Percentage difference for image {j}-{i}: {round(percentage, 2)}")
+                        print(f"Percentage difference for image {j}-{i}, channel {c}: {round(percentage, 2)}")
 
                 print(f"Mean percentage difference for image {j}: {round(np.mean(percentage_list), 2)}")
 
