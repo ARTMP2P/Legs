@@ -20,12 +20,12 @@ args = parser.parse_args()
 n_epochs = args.epochs
 
 if args.file_path:
-    g_model = torch.load(args.file_path)
+    generator = torch.load(args.file_path)
     print(f'Learning running from {args.file_path}')
 else:
     generator = Generator()
     print('Learning running with start')
-gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
+# gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
 dataset = MyDataset(list_dir_name, list_dir_name_25)
 train(generator, dataset, n_epochs, batch, patch_shape)
 
