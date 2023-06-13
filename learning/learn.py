@@ -138,7 +138,7 @@ from .model_ import *
 #             i_s += 1
 #             summarize_performance(i_s, g_model, f=1)
 #             # break
-def summarize_performance(step, generator, f=0, dataloader):
+def summarize_performance(step, generator, dataloader, f=0):
     """
     This function is used to save trained models and evaluate their performance on the test data.
     The function takes as arguments the training step number, the trained generator model, and the flag f that controls
@@ -218,7 +218,7 @@ def train(generator, dataset, num_epochs, batch_size, patch_shape):
         print('Epoch [{}/{}], Average Loss: {:.4f}'.format(epoch + 1, num_epochs, average_loss))
 
         # Проверка производительности после каждой эпохи
-        summarize_performance(epoch + 1, generator, f=1, dataloader)
+        summarize_performance(epoch + 1, generator, dataloader, f=1)
 
 
 def shown_statics():
