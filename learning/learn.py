@@ -138,7 +138,7 @@ from .model_ import *
 #             i_s += 1
 #             summarize_performance(i_s, g_model, f=1)
 #             # break
-def summarize_performance(step, generator, f=0):
+def summarize_performance(step, generator, dataloader, f=0):
     """
     This function is used to save trained models and evaluate their performance on the test data.
     The function takes as arguments the training step number, the trained generator model, and the flag f that controls
@@ -162,7 +162,7 @@ def summarize_performance(step, generator, f=0):
     try:
         generator.eval()
         with torch.no_grad():
-            for j, (inputs, labels) in enumerate(test_dataloader):
+            for j, (inputs, labels) in enumerate(dataloader):
                 outputs = generator(inputs)
                 percentage_list = []
 
