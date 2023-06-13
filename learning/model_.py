@@ -198,6 +198,49 @@ class DefineGenerator(torch.nn.Module):
         return output_img
 
 
+class Generator(nn.Module):
+    def __init__(self):
+        super(Generator, self).__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(1, 64, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(128, 256, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(256, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(512, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(512, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(512, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+        )
+
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(512, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(512, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(512, 512, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(512, 256, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(256, 128, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 1, 4, stride=2, padding=1),
+            nn.Tanh(),
+        )
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+
+
 # Define the combined generator and discriminator model for updating the generator
 def define_gan(in_src: list, g_model, d_model, y):
     in_src = torch.randn(in_src[1:])

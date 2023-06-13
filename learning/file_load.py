@@ -151,5 +151,38 @@ print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 25 shape=',
 
 # ======================================================================
 
+
+class MyDataset(Dataset):
+    def __init__(self, list_dir_name, list_dir_name_25):
+        self.list_dir_name = list_dir_name
+        self.list_dir_name_25 = list_dir_name_25
+
+    def __len__(self):
+        return len(self.list_dir_name)
+
+    def __getitem__(self, index):
+        img = self.read_img25(self.list_dir_name[index])
+        img_25 = self.read_img25(self.list_dir_name_25[index])
+        return img, img_25
+
+    def read_img25(self, dir):
+        if os.path.exists(dir):
+            img = cv2.imread(dir, 0).astype(np.bool_).astype(np.int8)
+        else:
+            print(f"Path {dir} exists: {os.path.exists(dir)}")
+        return np.expand_dims(img, axis=2)
+
+    def get_list_dir(self, dir):
+        d = os.path.join(dir[:-len('_segmap.png')] + '_segmap.png')
+        d_25 = os.path.join(dir[:-(len('_segmap.png') + 1)], '49_segmap.png')
+        list_dir, list_dir_25 = [], []
+        for r in rakurs:
+            d_r = d.replace("yaw_0", r)
+            list_dir.append(d_r)
+            d_r_25 = d_25.replace("yaw_0", r)
+            list_dir_25.append(d_r_25)
+        return list_dir, list_dir_25
+
+
 if __name__ == '__main__':
     pass

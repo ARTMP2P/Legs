@@ -9,7 +9,7 @@ import torch
 # ======================================================================
 
 
-# n_epochs = 20
+patch_shape = 64
 image_shape = [batch, CHANEL, SIZE, SIZE]
 d_model = Define_discriminator()
 parser = argparse.ArgumentParser()
@@ -23,11 +23,11 @@ if args.file_path:
     g_model = torch.load(args.file_path)
     print(f'Learning running from {args.file_path}')
 else:
-    g_model = DefineGenerator(batch)
+    generator = Generator()
     print('Learning running with start')
-y = torch.randn(CHANEL, SIZE, SIZE)
 gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
-train(d_model, g_model, gan_model, n_epochs=10, n_batch=batch)
+dataset = MyDataset(list_dir_name, list_dir_name_25)
+train(generator, dataset, n_epochs, batch, patch_shape)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
 

@@ -65,7 +65,7 @@ def summarize_performance(step, g_model, f=0):
         file.write(f'{filename_model_NN}\nMetricks: {np.mean(precentage_list)}\n')
 
 
-def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
+def train0(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
     shown_statics()
     i_s = 0
     n_patch = d_model.conv5.out_channels  # Определение размерности выходной карты признаков дискриминатора
@@ -138,6 +138,28 @@ def train(d_model, g_model, gan_model, n_epochs=200, n_batch=1, i_s=0, bufer=0):
             i_s += 1
             summarize_performance(i_s, g_model, f=1)
             # break
+
+
+def train(generator, dataset, num_epochs, batch_size, patch_shape):
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    for epoch in range(num_epochs):
+        for batch_idx, (inputs, labels) in enumerate(dataloader):
+            optimizer.zero_grad()
+            outputs = generator(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            if (batch_idx + 1) % 10 == 0:
+                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, batch_idx + 1,
+                                                                         len(dataloader), loss.item()))
+
+        # Проверка производительности после каждой эпохи
+        summarize_performance(epoch + 1, generator, f=1)
 
 
 def shown_statics():
