@@ -134,7 +134,7 @@ def find_files_by_name(root_dir, file_name):
 
 # ======================================================================
 
-list_img_test, list_img_test_25 = [], []
+list_img_test, list_img_test_25, list_img_train = [], [], []
 dir = get_dirs(dir_file_txt)
 dir_260_clear = get_dirs(dir_260_clear_file_txt)
 dir_test = np.array(random.choices (find_files_by_name(img_test, '9_segmap.png'), k=8))
@@ -149,7 +149,10 @@ for d in dir_test:
     list_img_test_25.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[1]))), axis=-1))
 # list_img_test = np.transpose(list_img_test, (3, 1, 2, 0))
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 49 shape=', list_img_test_25[0].shape)
+for d in dir:
+    for m in range(48):
 
+        list_img_train.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[m]))), axis=-1))
 # ======================================================================
 
 
