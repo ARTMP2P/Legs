@@ -245,7 +245,8 @@ class Generator(nn.Module):
         x = self.encoder(x)
         x = self.adapt(x)
         x = self.decoder(x)
-        x = x[:, :, :8]  # Удаление последней размерности 4
+        x = torch.cat(torch.split(x, 1, dim=1), dim=4)  # Конкатенация по первой размерности
+        x = x.squeeze(dim=1)  # Убрать размерность 1
         x = x.permute(0, 2, 3, 1)  # Удаление лишних размерностей
         return x
 
