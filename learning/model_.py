@@ -246,6 +246,7 @@ class Generator(nn.Module):
         x = self.adapt(x)
         x = self.decoder(x)
         x = x.permute(0, 2, 3, 1)  # Изменение порядка размерностей обратно
+        x = x[:, :1024, :1024, :]  # Удаление лишних размерностей
         return x
 
 
