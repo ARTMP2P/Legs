@@ -202,48 +202,50 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Conv3d(8, 64, 4, stride=2, padding=1),
+            nn.Conv2d(8, 64, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.Conv3d(64, 128, 4, stride=2, padding=1),
+            nn.Conv2d(64, 128, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.Conv3d(128, 256, 4, stride=2, padding=1),
+            nn.Conv2d(128, 256, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.Conv3d(256, 512, 4, stride=2, padding=1),
+            nn.Conv2d(256, 512, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.Conv3d(512, 512, 4, stride=2, padding=1),
+            nn.Conv2d(512, 512, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.Conv3d(512, 512, 4, stride=2, padding=1),
+            nn.Conv2d(512, 512, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.Conv3d(512, 512, 4, stride=2, padding=1),
+            nn.Conv2d(512, 512, 4, stride=2, padding=1),
             nn.ReLU(),
         )
 
         self.adapt = nn.Sequential(
-            nn.Conv3d(512, 512, 3, stride=1, padding=1),
+            nn.Conv2d(512, 512, 3, stride=1, padding=1),
             nn.ReLU(),
         )
 
         self.decoder = nn.Sequential(
-            nn.ConvTranspose3d(512, 512, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(512, 512, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose3d(512, 512, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(512, 512, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose3d(512, 512, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(512, 512, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose3d(512, 256, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(512, 256, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose3d(256, 128, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(256, 128, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose3d(128, 64, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose3d(64, 8, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(64, 1, 4, stride=2, padding=1),
             nn.Tanh(),
         )
 
     def forward(self, x):
+        x = x.permute(0, 3, 1, 2)  # Изменение порядка размерностей
         x = self.encoder(x)
         x = self.adapt(x)
         x = self.decoder(x)
+        x = x.permute(0, 2, 3, 1)  # Изменение порядка размерностей обратно
         return x
 
 
