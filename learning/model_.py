@@ -236,7 +236,7 @@ class Generator(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 1, 4, stride=2, padding=1),
+            nn.ConvTranspose2d(64, 8, 4, stride=2, padding=1),
             nn.Tanh(),
         )
 
