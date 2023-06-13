@@ -138,7 +138,7 @@ list_img_test, list_img_test_25 = [], []
 dir = get_dirs(dir_file_txt)
 dir_260_clear = get_dirs(dir_260_clear_file_txt)
 dir_test = np.array(random.choices (find_files_by_name(img_test, '9_segmap.png'), k=8))
-
+print(dir_test)
 for d in dir_260_clear:
     name_model = get_name_model(d)
     if name_model not in list_models:
