@@ -188,7 +188,7 @@ def summarize_performance(step, generator, dataloader, f=0):
                         cv2.imwrite(f'{img_test_group}/{dir_test[j][75:-20]}{j}_channel{c}.jpg',
                                     np.uint8(img_diff))
 
-                        print(f"Percentage difference for image {j}-{i}, channel {c}: {round(percentage, 2)}")
+                        # print(f"Percentage difference for image {j}-{i}, channel {c}: {round(percentage, 2)}")
 
                 print(f"Mean percentage difference for image {j}: {round(np.mean(percentage_list), 2)}")
 
