@@ -147,6 +147,9 @@ def train(generator, dataset, num_epochs, batch_size, patch_shape):
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     for epoch in range(num_epochs):
+        epoch_loss = 0.0  # Переменная для накопления значения ошибки в текущей эпохе
+        num_batches = 0  # Переменная для подсчета количества пакетов в текущей эпохе
+
         for batch_idx, (inputs, labels) in enumerate(dataloader):
             optimizer.zero_grad()
             outputs = generator(inputs)
@@ -154,9 +157,15 @@ def train(generator, dataset, num_epochs, batch_size, patch_shape):
             loss.backward()
             optimizer.step()
 
+            epoch_loss += loss.item()
+            num_batches += 1
+
             if (batch_idx + 1) % 10 == 0:
                 print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, batch_idx + 1,
                                                                          len(dataloader), loss.item()))
+
+        average_loss = epoch_loss / num_batches
+        print('Epoch [{}/{}], Average Loss: {:.4f}'.format(epoch + 1, num_epochs, average_loss))
 
         # Проверка производительности после каждой эпохи
         summarize_performance(epoch + 1, generator, f=1)
