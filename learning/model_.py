@@ -245,8 +245,8 @@ class Generator(nn.Module):
         x = self.encoder(x)
         x = self.adapt(x)
         x = self.decoder(x)
-        x = x.permute(2, 3, 1, 4)  # Изменение порядка размерностей обратно
-        x = x[:, :, :]  # Удаление последней размерности 4
+        x = x[:, :, :8]  # Удаление последней размерности 4
+        x = x.permute(0, 2, 3, 1)  # Удаление лишних размерностей
         return x
 
 
