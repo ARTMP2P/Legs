@@ -26,6 +26,7 @@ else:
     generator = Generator()
     print('Learning running with start')
 # gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
+print(dir_260_clear, dir_test)
 dataset = MyDataset(dir_260_clear, dir_test)
 train(generator, dataset, n_epochs, batch, patch_shape)
 
