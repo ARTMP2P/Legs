@@ -166,6 +166,7 @@ class MyDataset(Dataset):
         img_25 = self.list_dir_name_25[index]
         img_tensor = torch.from_numpy(img).float()
         img_25_tensor = torch.from_numpy(img_25).float()
+        print(f"img_tensor: {img_tensor.shape}\nimg_25_tensor: {img_25_tensor.shape}")
         return img_tensor, img_25_tensor
 
 
