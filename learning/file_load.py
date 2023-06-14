@@ -160,6 +160,7 @@ def create_dataset(root_dir):
             for filename in filenames:
                 if filename == "0_segmap.png":
                     if "yaw_0" in dirpath:
+                        print(dirpath)
                         # file_path = os.path.join(dirpath, filename)
                         file_paths.append(dirpath)
         for file_path in file_paths:
@@ -167,7 +168,8 @@ def create_dataset(root_dir):
                 temp_array = []
                 for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
                     displacement_dir = os.path.dirname(file_path)
-                    dirpath.replace('/yaw_0', f"yaw_{m}")
+                    print(displacement_dir)
+                    displacement_dir.replace('/yaw_0', f"yaw_{m}")
                     displacement_file_path = os.path.join(displacement_dir, f"{j}_segmap.png")
                     tensor = read_img(displacement_file_path)
                     temp_array.append(tensor)
@@ -176,7 +178,7 @@ def create_dataset(root_dir):
             temp_array = []
             for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
                 displacement_dir = os.path.dirname(file_path)
-                dirpath.replace('/yaw_0', f"yaw_{m}")
+                displacement_dir.replace('/yaw_0', f"yaw_{m}")
                 # Загрузка истинного файла без смещения (49)
                 true_file_path = os.path.join(displacement_dir, f"49_segmap.png")
                 true_tensor = read_img(true_file_path)
