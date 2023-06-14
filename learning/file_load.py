@@ -170,7 +170,7 @@ def create_dataset(root_dir):
                 temp_array = []
                 for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
                     displacement_dir = os.path.dirname(file_path)
-                    displacement_dir.replace('/yaw_0', f"yaw_{m}")
+                    displacement_dir.replace('yaw_0', f"yaw_{m}")
                     displacement_file_path = os.path.join(displacement_dir, f"{j}_segmap.png")
                     try:
                         tensor = read_img(displacement_file_path)
