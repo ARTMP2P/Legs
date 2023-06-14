@@ -166,7 +166,7 @@ def create_dataset(root_dir):
 
                         file_paths.append(dirpath)
         for file_path in file_paths:
-            for j in tqdm(range(49), desc="Processing files"):
+            for j in tqdm(range(48), desc="Processing files"):
                 temp_array = []
                 for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
 
