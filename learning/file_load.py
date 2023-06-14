@@ -1,7 +1,7 @@
 # ======================================================================
 from .vars import *
 from .model_ import *
-import os
+import os, re
 import cv2
 import random
 import glob
@@ -160,10 +160,9 @@ def create_dataset(root_dir):
         for dirpath, _, filenames in os.walk(root_dir):
             for filename in filenames:
                 if filename == "0_segmap.png":
-                    if "yaw_0/" in dirpath:
-                        _, subdirectories, _ = next(os.walk(dirpath))
-                        if len(subdirectories) > 0:
-                            file_paths.append(dirpath)
+                    match = re.search(r"yaw_0/(?!.*/).*", dirpath)
+                    if match:
+                        file_paths.append(dirpath)
         for file_path in file_paths:
             for j in tqdm(range(49), desc="Processing files"):
                 temp_array = []
