@@ -165,6 +165,7 @@ def create_dataset(root_dir):
             # Загрузка файлов с смещением (1-48)
             for j in range(1, 49):
                 file_path = os.path.join(displacement_dir, f"{j}.png")
+                print(file_path)
                 tensor = torch.from_numpy(read_img(file_path)).float()
                 dataset.append(tensor)
 
