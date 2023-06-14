@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageChops
-from statistics import mean
+from torch.utils.data import DataLoader
 
 # ======================================================================
 from .vars import *
@@ -73,48 +73,62 @@ def summarize_performance(step, generator, dataloader, dataset_name, device, sav
         print(f"> Saved model: {filename_model}")
 
 
-def train(generator, discriminator, dataset_path, batch_size, num_epochs):
-    # Определение функции потерь и оптимизаторов
-    # Загрузка и предобработка датасета
-    dataset = torch.load(dataset_path)
-    # Дополнительная предобработка датасета (нормализация, аугментация и т.д.)
+def train(generator, discriminator, root_dir, dataset_name, num_epochs, batch_size, device):
+    # Определение оптимизаторов и функции потерь
+    generator_optimizer = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+    discriminator_optimizer = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+    criterion = nn.BCELoss()
 
-    # Создание DataLoader
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    # Определение функции потерь и оптимизатора
-    criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.Adam(generator.parameters(), lr=0.001)
+    # Создание DataLoader для загрузки датасета батчами
+    dataloader = DataLoader(
+        dataset=create_dataset(root_dir, batch_size),
+        batch_size=batch_size,
+        shuffle=True
+    )
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    generator.to(device)
-    discriminator.to(device)
-
-    # Цикл обучения
     for epoch in range(num_epochs):
-        generator.train()
+        for batch_x, batch_y in dataloader:
+            # Передача данных на устройство (GPU или CPU)
+            batch_x = batch_x.to(device)
+            batch_y = batch_y.to(device)
 
-        for i, data in enumerate(dataloader):
-            # Обработка входных данных и меток
-            inputs = data[:-1].to(device)
-            labels = data[-1].to(device)
+            # Обновление параметров дискриминатора
+            discriminator_optimizer.zero_grad()
 
-            # Обнуление градиентов
-            optimizer.zero_grad()
+            # Прямой проход через дискриминатор
+            real_labels = torch.ones(batch_size, 8, 1024, 1024).to(device)
+            fake_labels = torch.zeros(batch_size, 8, 1024, 1024).to(device)
+            real_outputs = discriminator(batch_y)
+            fake_outputs = discriminator(generator(batch_x))
 
-            # Прямой проход генератора
-            outputs = generator(inputs)
+            # Вычисление функции потерь для дискриминатора
+            real_loss = criterion(real_outputs, real_labels)
+            fake_loss = criterion(fake_outputs, fake_labels)
+            discriminator_loss = real_loss + fake_loss
 
-            # Вычисление функции потерь и обратный проход
-            loss = criterion(outputs, labels)
-            loss.backward()
+            # Обратное распространение и обновление параметров дискриминатора
+            discriminator_loss.backward()
+            discriminator_optimizer.step()
 
-            # Обновление весов генератора
-            optimizer.step()
+            # Обновление параметров генератора
+            generator_optimizer.zero_grad()
 
-        # Сохранение модели и оценка производительности
-        summarize_performance(epoch, generator, dataloader, "dataset_name", device)
+            # Прямой проход через генератор
+            outputs = generator(batch_x)
+            generated_outputs = discriminator(outputs)
 
-    print("Training completed.")
+            # Вычисление функции потерь для генератора
+            generator_loss = criterion(generated_outputs, real_labels)
+
+            # Обратное распространение и обновление параметров генератора
+            generator_loss.backward()
+            generator_optimizer.step()
+
+        # Проверка работы нейросети после каждой эпохи
+        summarize_performance(epoch, generator, dataloader, dataset_name, device)
+
+    # Сохранение финальной модели генератора
+    torch.save(generator.state_dict(), f'models/final_{dataset_name}.pt')
 
 
 # def summarize_performance(step, generator, dataloader, f=0):

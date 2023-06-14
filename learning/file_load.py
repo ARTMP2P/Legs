@@ -149,8 +149,7 @@ print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 49 shape=',
 # ======================================================================
 
 
-def create_dataset(root_dir):
-    dataset = []
+def create_dataset(root_dir, batch_size):
     subfolder_list = sorted(os.listdir(root_dir))  # Список подпапок с номерами моделей
 
     for subfolder_model in subfolder_list:
@@ -163,35 +162,48 @@ def create_dataset(root_dir):
                     if "yaw_0" in dirpath and os.path.exists(os.path.join(
                             dirpath, '0_segmap.png'
                     )):
-
                         file_paths.append(dirpath)
-        for file_path in file_paths:
-            for j in tqdm(range(49), desc="Processing files"):
-                temp_array = []
-                for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
 
+        for file_path in file_paths:
+            batch_x = []
+            batch_y = []
+
+            for j in tqdm(range(48), desc="Processing files"):
+                temp_x = []
+                temp_y = []
+
+                for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
                     d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
                     displacement_file_path = os.path.join(d_file_path, f"{j}_segmap.png")
+
                     try:
                         tensor = read_img(displacement_file_path)
-                        temp_array.append(tensor)
+                        temp_x.append(tensor)
                     except:
                         print(displacement_file_path)
-                dataset.append(temp_array)
 
-            temp_array = []
+                batch_x.append(temp_x)
+
             for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
                 t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
-                # Загрузка истинного файла без смещения (49)
                 true_file_path = os.path.join(t_file_path, f"49_segmap.png")
+
                 try:
                     true_tensor = read_img(true_file_path)
-                    temp_array.append(true_tensor)
+                    temp_y.append(true_tensor)
                 except:
                     print(true_file_path)
-            dataset.append(temp_array)
-    print(len(dataset))
-    return dataset
+
+            batch_y.append(temp_y)
+
+            # Проверка, достаточно ли данных для формирования батча
+            if len(batch_x) >= batch_size and len(batch_y) >= batch_size:
+                yield batch_x[:batch_size], batch_y[:batch_size]
+
+            # Очистка списков перед обработкой следующего набора данных
+            batch_x = []
+            batch_y = []
+
 
 
 if __name__ == '__main__':
