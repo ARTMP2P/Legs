@@ -6,6 +6,7 @@ import cv2
 import random
 import glob
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 # ======================================================================
@@ -163,7 +164,7 @@ def create_dataset(root_dir):
                         # file_path = os.path.join(dirpath, filename)
                         file_paths.append(dirpath)
         for file_path in file_paths:
-            for j in range(49):
+            for j in tqdm(range(49), desc="Processing files"):
                 temp_array = []
                 for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
                     displacement_dir = os.path.dirname(file_path)
