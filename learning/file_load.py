@@ -160,7 +160,9 @@ def create_dataset(root_dir):
         for dirpath, _, filenames in os.walk(model_dir):
             for filename in filenames:
                 if filename == "0_segmap.png":
-                    if "yaw_0" in dirpath and len(dirpath.split('/')) > 1:
+                    if "yaw_0" in dirpath and os.path.exists(os.path.join(
+                            dirpath, '0_segmap.png'
+                    )):
                         print(dirpath)
                         file_paths.append(dirpath)
         for file_path in file_paths:
