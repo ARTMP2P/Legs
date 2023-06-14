@@ -168,21 +168,26 @@ def create_dataset(root_dir):
                 temp_array = []
                 for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
                     displacement_dir = os.path.dirname(file_path)
-                    print(displacement_dir)
                     displacement_dir.replace('/yaw_0', f"yaw_{m}")
                     displacement_file_path = os.path.join(displacement_dir, f"{j}_segmap.png")
-                    tensor = read_img(displacement_file_path)
-                    temp_array.append(tensor)
+                    try:
+                        tensor = read_img(displacement_file_path)
+                        temp_array.append(tensor)
+                    except:
+                        print(displacement_file_path)
                 dataset.append(temp_array)
 
             temp_array = []
             for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
-                displacement_dir = os.path.dirname(file_path)
-                displacement_dir.replace('/yaw_0', f"yaw_{m}")
+                true_dir = os.path.dirname(file_path)
+                true_dir.replace('/yaw_0', f"yaw_{m}")
                 # Загрузка истинного файла без смещения (49)
-                true_file_path = os.path.join(displacement_dir, f"49_segmap.png")
-                true_tensor = read_img(true_file_path)
-                temp_array.append(true_tensor)
+                true_file_path = os.path.join(true_dir, f"49_segmap.png")
+                try:
+                    true_tensor = read_img(true_file_path)
+                    temp_array.append(true_tensor)
+                except:
+                    print(true_file_path)
             dataset.append(temp_array)
     print(dataset.shape)
     return dataset
