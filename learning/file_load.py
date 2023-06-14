@@ -6,6 +6,7 @@ import cv2
 import random
 import glob
 from torch.utils.data import Dataset
+from torchvision.datasets import DatasetFolder
 
 
 # ======================================================================
@@ -42,12 +43,7 @@ def read_img25(dir):
 
     Функция полностью дублирует функцию read_img, в виду отдельной предобработки датасета имеет смысл отказаться от нее
     """
-    # try:
-    #     img = cv2.imread(dir, 0)[y1:y2, x1:x2].astype(np.bool_).astype(np.int8)
-    # except:
-    #     print('read_img25(dir)=', dir)
-    # # img[:960] = 0
-    # img = cv2.resize(img, (SIZE, SIZE), interpolation=cv2.INTER_NEAREST)
+
     if os.path.exists(dir):
         img = cv2.imread(dir, 0).astype(np.bool_).astype(np.int8)
     else:
@@ -149,30 +145,36 @@ for d in dir_test:
     list_img_test_25.append(np.concatenate(list(map(read_img, ((get_list_dir(d))[1]))), axis=-1))
 # list_img_test = np.transpose(list_img_test, (3, 1, 2, 0))
 print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 49 shape=', list_img_test_25[0].shape)
-# list_rand_dir, list_rand_dir_25 = get_list_dir_2(root, list_models, batch)
-#
-#         for i_d in range(batch):
-#             list_dir_name, list_dir_name_25 = list_rand_dir[i_d], list_rand_dir_25[i_d]
-#
-#             [X_A, X_B], y = generate_real_samples(list_dir_name, list_dir_name_25, 1, 4)
+
 # ======================================================================
 
 
-class MyDataset(Dataset):
-    def __init__(self, list_dir_name, list_dir_name_25):
-        self.list_dir_name = list_dir_name
-        self.list_dir_name_25 = list_dir_name_25
+def create_dataset(root_dir):
+    dataset = []
+    subfolder_list = sorted(os.listdir(root_dir))  # Список подпапок с номерами моделей
 
-    def __len__(self):
-        return len(self.list_dir_name)
+    for subfolder_model in subfolder_list:
+        model_dir = os.path.join(root_dir, subfolder_model)
 
-    def __getitem__(self, index):
-        img = self.list_dir_name[index]
-        img_25 = self.list_dir_name_25[index]
-        img_tensor = torch.from_numpy(img).float()
-        img_25_tensor = torch.from_numpy(img_25).float()
-        # print(f"img_tensor: {img_tensor.shape}\nimg_25_tensor: {img_25_tensor.shape}")
-        return img_tensor, img_25_tensor
+        # Получение списка подпапок с ракурсами
+        subfolder_yaw_list = sorted([f for f in os.listdir(model_dir) if f.startswith("yaw_")])
+
+        for i, subfolder_yaw in enumerate(subfolder_yaw_list):
+            yaw_dir = os.path.join(model_dir, subfolder_yaw)
+            displacement_dir = os.path.join(yaw_dir, "displacement")
+
+            # Загрузка файлов с смещением (1-48)
+            for j in range(1, 49):
+                file_path = os.path.join(displacement_dir, f"{j}.png")
+                tensor = torch.from_numpy(read_img(file_path)).float()
+                dataset.append(tensor)
+
+            # Загрузка истинного файла без смещения (49)
+            true_file_path = os.path.join(yaw_dir, "true", "49.png")
+            true_tensor = torch.from_numpy(read_img(true_file_path)).float()
+            dataset.append(true_tensor)
+
+    return dataset
 
 
 if __name__ == '__main__':

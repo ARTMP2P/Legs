@@ -11,7 +11,7 @@ import torch
 
 patch_shape = 64
 image_shape = [batch, CHANEL, SIZE, SIZE]
-d_model = Define_discriminator()
+d_model = Discriminator()
 parser = argparse.ArgumentParser()
 parser.add_argument("file_path", nargs="?", default=None)
 parser.add_argument("epochs", type=int, default=200)
@@ -26,8 +26,13 @@ else:
     generator = Generator()
     print('Learning running with start')
 # gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
-dataset = MyDataset(list_img_test, list_img_test_25)
-train(generator, dataset, n_epochs, batch, patch_shape)
+dataset = create_dataset(root)
+torch.save(dataset, os.path.join(root, "dataset.pth"))
+print(f"Dataset: {os.path.join(root, 'dataset.pth')} is created!")
+# Сохранение датасета в файл
+torch.save(dataset, "dataset.pth")
+
+train(generator, d_model, os.path.join(root, "dataset.pth"), batch, n_epochs)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
 
