@@ -158,25 +158,25 @@ def create_dataset(root_dir):
         # Получение списка подпапок с ракурсами
         subfolder_yaw_list = sorted([f for f in os.listdir(model_dir) if f.startswith("yaw_")])
 
-        for i, subfolder_yaw in enumerate(subfolder_yaw_list):
+        # Список файлов для каждого массива
+        files_list = []
+
+        for subfolder_yaw in subfolder_yaw_list:
             yaw_dir = os.path.join(model_dir, subfolder_yaw)
-            displacement_dir_list = sorted([f for f in os.listdir(yaw_dir) if os.path.isdir(os.path.join(yaw_dir, f))])
+            displacement_dir = os.path.join(yaw_dir, "displacement")
 
-            for displacement_subfolder in displacement_dir_list:
-                displacement_dir = os.path.join(yaw_dir, displacement_subfolder)
+            # Загрузка файлов с смещением (1-48)
+            for j in range(1, 49):
+                file_path = os.path.join(displacement_dir, f"{j}_segmap.png")
+                files_list.append(file_path)
 
-                # Загрузка файлов с смещением (1-48)
-                for j in range(1, 49):
-                    file_path = os.path.join(displacement_dir, f"{j}.jpg")
-                    img = read_img(file_path)
-                    tensor = torch.from_numpy(img)
-                    dataset.append(tensor)
+        # Загрузка истинного файла без смещения (49)
+        true_file_path = os.path.join(yaw_dir, "true", "49_segmap.png")
+        files_list.append(true_file_path)
 
-                # Загрузка истинного файла без смещения (49)
-                true_file_path = os.path.join(yaw_dir, "true", "49.jpg")
-                img = read_img(true_file_path)
-                tensor = torch.from_numpy(img)
-                dataset.append(tensor)
+        # Создание тензоров и добавление их в датасет
+        tensors = [read_img(file_path) for file_path in files_list]
+        dataset.append(torch.tensor(tensors))
 
     return dataset
 
