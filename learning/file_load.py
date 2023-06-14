@@ -190,7 +190,7 @@ def create_dataset(root_dir):
                 except:
                     print(true_file_path)
             dataset.append(temp_array)
-    print(dataset.shape)
+    print(len(dataset))
     return dataset
 
 
