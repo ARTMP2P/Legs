@@ -6,7 +6,6 @@ import cv2
 import random
 import glob
 from torch.utils.data import Dataset
-from torchvision.datasets import DatasetFolder
 
 
 # ======================================================================
