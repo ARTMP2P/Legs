@@ -159,7 +159,7 @@ def create_dataset(root_dir):
         for dirpath, _, filenames in os.walk(root_dir):
             for filename in filenames:
                 if filename == "0_segmap.png":
-                    if "yaw_0" in dirpath:
+                    if "yaw_0/" in dirpath:
                         print(dirpath)
                         # file_path = os.path.join(dirpath, filename)
                         file_paths.append(dirpath)
