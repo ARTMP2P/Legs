@@ -163,7 +163,7 @@ def create_dataset(root_dir):
                     if "yaw_0" in dirpath and os.path.exists(os.path.join(
                             dirpath, '0_segmap.png'
                     )):
-                        print(dirpath)
+
                         file_paths.append(dirpath)
         for file_path in file_paths:
             for j in tqdm(range(49), desc="Processing files"):
