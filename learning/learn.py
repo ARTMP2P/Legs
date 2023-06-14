@@ -79,9 +79,12 @@ def train(generator, discriminator, root_dir, dataset_name, num_epochs, batch_si
     discriminator_optimizer = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
     criterion = nn.BCELoss()
 
-    # Создание DataLoader для загрузки датасета батчами
+    # Создание списка данных для загрузки
+    dataset = list(create_dataset(root_dir, batch_size))
+
+    # Создание DataLoader для загрузки данных
     dataloader = DataLoader(
-        dataset=create_dataset(root_dir, batch_size),
+        dataset=dataset,
         batch_size=batch_size,
         shuffle=True
     )
