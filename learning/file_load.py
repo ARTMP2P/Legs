@@ -155,29 +155,34 @@ def create_dataset(root_dir):
     for subfolder_model in subfolder_list:
         model_dir = os.path.join(root_dir, subfolder_model)
 
-        # Получение списка подпапок с ракурсами
-        subfolder_yaw_list = sorted([f for f in os.listdir(model_dir) if f.startswith("yaw_")])
+        file_paths = []
+        for dirpath, _, filenames in os.walk(root_dir):
+            for filename in filenames:
+                if filename == "0_segmap.png":
+                    if "yaw_0" in dirpath:
+                        # file_path = os.path.join(dirpath, filename)
+                        file_paths.append(dirpath)
+        for file_path in file_paths:
+            for j in range(49):
+                temp_array = []
+                for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
+                    displacement_dir = os.path.dirname(file_path)
+                    dirpath.replase('/yaw_0', f"yaw_{m}")
+                    displacement_file_path = os.path.join(displacement_dir, f"{j}_segmap.png")
+                    tensor = read_img(displacement_file_path)
+                    temp_array.append(tensor)
+                dataset.append(temp_array)
 
-        # Список файлов для каждого массива
-        files_list = []
-
-        for subfolder_yaw in subfolder_yaw_list:
-            yaw_dir = os.path.join(model_dir, subfolder_yaw)
-            displacement_dir = os.path.join(yaw_dir, "displacement")
-
-            # Загрузка файлов с смещением (1-48)
-            for j in range(1, 49):
-                file_path = os.path.join(displacement_dir, f"{j}_segmap.png")
-                files_list.append(file_path)
-
-        # Загрузка истинного файла без смещения (49)
-        true_file_path = os.path.join(yaw_dir, "true", "49_segmap.png")
-        files_list.append(true_file_path)
-
-        # Создание тензоров и добавление их в датасет
-        tensors = [read_img(file_path) for file_path in files_list]
-        dataset.append(torch.tensor(tensors))
-
+            temp_array = []
+            for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
+                displacement_dir = os.path.dirname(file_path)
+                dirpath.replase('/yaw_0', f"yaw_{m}")
+                # Загрузка истинного файла без смещения (49)
+                true_file_path = os.path.join(displacement_dir, f"49_segmap.png")
+                true_tensor = read_img(true_file_path)
+                temp_array.append(true_tensor)
+            dataset.append(temp_array)
+    print(dataset.shape)
     return dataset
 
 
