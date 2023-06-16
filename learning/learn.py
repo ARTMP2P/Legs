@@ -106,7 +106,7 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
             real_labels = torch.ones(batch_size, 8, 1024, 1024).to(device)
             fake_labels = torch.zeros(batch_size, 8, 1024, 1024).to(device)
             real_outputs = discriminator(batch_y.float())
-            fake_outputs = discriminator(generator(batch_x))
+            fake_outputs = discriminator(generator(batch_x.float()))
 
             # Вычисление функции потерь для дискриминатора
             real_loss = criterion(real_outputs, real_labels)
@@ -121,7 +121,7 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
             generator_optimizer.zero_grad()
 
             # Прямой проход через генератор
-            outputs = generator(batch_x)
+            outputs = generator(batch_x.float())
             generated_outputs = discriminator(outputs)
 
             # Вычисление функции потерь для генератора
