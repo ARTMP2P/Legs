@@ -16,7 +16,7 @@ from .model_ import *
 # ======================================================================
 
 
-def summarize_performance(step, generator, dataloader, dataset_name, device, save_model=True):
+def summarize_performance(step, generator, dataloader, device, save_model=True):
     """
     This function is used to save trained models and evaluate their performance on the test data.
     The function takes as arguments the training step number, the trained generator model, the dataloader
@@ -54,13 +54,13 @@ def summarize_performance(step, generator, dataloader, dataset_name, device, sav
                                                np.expand_dims(original_channel * 255, 2),
                                                np.zeros((1024, 1024, 1))), axis=-1)
                     img_diff = np.uint8(img_diff)
-                    cv2.imwrite(f'img_test/{dataset_name}_{step}_channel{c}.jpg', img_diff)
+                    cv2.imwrite(f'img_test/channel{c}.jpg', img_diff)
 
                     # Print the percentage difference
                     print(f"Mean percentage difference for image {_}, channel {c}: {round(percentage, 2)}")
 
         mean_percentage_diff = np.mean(percentage_list)
-        print(f"Mean percentage difference for dataset {dataset_name}, step {step}: {round(mean_percentage_diff, 2)}")
+        print(f"Mean percentage difference for step {step}: {round(mean_percentage_diff, 2)}")
 
     generator.train()
 
@@ -73,23 +73,24 @@ def summarize_performance(step, generator, dataloader, dataset_name, device, sav
         print(f"> Saved model: {filename_model}")
 
 
-def train(generator, discriminator, root_dir, dataset_name, num_epochs, batch_size, device):
+def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
     # Определение оптимизаторов и функции потерь
     generator_optimizer = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
     discriminator_optimizer = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
     criterion = nn.BCELoss()
 
-    # Создание списка данных для загрузки
-    dataset = list(create_dataset(root_dir, batch_size))
-
-    # Создание DataLoader для загрузки данных
-    dataloader = DataLoader(
-        dataset=dataset,
-        batch_size=batch_size,
-        shuffle=True
-    )
+    dataset_list = get_file_paths(root_dir)
 
     for epoch in range(num_epochs):
+        dataset = create_dataset(dataset_list, batch_size)
+
+        # Создание DataLoader для загрузки данных
+        dataloader = DataLoader(
+            dataset=dataset,
+            batch_size=batch_size,
+            shuffle=True
+        )
+
         for batch_x, batch_y in dataloader:
             # Передача данных на устройство (GPU или CPU)
             batch_x = batch_x.to(device)
@@ -128,10 +129,7 @@ def train(generator, discriminator, root_dir, dataset_name, num_epochs, batch_si
             generator_optimizer.step()
 
         # Проверка работы нейросети после каждой эпохи
-        summarize_performance(epoch, generator, dataloader, dataset_name, device)
-
-    # Сохранение финальной модели генератора
-    torch.save(generator.state_dict(), f'models/final_{dataset_name}.pt')
+        summarize_performance(epoch, generator, dataloader, device)
 
 
 # def summarize_performance(step, generator, dataloader, f=0):

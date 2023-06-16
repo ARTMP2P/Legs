@@ -149,60 +149,67 @@ print('list_img_test shape=', list_img_test[0].shape, 'list_img_test 49 shape=',
 # ======================================================================
 
 
-def create_dataset(root_dir, batch_size):
+def get_file_paths(root_dir: str) -> list:
+    """
+
+    :param root_dir:
+    :return:
+    """
     subfolder_list = sorted(os.listdir(root_dir))  # Список подпапок с номерами моделей
+    file_paths = []
 
     for subfolder_model in subfolder_list:
         model_dir = os.path.join(root_dir, subfolder_model)
 
-        file_paths = []
         for dirpath, _, filenames in os.walk(model_dir):
             for filename in filenames:
                 if filename == "0_segmap.png":
-                    if "yaw_0" in dirpath and os.path.exists(os.path.join(
-                            dirpath, '0_segmap.png'
-                    )):
+                    if "yaw_0" in dirpath and os.path.exists(os.path.join(dirpath, '0_segmap.png')):
                         file_paths.append(dirpath)
 
-        for file_path in file_paths:
-            batch_x = []
-            batch_y = []
+    return file_paths
 
-            for j in tqdm(range(48), desc="Processing files"):
-                temp_x = []
-                temp_y = []
 
-                for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
-                    d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
-                    displacement_file_path = os.path.join(d_file_path, f"{j}_segmap.png")
+def create_dataset(file_paths: list, batch_size: int) -> list:
+    """
 
-                    try:
-                        tensor = read_img(displacement_file_path)
-                        temp_x.append(tensor)
-                    except:
-                        print(displacement_file_path)
+    :param file_paths:
+    :param batch_size:
+    :return:
+    """
+    batch_x = []
+    batch_y = []
+    for _ in tqdm(range(batch_size), desc="Processing files"):
+        file_path = random.choice(file_paths)
+        temp_x = []
+        temp_y = []
+        num_file = random.randint(0, 48)
+        for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
+            d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
+            displacement_file_path = os.path.join(d_file_path, f"{num_file}_segmap.png")
 
-                batch_x.append(temp_x)
+            try:
+                tensor = read_img(displacement_file_path)
+                temp_x.append(tensor)
+            except:
+                print(displacement_file_path)
 
-            for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
-                t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
-                true_file_path = os.path.join(t_file_path, f"49_segmap.png")
+        batch_x.append(temp_x)
 
-                try:
-                    true_tensor = read_img(true_file_path)
-                    temp_y.append(true_tensor)
-                except:
-                    print(true_file_path)
+        for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
+            t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
+            true_file_path = os.path.join(t_file_path, f"49_segmap.png")
 
-            batch_y.append(temp_y)
+            try:
+                true_tensor = read_img(true_file_path)
+                temp_y.append(true_tensor)
+            except:
+                print(true_file_path)
 
-            # Проверка, достаточно ли данных для формирования батча
-            if len(batch_x) >= batch_size and len(batch_y) >= batch_size:
-                yield batch_x[:batch_size], batch_y[:batch_size]
+        batch_y.append(temp_y)
 
-            # Очистка списков перед обработкой следующего набора данных
-            batch_x = []
-            batch_y = []
+    print(f"X tensor is: {len(batch_x)}, Y tensor is: {len(batch_y)}")
+    return batch_x, batch_y
 
 
 
