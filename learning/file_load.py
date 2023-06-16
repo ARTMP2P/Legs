@@ -193,7 +193,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(displacement_file_path)
 
-        for m in enumerate['0', '55', '90', '125', '180', '235', '270', '305']:
+        for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
             t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
             true_file_path = os.path.join(t_file_path, f"49_segmap.png")
 
