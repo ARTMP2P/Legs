@@ -92,6 +92,7 @@ class Generator(nn.Module):
         x = self.decoder(x)
         return x
 
+
 # Определение дискриминатора
 class Discriminator(nn.Module):
     def __init__(self):

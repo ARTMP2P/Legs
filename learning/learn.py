@@ -96,6 +96,9 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
             batch_x = batch_x.to(device)
             batch_y = batch_y.to(device)
 
+            # Изменение формы входного тензора
+            batch_y = batch_y.view(-1, 8, 1024, 1024)
+
             # Обновление параметров дискриминатора
             discriminator_optimizer.zero_grad()
 
