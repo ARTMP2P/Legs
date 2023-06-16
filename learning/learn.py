@@ -132,7 +132,7 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
             generator_optimizer.step()
 
         # Проверка работы нейросети после каждой эпохи
-        summarize_performance(epoch, generator, dataloader, device)
+        summarize_performance(epoch, generator, dataset_list, device)
 
 
 # def summarize_performance(step, generator, dataloader, f=0):
