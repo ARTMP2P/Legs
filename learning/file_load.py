@@ -194,7 +194,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(displacement_file_path)
 
-        batch_x.append(np.stack(temp_x, axis=-1))
+        batch_x.append(np.concatenate(temp_x, axis=-1))
 
         for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
             t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
@@ -206,7 +206,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(true_file_path)
 
-        batch_y.append(np.stack(temp_y, axis=-1))
+        batch_y.append(np.concatenate(temp_y, axis=-1))
 
     print(f"X tensor is: {len(batch_x)} * {batch_x[0].shape}, Y tensor is: {len(batch_y)} * {batch_y[0].shape}")
     return [batch_x, batch_y]
