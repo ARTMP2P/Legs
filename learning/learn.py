@@ -37,7 +37,7 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
         for batch in evaluation_dataloader:
             inputs = batch[0].to(device)
             labels = batch[1].to(device)
-
+            print(f"Evaluation shape: {inputs.shape}, {labels.shape}")
             outputs = generator(inputs)
 
             generated_img = outputs.detach().cpu().numpy()
