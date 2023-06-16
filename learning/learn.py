@@ -43,9 +43,9 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
             generated_img = outputs.detach().cpu().numpy()
             original_img = labels.detach().cpu().numpy()
 
-        for c in range(generated_img.shape[2]):
-            generated_channel = generated_img[:, :, c]
-            original_channel = original_img[:, :, c]
+        for c in range(generated_img.shape[0]):
+            generated_channel = generated_img[c, :, :]
+            original_channel = original_img[c, :, :]
             difference = np.abs(generated_channel - original_channel)
             percentage = (np.count_nonzero(difference) * 100) / original_channel.size
             percentage_list.append(percentage)
