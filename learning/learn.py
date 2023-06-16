@@ -16,7 +16,7 @@ from .model_ import *
 # ======================================================================
 
 
-def summarize_performance(step, generator, dataloader, device, save_model=True):
+def summarize_performance(step, generator, dataset_list, device, save_model=True):
     """
     This function is used to save trained models and evaluate their performance on the test data.
     The function takes as arguments the training step number, the trained generator model, the dataloader
@@ -31,33 +31,32 @@ def summarize_performance(step, generator, dataloader, device, save_model=True):
     with torch.no_grad():
         percentage_list = []
 
-        for _, data in enumerate(dataloader):
-            inputs = data["input"].to(device)
-            labels = data["label"].to(device)
+        evaluation = create_dataset(dataset_list, batch_size=1)
 
-            outputs = generator(inputs)
-            batch_size = inputs.size(0)
+        inputs = evaluation[0].to(device)
+        labels = evaluation[1].to(device)
 
-            for i in range(batch_size):
-                generated_img = outputs[i].detach().cpu().numpy()
-                original_img = labels[i].detach().cpu().numpy()
+        outputs = generator(inputs)
 
-                for c in range(generated_img.shape[2]):
-                    generated_channel = generated_img[:, :, c]
-                    original_channel = original_img[:, :, c]
-                    difference = np.abs(generated_channel - original_channel)
-                    percentage = (np.count_nonzero(difference) * 100) / original_channel.size
-                    percentage_list.append(percentage)
+        generated_img = outputs.detach().cpu().numpy()
+        original_img = labels.detach().cpu().numpy()
 
-                    # Save the image with difference
-                    img_diff = np.concatenate((np.expand_dims(generated_channel * 255, 2),
-                                               np.expand_dims(original_channel * 255, 2),
-                                               np.zeros((1024, 1024, 1))), axis=-1)
-                    img_diff = np.uint8(img_diff)
-                    cv2.imwrite(f'img_test/channel{c}.jpg', img_diff)
+        for c in range(generated_img.shape[2]):
+            generated_channel = generated_img[:, :, c]
+            original_channel = original_img[:, :, c]
+            difference = np.abs(generated_channel - original_channel)
+            percentage = (np.count_nonzero(difference) * 100) / original_channel.size
+            percentage_list.append(percentage)
 
-                    # Print the percentage difference
-                    print(f"Mean percentage difference for image {_}, channel {c}: {round(percentage, 2)}")
+            # Save the image with difference
+            img_diff = np.concatenate((np.expand_dims(generated_channel * 255, 2),
+                                       np.expand_dims(original_channel * 255, 2),
+                                       np.zeros((1024, 1024, 1))), axis=-1)
+            img_diff = np.uint8(img_diff)
+            cv2.imwrite(f'img_test/channel_{c}.jpg', img_diff)
+
+            # Print the percentage difference
+            print(f"Mean percentage difference for image {_}, channel {c}: {round(percentage, 2)}")
 
         mean_percentage_diff = np.mean(percentage_list)
         print(f"Mean percentage difference for step {step}: {round(mean_percentage_diff, 2)}")
