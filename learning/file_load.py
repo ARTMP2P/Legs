@@ -181,8 +181,8 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
     batch_y = []
     for _ in tqdm(range(batch_size), desc="Processing files"):
         file_path = random.choice(file_paths)
-        temp_x = np.empty((1024, 1024, 8), dtype=np.int8)
-        temp_y = np.empty((1024, 1024, 8), dtype=np.int8)
+        temp_x = []
+        temp_y = []
         num_file = random.randint(0, 48)
         for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
             d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
@@ -190,12 +190,11 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
 
             try:
                 tensor = read_img(displacement_file_path)
-                tensor = np.expand_dims(tensor, axis=2)
-                temp_x[..., i] = tensor
+                temp_x.append(tensor)
             except:
                 print(displacement_file_path)
 
-        batch_x.append(temp_x)
+        batch_x.append(np.stack(temp_x, axis=-1))
 
         for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
             t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
@@ -203,12 +202,11 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
 
             try:
                 true_tensor = read_img(true_file_path)
-                true_tensor = np.expand_dims(tensor, axis=2)
-                temp_y[..., i] = true_tensor
+                temp_y.append(true_tensor)
             except:
                 print(true_file_path)
 
-        batch_y.append(temp_y)
+        batch_y.append(np.stack(temp_y, axis=-1))
 
     print(f"X tensor is: {len(batch_x)} * {batch_x[0].shape}, Y tensor is: {len(batch_y)} * {batch_y[0].shape}")
     return [batch_x, batch_y]
