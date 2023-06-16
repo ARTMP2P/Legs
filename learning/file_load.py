@@ -5,7 +5,7 @@ import os
 import cv2
 import random
 import glob
-from torch.utils.data import Dataset
+import numpy as np
 from tqdm import tqdm
 
 
@@ -181,28 +181,28 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
     batch_y = []
     for _ in tqdm(range(batch_size), desc="Processing files"):
         file_path = random.choice(file_paths)
-        temp_x = []
-        temp_y = []
+        temp_x = np.empty((1024, 1024, 8), dtype=np.float32)
+        temp_y = np.empty((1024, 1024, 8), dtype=np.float32)
         num_file = random.randint(0, 48)
-        for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
+        for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
             d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
             displacement_file_path = os.path.join(d_file_path, f"{num_file}_segmap.png")
 
             try:
                 tensor = read_img(displacement_file_path)
-                temp_x.append(tensor)
+                temp_x[..., i] = tensor
             except:
                 print(displacement_file_path)
 
         batch_x.append(temp_x)
 
-        for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
+        for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
             t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
             true_file_path = os.path.join(t_file_path, f"49_segmap.png")
 
             try:
                 true_tensor = read_img(true_file_path)
-                temp_y.append(true_tensor)
+                temp_y[..., i] = true_tensor
             except:
                 print(true_file_path)
 
