@@ -181,8 +181,8 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
     batch_y = []
     for _ in tqdm(range(batch_size), desc="Processing files"):
         file_path = random.choice(file_paths)
-        temp_x = np.empty((1024, 1024, 8), dtype=np.float32)
-        temp_y = np.empty((1024, 1024, 8), dtype=np.float32)
+        temp_x = np.empty((1024, 1024, 8), dtype=np.int8)
+        temp_y = np.empty((1024, 1024, 8), dtype=np.int8)
         num_file = random.randint(0, 48)
         for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
             d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
