@@ -97,6 +97,7 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
             batch_y = batch_y.to(device)
             print(f"SHAPES:\nbatch_x is: {batch_x.shape}\nbatch_y is: {batch_y.shape}")
             # Изменение формы входного тензора
+            batch_x = batch_x.view(-1, 8, 1024, 1024)
             batch_y = batch_y.view(-1, 8, 1024, 1024)
 
             # Обновление параметров дискриминатора
