@@ -106,7 +106,7 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
             # Прямой проход через дискриминатор
             real_labels = torch.ones(batch_size, 1, 125, 125).to(device)
             fake_labels = torch.zeros(batch_size, 1, 125, 125).to(device)
-            real_outputs = discriminator(batch_y.float()).view(-1, 1, 1, 1)
+            real_outputs = discriminator(batch_y.float())
             fake_outputs = discriminator(generator(batch_x.float()))
 
             # Вычисление функции потерь для дискриминатора
