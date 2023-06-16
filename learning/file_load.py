@@ -177,14 +177,13 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
     :param batch_size:
     :return:
     """
-    batch_x = []
-    batch_y = []
+    dataset = []
     for _ in tqdm(range(batch_size), desc="Processing files"):
         file_path = random.choice(file_paths)
         temp_x = []
         temp_y = []
         num_file = random.randint(0, 48)
-        for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
+        for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
             d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
             displacement_file_path = os.path.join(d_file_path, f"{num_file}_segmap.png")
 
@@ -194,9 +193,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(displacement_file_path)
 
-        batch_x.append(np.concatenate(temp_x, axis=-1))
-
-        for i, m in enumerate(['0', '55', '90', '125', '180', '235', '270', '305']):
+        for m in enumerate['0', '55', '90', '125', '180', '235', '270', '305']:
             t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
             true_file_path = os.path.join(t_file_path, f"49_segmap.png")
 
@@ -206,10 +203,10 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(true_file_path)
 
-        batch_y.append(np.concatenate(temp_y, axis=-1))
+        dataset.append([np.concatenate(temp_x, axis=-1), np.concatenate(temp_y, axis=-1)])
 
-    print(f"X tensor is: {len(batch_x)} * {batch_x[0].shape}, Y tensor is: {len(batch_y)} * {batch_y[0].shape}")
-    return [batch_x, batch_y]
+    print(f"Dataset is: {len(dataset)} * {dataset[0].shape}")
+    return dataset
 
 
 if __name__ == '__main__':
