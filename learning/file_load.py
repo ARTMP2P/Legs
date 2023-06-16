@@ -208,7 +208,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
 
         batch_y.append(temp_y)
 
-    print(f"X tensor is: {len(batch_x)}, Y tensor is: {len(batch_y)}")
+    print(f"X tensor is: {len(batch_x)} * {batch_x[0].shape}, Y tensor is: {len(batch_y)} * {batch_y[0].shape}")
     return [batch_x, batch_y]
 
 
