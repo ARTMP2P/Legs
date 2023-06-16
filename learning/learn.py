@@ -31,15 +31,17 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
     with torch.no_grad():
         percentage_list = []
 
-        evaluation = create_dataset(dataset_list, batch_size=1)
+        evaluation_dataset = create_dataset(dataset_list, batch_size=1)
+        evaluation_dataloader = DataLoader(evaluation_dataset, batch_size=1, shuffle=False)
 
-        inputs = evaluation[0].to(device)
-        labels = evaluation[1].to(device)
+        for batch in evaluation_dataloader:
+            inputs = batch[0].to(device)
+            labels = batch[1].to(device)
 
-        outputs = generator(inputs)
+            outputs = generator(inputs)
 
-        generated_img = outputs.detach().cpu().numpy()
-        original_img = labels.detach().cpu().numpy()
+            generated_img = outputs.detach().cpu().numpy()
+            original_img = labels.detach().cpu().numpy()
 
         for c in range(generated_img.shape[2]):
             generated_channel = generated_img[:, :, c]
