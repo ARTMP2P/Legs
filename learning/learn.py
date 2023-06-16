@@ -40,9 +40,9 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
 
             outputs = generator(inputs)
 
-            generated_img = outputs.detach().cpu().numpy()
-            original_img = labels.detach().cpu().numpy()
-        print(f"Evaluation shape: {generated_img.shape}, {original_img.shape}")
+            generated_img = outputs.detach().cpu().numpy()[0]
+            original_img = labels.detach().cpu().numpy()[0]
+
         for c in range(generated_img.shape[0]):
             generated_channel = generated_img[c, :, :]
             original_channel = original_img[c, :, :]
