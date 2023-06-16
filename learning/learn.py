@@ -79,20 +79,22 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
     discriminator_optimizer = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
     criterion = nn.BCELoss()
 
-    # Создание списка данных для загрузки
     dataset_list = get_file_paths(root_dir)
 
     for epoch in range(num_epochs):
         dataset = create_dataset(dataset_list, batch_size)
+
         # Создание DataLoader для загрузки данных
         dataloader = DataLoader(
             dataset=dataset,
             batch_size=batch_size,
             shuffle=True
         )
-        for batch_x, _ in dataloader:
+
+        for batch_x, batch_y in dataloader:
             # Передача данных на устройство (GPU или CPU)
             batch_x = batch_x.to(device)
+            batch_y = batch_y.to(device)
 
             # Обновление параметров дискриминатора
             discriminator_optimizer.zero_grad()
