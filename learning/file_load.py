@@ -190,6 +190,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
 
             try:
                 tensor = read_img(displacement_file_path)
+                tensor = np.expand_dims(tensor, axis=2)
                 temp_x[..., i] = tensor
             except:
                 print(displacement_file_path)
@@ -202,6 +203,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
 
             try:
                 true_tensor = read_img(true_file_path)
+                true_tensor = np.expand_dims(tensor, axis=2)
                 temp_y[..., i] = true_tensor
             except:
                 print(true_file_path)
