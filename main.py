@@ -8,10 +8,10 @@ import torch
 
 # ======================================================================
 
-
+device = 'cuda'
 patch_shape = 64
 image_shape = [batch, CHANEL, SIZE, SIZE]
-d_model = Discriminator()
+d_model = Discriminator().to(device)
 parser = argparse.ArgumentParser()
 parser.add_argument("file_path", nargs="?", default=None)
 parser.add_argument("epochs", type=int, default=200)
@@ -23,11 +23,11 @@ if args.file_path:
     generator = torch.load(args.file_path)
     print(f'Learning running from {args.file_path}')
 else:
-    generator = Generator()
+    generator = Generator().to(device)
     print('Learning running with start')
 # gan_model, optimizer, loss_fn = define_gan(image_shape, g_model, d_model, y)
 
-train(generator, d_model, root, n_epochs, batch, 'cuda')
+train(generator, d_model, root, n_epochs, batch, device)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
 
