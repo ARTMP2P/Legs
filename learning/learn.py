@@ -56,10 +56,13 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
             percentage_list.append(percentage)
 
             # Save the image with difference
-            img_diff = np.concatenate((
-                np.expand_dims(generated_channel * 255, 2),
-                np.expand_dims(original_channel * 255, 2),
-                np.zeros((1024, 1024, 1))),
+            img_diff = np.concatenate(
+                (
+                    # np.expand_dims(generated_channel * 255, 2),
+                    np.zeros((1024, 1024, 1)),
+                    np.expand_dims(original_channel * 255, 2),
+                    np.zeros((1024, 1024, 1))
+                ),
                 axis=-1
             )
             img_diff = np.uint8(img_diff)
