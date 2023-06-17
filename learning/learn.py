@@ -58,8 +58,8 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
 
             # Save the image with difference
             img_diff = np.concatenate((
-                np.expand_dims(generated_channel * 255, 2),
-                np.expand_dims(original_channel * 255, 2),
+                np.expand_dims(generated_channel * 255.0, 2),
+                np.expand_dims(original_channel * 255.0, 2),
                 np.zeros((1024, 1024, 1))),
                 axis=-1
             )
