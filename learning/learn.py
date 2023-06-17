@@ -45,21 +45,6 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
 
         original_img = labels[0]
 
-        print("Inputs:")
-        print("Shape:", inputs.shape)
-        print("Min value:", torch.min(inputs))
-        print("Max value:", torch.max(inputs))
-
-        print("\nOutputs:")
-        print("Shape:", outputs.shape)
-        print("Min value:", torch.min(outputs))
-        print("Max value:", torch.max(outputs))
-
-        print("\nGenerated Image:")
-        print("Shape:", generated_img.shape)
-        print("Min value:", np.min(generated_img))
-        print("Max value:", np.max(generated_img))
-
         for c in range(generated_img.shape[0]):
             generated_channel = generated_img[c, :, :]
             original_channel = original_img[:, :, c]
@@ -149,6 +134,11 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
         # Обратное распространение и обновление параметров генератора
         generator_loss.backward()
         generator_optimizer.step()
+
+        # Вывод показателей потерь
+        print(f"Epoch {epoch + 1}/{num_epochs}")
+        print(f"Discriminator Loss: {discriminator_loss.item():.4f}")
+        print(f"Generator Loss: {generator_loss.item():.4f}")
 
         # Проверка работы нейросети после каждой эпохи
         summarize_performance(epoch, generator, dataset_list, device)
