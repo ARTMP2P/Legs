@@ -38,9 +38,10 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
 
         outputs = generator(inputs)
 
-        generated_img = np.where(outputs < 0, 0, outputs)
+        generated_img = outputs.detach().cpu().numpy()[0]
+        generated_img = np.where(generated_img < 0, 0, generated_img)
         generated_img = np.where(generated_img >= 0, 1, generated_img)
-        generated_img = generated_img.astype(np.uint8)[0]
+        generated_img = generated_img.astype(np.uint8)
 
         original_img = labels[0]
 
