@@ -58,7 +58,7 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
                                        np.expand_dims(original_channel * 255, 2),
                                        np.zeros((1024, 1024, 1))), axis=-1)
             img_diff = np.uint8(img_diff)
-            cv2.imwrite(os.path.join(img_test_group, f'channel_{c}.jpg'), img_diff)
+            cv2.imwrite(os.path.join(img_test_group, f'channel_{c+1}.jpg'), img_diff)
 
         mean_percentage_diff = np.mean(percentage_list)
         print(f"Mean percentage difference for step {step}: {round(mean_percentage_diff, 2)}")
