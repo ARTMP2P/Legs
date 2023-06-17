@@ -44,6 +44,7 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
         generated_img = generated_img.astype(np.uint8)
 
         original_img = labels[0]
+        original_img[original_img == -1] = 0
 
         for c in range(generated_img.shape[0]):
             generated_channel = generated_img[c, :, :]
