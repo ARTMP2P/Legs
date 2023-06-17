@@ -39,7 +39,7 @@ def read_img(dir):
     """
 
     img = cv2.imread(dir, 0).astype(np.bool_).astype(np.int8)
-    img[img == 0] = -1
+    # img[img == 0] = -1
     return np.expand_dims(img, axis=2)
 
 
