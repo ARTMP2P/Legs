@@ -48,7 +48,7 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
         for c in range(generated_img.shape[0]):
             generated_channel = generated_img[c, :, :]
             original_channel = original_img[c, :, :]
-            print(f"Evaluation shape: {generated_channel.shape}, {original_channel.shape}")
+
             difference = np.abs(generated_channel - original_channel)
             percentage = (np.count_nonzero(difference) * 100) / original_channel.size
             percentage_list.append(percentage)
@@ -69,7 +69,7 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
         if mean_percentage_diff <= 10:  # Set your desired threshold for saving the model
             filename_model = os.path.join(dir_model_NN, f'M_good{step}.pt')
         else:
-            filename_model = os.path.join(dir_model_NN, f'models/M_{step}.pt')
+            filename_model = os.path.join(dir_model_NN, f'M_{step}.pt')
         torch.save(generator.state_dict(), filename_model)
         print(f"> Saved model: {filename_model}")
 
