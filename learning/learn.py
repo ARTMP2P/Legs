@@ -88,10 +88,15 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
 
     for epoch in range(num_epochs):
         batch_x, batch_y = create_dataset(dataset_list, batch_size)
+
+        # Преобразование списков в один numpy.ndarray
+        batch_x = np.array(batch_x)
+        batch_y = np.array(batch_y)
+
         # Передача данных на устройство (GPU или CPU)
         batch_x = torch.tensor(batch_x).to(device)
         batch_y = torch.tensor(batch_y).to(device)
-        # print(f"SHAPES:\nbatch_x is: {batch_x.shape}\nbatch_y is: {batch_y.shape}")
+
         # Изменение формы входного тензора
         batch_x = batch_x.view(-1, 8, 1024, 1024)
         batch_y = batch_y.view(-1, 8, 1024, 1024)
