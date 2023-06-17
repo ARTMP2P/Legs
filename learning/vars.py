@@ -1,5 +1,5 @@
 CHANEL, SIZE = 8, 1024
-n_steps, batch = 200000, 4
+n_steps, batch = 200000, 16
 y1, y2, x1, x2 = 0, 0, 0, 0
 lr = 0.0001
 
