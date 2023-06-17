@@ -203,7 +203,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(true_file_path)
 
-        dataset.append([np.concatenate(temp_x, axis=-1), np.concatenate(temp_y, axis=-1)])
+        dataset.append([np.concatenate(temp_x, axis=0), np.concatenate(temp_y, axis=0)])
 
     print(f"Dataset is: {len(dataset)}")
     return dataset
