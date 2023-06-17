@@ -108,8 +108,8 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
         discriminator_optimizer.zero_grad()
 
         # Прямой проход через дискриминатор
-        real_labels = torch.ones(batch_size, 1, 125, 125).to(device)
-        fake_labels = torch.zeros(batch_size, 1, 125, 125).to(device)
+        real_labels = torch.ones(batch_size, 1, 61, 61).to(device)
+        fake_labels = torch.zeros(batch_size, 1, 61, 61).to(device)
         real_outputs = discriminator(batch_y.float())
         fake_outputs = discriminator(generator(batch_x.float()))
 
