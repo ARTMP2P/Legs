@@ -64,6 +64,19 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
                 axis=-1
             )
             img_diff = np.uint8(img_diff)
+            channel_0_max = np.max(img_diff[:, :, 0])
+            channel_0_min = np.min(img_diff[:, :, 0])
+            channel_1_max = np.max(img_diff[:, :, 1])
+            channel_1_min = np.min(img_diff[:, :, 1])
+            channel_2_max = np.max(img_diff[:, :, 2])
+            channel_2_min = np.min(img_diff[:, :, 2])
+
+            print("Channel 0 - Max:", channel_0_max)
+            print("Channel 0 - Min:", channel_0_min)
+            print("Channel 1 - Max:", channel_1_max)
+            print("Channel 1 - Min:", channel_1_min)
+            print("Channel 2 - Max:", channel_2_max)
+            print("Channel 2 - Min:", channel_2_min)
             cv2.imwrite(os.path.join(img_test_group, f'channel_{c + 1}.jpg'), img_diff)
 
         mean_percentage_diff = np.mean(percentage_list)
