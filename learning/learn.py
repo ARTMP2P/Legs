@@ -1,3 +1,5 @@
+import os.path
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -56,7 +58,7 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
                                        np.expand_dims(original_channel * 255, 2),
                                        np.zeros((1024, 1024, 1))), axis=-1)
             img_diff = np.uint8(img_diff)
-            cv2.imwrite(f'img_test/channel_{c}.jpg', img_diff)
+            cv2.imwrite(os.path.join(img_test_group, f'channel_{c}.jpg'), img_diff)
 
         mean_percentage_diff = np.mean(percentage_list)
         print(f"Mean percentage difference for step {step}: {round(mean_percentage_diff, 2)}")
@@ -65,9 +67,9 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
 
     if save_model:
         if mean_percentage_diff <= 10:  # Set your desired threshold for saving the model
-            filename_model = f'models/M_good{step}.pt'
+            filename_model = os.path.join(dir_model_NN, f'M_good{step}.pt')
         else:
-            filename_model = f'models/M_{step}.pt'
+            filename_model = os.path.join(dir_model_NN, f'models/M_{step}.pt')
         torch.save(generator.state_dict(), filename_model)
         print(f"> Saved model: {filename_model}")
 
