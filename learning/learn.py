@@ -43,6 +43,21 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
 
         original_img = labels[0]
 
+        print("Inputs:")
+        print("Shape:", inputs.shape)
+        print("Min value:", torch.min(inputs))
+        print("Max value:", torch.max(inputs))
+
+        print("\nOutputs:")
+        print("Shape:", outputs.shape)
+        print("Min value:", torch.min(outputs))
+        print("Max value:", torch.max(outputs))
+
+        print("\nGenerated Image:")
+        print("Shape:", generated_img.shape)
+        print("Min value:", np.min(generated_img))
+        print("Max value:", np.max(generated_img))
+
         for c in range(generated_img.shape[0]):
             generated_channel = generated_img[c, :, :]
             original_channel = original_img[:, :, c]
