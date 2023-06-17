@@ -58,9 +58,6 @@ def summarize_performance(step, generator, dataset_list, device, save_model=True
             img_diff = np.uint8(img_diff)
             cv2.imwrite(f'img_test/channel_{c}.jpg', img_diff)
 
-            # Print the percentage difference
-            print(f"Mean percentage difference for image {_}, channel {c}: {round(percentage, 2)}")
-
         mean_percentage_diff = np.mean(percentage_list)
         print(f"Mean percentage difference for step {step}: {round(mean_percentage_diff, 2)}")
 
