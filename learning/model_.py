@@ -59,12 +59,9 @@ def get_name_model(s):
     return m_name  # s[start + 1:end] + '.pos'
 
 
-# Определение генератора
 class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
-        # Реализуйте архитектуру вашего генератора
-        # Пример:
         self.encoder = nn.Sequential(
             nn.Conv2d(8, 64, kernel_size=4, stride=2, padding=1),
             nn.ReLU(True),
@@ -73,10 +70,28 @@ class Generator(nn.Module):
             nn.ReLU(True),
             nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(256),
+            nn.ReLU(True),
+            nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            nn.Conv2d(512, 1024, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(1024),
+            nn.ReLU(True),
+            nn.Conv2d(1024, 2048, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(2048),
             nn.ReLU(True)
         )
 
         self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(2048, 1024, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(1024),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(1024, 512, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
             nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(True),
@@ -93,11 +108,9 @@ class Generator(nn.Module):
         return x
 
 
-# Определение дискриминатора
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-        # Реализация архитектуры дискриминатора
         self.model = nn.Sequential(
             nn.Conv2d(8, 64, kernel_size=4, stride=2, padding=1),
             nn.LeakyReLU(0.2, inplace=True),
@@ -107,7 +120,10 @@ class Discriminator(nn.Module):
             nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(256, 1, kernel_size=4, stride=1, padding=0),
+            nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(512),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=0),
             nn.Sigmoid()
         )
 
