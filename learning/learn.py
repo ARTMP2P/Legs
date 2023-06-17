@@ -92,55 +92,46 @@ def train(generator, discriminator, root_dir, num_epochs, batch_size, device):
     dataset_list = get_file_paths(root_dir)
 
     for epoch in range(num_epochs):
-        dataset = create_dataset(dataset_list, batch_size)
+        batch_x, batch_y = create_dataset(dataset_list, batch_size)
+        # Передача данных на устройство (GPU или CPU)
+        batch_x = torch.tensor(batch_x).to(device)
+        batch_y = torch.tensor(batch_y).to(device)
+        # print(f"SHAPES:\nbatch_x is: {batch_x.shape}\nbatch_y is: {batch_y.shape}")
+        # Изменение формы входного тензора
+        batch_x = batch_x.view(-1, 8, 1024, 1024)
+        batch_y = batch_y.view(-1, 8, 1024, 1024)
 
-        # Создание DataLoader для загрузки данных
-        dataloader = DataLoader(
-            dataset=dataset,
-            batch_size=batch_size,
-            shuffle=True
-        )
+        # Обновление параметров дискриминатора
+        discriminator_optimizer.zero_grad()
 
-        for batch_x, batch_y in dataloader:
-            # Передача данных на устройство (GPU или CPU)
-            batch_x = batch_x.to(device)
-            batch_y = batch_y.to(device)
-            # print(f"SHAPES:\nbatch_x is: {batch_x.shape}\nbatch_y is: {batch_y.shape}")
-            # Изменение формы входного тензора
-            batch_x = batch_x.view(-1, 8, 1024, 1024)
-            batch_y = batch_y.view(-1, 8, 1024, 1024)
+        # Прямой проход через дискриминатор
+        real_labels = torch.ones(batch_size, 1, 125, 125).to(device)
+        fake_labels = torch.zeros(batch_size, 1, 125, 125).to(device)
+        real_outputs = discriminator(batch_y.float())
+        fake_outputs = discriminator(generator(batch_x.float()))
 
-            # Обновление параметров дискриминатора
-            discriminator_optimizer.zero_grad()
+        # Вычисление функции потерь для дискриминатора
+        real_loss = criterion(real_outputs, real_labels)
+        fake_loss = criterion(fake_outputs, fake_labels)
+        discriminator_loss = real_loss + fake_loss
 
-            # Прямой проход через дискриминатор
-            real_labels = torch.ones(batch_size, 1, 125, 125).to(device)
-            fake_labels = torch.zeros(batch_size, 1, 125, 125).to(device)
-            real_outputs = discriminator(batch_y.float())
-            fake_outputs = discriminator(generator(batch_x.float()))
+        # Обратное распространение и обновление параметров дискриминатора
+        discriminator_loss.backward()
+        discriminator_optimizer.step()
 
-            # Вычисление функции потерь для дискриминатора
-            real_loss = criterion(real_outputs, real_labels)
-            fake_loss = criterion(fake_outputs, fake_labels)
-            discriminator_loss = real_loss + fake_loss
+        # Обновление параметров генератора
+        generator_optimizer.zero_grad()
 
-            # Обратное распространение и обновление параметров дискриминатора
-            discriminator_loss.backward()
-            discriminator_optimizer.step()
+        # Прямой проход через генератор
+        outputs = generator(batch_x.float())
+        generated_outputs = discriminator(outputs)
 
-            # Обновление параметров генератора
-            generator_optimizer.zero_grad()
+        # Вычисление функции потерь для генератора
+        generator_loss = criterion(generated_outputs, real_labels)
 
-            # Прямой проход через генератор
-            outputs = generator(batch_x.float())
-            generated_outputs = discriminator(outputs)
-
-            # Вычисление функции потерь для генератора
-            generator_loss = criterion(generated_outputs, real_labels)
-
-            # Обратное распространение и обновление параметров генератора
-            generator_loss.backward()
-            generator_optimizer.step()
+        # Обратное распространение и обновление параметров генератора
+        generator_loss.backward()
+        generator_optimizer.step()
 
         # Проверка работы нейросети после каждой эпохи
         summarize_performance(epoch, generator, dataset_list, device)

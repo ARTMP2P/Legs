@@ -177,7 +177,7 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
     :param batch_size:
     :return:
     """
-    dataset = []
+    batch_x, batch_y = [], []
     for _ in tqdm(range(batch_size), desc="Processing files"):
         file_path = random.choice(file_paths)
         temp_x = []
@@ -193,6 +193,8 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(displacement_file_path)
 
+        batch_x.append(np.concatenate(temp_x, axis=-1))
+
         for m in ['0', '55', '90', '125', '180', '235', '270', '305']:
             t_file_path = file_path.replace('yaw_0', f"yaw_{m}")
             true_file_path = os.path.join(t_file_path, f"49_segmap.png")
@@ -203,10 +205,10 @@ def create_dataset(file_paths: list, batch_size: int) -> list:
             except:
                 print(true_file_path)
 
-        dataset.append([np.concatenate(temp_x, axis=-1), np.concatenate(temp_y, axis=-1)])
+        batch_y.append(np.concatenate(temp_y, axis=-1))
 
-    print(f"Dataset is: {len(dataset)}")
-    return dataset
+    # print(f"Dataset is: {len(dataset)}")
+    return batch_x, batch_y
 
 
 if __name__ == '__main__':
