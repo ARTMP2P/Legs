@@ -11,6 +11,16 @@ from .vars import *
 from .file_load import *
 from .model_ import *
 
+import os
+import numpy as np
+import random
+import tensorflow as tf
+
+os.environ['PYTHONHASHSEED'] = str(42)
+random.seed(42)
+tf.random.set_seed(42)
+np.random.seed(42)
+
 
 # ======================================================================
 
@@ -21,7 +31,6 @@ def summarize_performance(step, g_model, f=0):
     Функция принимает в качестве аргументов номер шага обучения, обученную модель и флаг f, который управляет
     именем файла модели при сохранении. Если f равно 1, то имя файла будет содержать дополнительную метку 'good',
     а если f равно 0, то метка 'good' не добавляется.
-
     Функция использует сохраненную модель для генерации изображений на основе тестовых данных. Затем функция сравнивает
     сгенерированные изображения с оригинальными изображениями тестовых данных и вычисляет процентное отличие между ними.
     Результаты сохраняются в виде изображений в папке img_test, а также выводятся на экран в виде среднего значения
@@ -52,7 +61,6 @@ def summarize_performance(step, g_model, f=0):
             # plt.axis('off')
             # plt.imsave(f"log/{batch}{i}.jpg")
             cv2.imwrite(f"log/{i}.jpg", np.uint8(batch[:, :, i]))
-
         e += 8'''
 
     try:
@@ -60,6 +68,7 @@ def summarize_performance(step, g_model, f=0):
     except:
         print('ошибка !!!')
 
+    plist = []
     for j, im in enumerate(X):
         precentage_list = []
 
@@ -88,21 +97,22 @@ def summarize_performance(step, g_model, f=0):
             IMG_res = IMG_res[:, :, ::-1]
             cv2.imwrite(f'{img_test_group}/{rakurs[i]}_{dir_test[j][75:-20]}{j}.jpg', np.uint8(IMG_res))
             print(f"Percentage for {rakurs[i]} is: {round(percentage, 2)}")
+
+        plist.append(mean(precentage_list))
         print(f"Mean percentage for model {j} is: {round(mean(precentage_list), 2)}")
-    print(f"Mean percentage for all models is: {round(mean(precentage_list), 2)}")
+    print(f"Mean percentage for all models is: {round(mean(plist), 2)}")
     with open(log_file, 'a+') as file:
-        file.write(f'{filename_model_NN}\nMetricks: {mean(precentage_list)}\n')
+        file.write(f'{filename_model_NN}\nMetricks: {mean(plist)}\n')
 
     # train pix2pix models
 
 
 def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufer=0):
     """
-    Данная функция предназначена для обучения модели генеративно-состязательной сети (GAN) для задачи 
-    переноса стиля между изображениями. Она принимает на вход модели дискриминатора (d_model), 
-    генератора (g_model) и GAN (gan_model), количество эпох (n_epochs), размер пакета (n_batch), 
+    Данная функция предназначена для обучения модели генеративно-состязательной сети (GAN) для задачи
+    переноса стиля между изображениями. Она принимает на вход модели дискриминатора (d_model),
+    генератора (g_model) и GAN (gan_model), количество эпох (n_epochs), размер пакета (n_batch),
     индекс начальной эпохи (i_s) и буфер (bufer).
-
     Внутри функции происходит генерация настоящих и фейковых изображений, обновление параметров 
     дискриминатора и генератора, а также подсчет и вывод результатов обучения. Функция также вызывает 
     вспомогательные функции для вывода статистики и результатов обучения.

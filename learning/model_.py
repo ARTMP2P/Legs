@@ -22,6 +22,16 @@ import numpy as np
 from numpy import ones
 from numpy import zeros
 
+import os
+import numpy as np
+import random
+import tensorflow as tf
+
+os.environ['PYTHONHASHSEED'] = str(42)
+random.seed(42)
+tf.random.set_seed(42)
+np.random.seed(42)
+
 
 # ======================================================================
 
@@ -49,16 +59,16 @@ def read_img(dir):
 
 def get_name_model(s):
     """
-    Функция get_name_model(s) принимает на вход строку s, которая содержит путь к файлу. Функция 
-    ищет в строке s подстроку yaw_ и находит позицию первого символа этой подстроки. Затем функция 
-    ищет первое вхождение символа / после позиции подстроки yaw_. Далее функция ищет позицию символа 
-    .pos и использует его как индекс конца имени файла. Функция возвращает подстроку между начальной 
-    и конечной позициями в строке s, содержащую имя файла с расширением .pos. Таким образом, функция 
+    Функция get_name_model(s) принимает на вход строку s, которая содержит путь к файлу. Функция
+    ищет в строке s подстроку yaw_ и находит позицию первого символа этой подстроки. Затем функция
+    ищет первое вхождение символа / после позиции подстроки yaw_. Далее функция ищет позицию символа
+    .pos и использует его как индекс конца имени файла. Функция возвращает подстроку между начальной
+    и конечной позициями в строке s, содержащую имя файла с расширением .pos. Таким образом, функция
     возвращает имя файла из пути к файлу.
     """
     # end = s.find('.pos')
     # start = s.find('/', s.find('yaw_'))
-    
+
     m_name = s.split('/')[0]
     return m_name  # s[start + 1:end] + '.pos'
 
@@ -134,6 +144,28 @@ def define_encoder_block(layer_in, n_filters, batchnorm=True):
     return g
 
 
+from tensorflow.keras.layers import Dense, Reshape, Permute, Multiply, GlobalAveragePooling2D
+
+
+def self_attention_block(input_layer, intermediate_filters):
+    init = RandomNormal(stddev=0.02)
+
+    input_shape = input_layer.get_shape().as_list()
+
+    # Squeeze operation
+    squeeze = GlobalAveragePooling2D()(input_layer)
+    squeeze = Dense(intermediate_filters, activation='relu', kernel_initializer=init)(squeeze)
+
+    # Excitation operation
+    excitation = Dense(input_shape[-1], activation='sigmoid', kernel_initializer=init)(squeeze)
+    excitation = Reshape((1, 1, input_shape[-1]))(excitation)
+
+    # Scale input with attention
+    output = Multiply()([input_layer, excitation])
+
+    return output
+
+
 # define a decoder block
 def decoder_block(layer_in, skip_in, n_filters, dropout=True):
     """
@@ -155,6 +187,8 @@ def decoder_block(layer_in, skip_in, n_filters, dropout=True):
         g = Dropout(0.5)(g, training=True)
     # merge with skip connection
     g = Concatenate()([g, skip_in])
+
+    # g = self_attention_block(g, n_filters // 8)
     # relu activation
     g = Activation('relu')(g)
     return g
@@ -180,13 +214,13 @@ def define_generator(image_shape):
     e4 = define_encoder_block(e3, 512)
     e5 = define_encoder_block(e4, 512)
     e6 = define_encoder_block(e5, 512)
-    e7 = define_encoder_block(e6, 512)
+    # e7 = define_encoder_block(e6, 512)
     # bottleneck, no batch norm and relu
-    b = Conv2D(512, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(e7)
+    b = Conv2D(512, (4, 4), strides=(2, 2), padding='same', kernel_initializer=init)(e6)
     b = Activation('relu')(b)
     # decoder model
-    d1 = decoder_block(b, e7, 512)
-    d2 = decoder_block(d1, e6, 512)
+    # d1 = decoder_block(b, e7, 512)
+    d2 = decoder_block(b, e6, 512)
     d3 = decoder_block(d2, e5, 512)
     d4 = decoder_block(d3, e4, 512, dropout=False)
     d5 = decoder_block(d4, e3, 256, dropout=False)
