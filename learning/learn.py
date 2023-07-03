@@ -5,6 +5,7 @@ import tensorflow as tf
 from PIL import Image, ImageChops
 from statistics import mean
 import cv2
+from builtins import range
 
 # ======================================================================
 from .vars import *
