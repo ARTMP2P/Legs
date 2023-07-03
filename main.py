@@ -13,8 +13,13 @@ import parser
 image_shape = [SIZE, SIZE, CHANEL]
 d_model = define_discriminator(image_shape)
 parser = argparse.ArgumentParser()
-parser.add_argument("file_path", nargs="?", default=None)
-parser.add_argument("epochs", type=int, default=200)
+parser.add_argument("file_path", nargs="?",
+                    default=None, help="Путь к обученной модели (необязательно для дообучения)")
+parser.add_argument("epochs", type=int,
+                    default=200, help="Количество эпох обучения")
+parser.add_argument("side", type=str,
+                    default="Right", choices=["Left", "Right"], help="Задает сторону (Left или Right)")
+
 args = parser.parse_args()
 
 n_epochs = args.epochs
@@ -26,7 +31,7 @@ else:
     g_model = define_generator(image_shape)
     print('Learning running with start')
 gan_model = define_gan(g_model, d_model, image_shape)
-train(d_model, g_model, gan_model, dir, n_epochs)
+train(d_model, g_model, gan_model, dir, n_epochs, args.side)
 
 # train(d_model, g_model, gan_model, dataset, n_epochs)   /content/drive/MyDrive/Ступни/8channal_77/model/M_1.h5
 
@@ -34,6 +39,7 @@ train(d_model, g_model, gan_model, dir, n_epochs)
 # ======================================================================
 
 if __name__ == '__main__':
-    gpu_devices = tf.config.experimental.list_physical_devices('GPU')
-    for device in gpu_devices:
-        tf.config.experimental.set_memory_growth(device, True)
+    # gpu_devices = tf.config.experimental.list_physical_devices('GPU')
+    # for device in gpu_devices:
+    #     tf.config.experimental.set_memory_growth(device, True)
+    paths = get_file_paths("")

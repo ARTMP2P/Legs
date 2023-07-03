@@ -45,24 +45,6 @@ def summarize_performance(step, g_model, f=0):
         g_model.save(filename_model_NN)
         print('>Saved: %s' % filename_model_NN)
 
-    """
-    for n in range(len(model_test)): # len(model_test) - количество моделей ступней для теста
-    val_1, val_2 = list_img(n, g_model, step)
-    list_IMG.extend(val_1)
-    list_metrics.extend(val_2)
-    """
-
-    '''print(f'list_img_test_array.shape= {np.array(list_img_test).shape}')
-    e = 0
-    # plt.figure(figsize=(24, 12))
-    for batch in np.array(list_img_test):
-        for i in range(8):
-            # plt.subplot(8, 8, i + 1 + e)
-            # plt.axis('off')
-            # plt.imsave(f"log/{batch}{i}.jpg")
-            cv2.imwrite(f"log/{i}.jpg", np.uint8(batch[:, :, i]))
-        e += 8'''
-
     try:
         X = g_model.predict(np.array(list_img_test))  # np.uint8()
     except:
@@ -82,10 +64,6 @@ def summarize_performance(step, g_model, f=0):
             {np.round(np.unique(list_img_test_25[j][:, :, i]))}")
             Вычисляет абсолютную разницу для каждого элемента между двумя массивами или между массивом и скаляром.
             '''
-            # image_eta = Image.fromarray(list_img_test_25[j][:, :, i])
-            # image_eta.save(f"log/images/true_{i}.jpg", "L")
-            # image_gan = Image.fromarray(im[:, :, i])
-            # image_gan.save(f"log/images/gan_{i}.jpg", "L")
 
             differ = cv2.absdiff(list_img_test_25[j][:, :, i].astype(np.float64), im[:, :, i].astype(np.float64))
             differ = differ.astype(np.uint8)
@@ -107,7 +85,7 @@ def summarize_performance(step, g_model, f=0):
     # train pix2pix models
 
 
-def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufer=0):
+def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufer=0, side="Right"):
     """
     Данная функция предназначена для обучения модели генеративно-состязательной сети (GAN) для задачи
     переноса стиля между изображениями. Она принимает на вход модели дискриминатора (d_model),
@@ -141,13 +119,6 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
         X_realB = np.concatenate(list_B, axis=0)
         y_real = np.concatenate(list_y, axis=0)
 
-        # Проверка загрузки изображений =====================================
-        # print(f"X_realA shape is {X_realA.shape}\nX_realB shape is {X_realB.shape}")
-        # with open('X_realA.npy', 'wb') as f:
-        #     np.save(f, X_realA)
-        # with open('X_realB.npy', 'wb') as f:
-        #     np.save(f, X_realB)
-
         X_fakeB, y_fake = generate_fake_samples(g_model, X_realA, n_patch)
 
         d_loss1 = d_model.train_on_batch([X_realA, X_realB], y_real)
@@ -164,12 +135,11 @@ def train(d_model, g_model, gan_model, dir, n_epochs=200, n_batch=1, i_s=0, bufe
             bufer = i
             i_s += 1
             summarize_performance(i_s, g_model)
-            # break
+
         if (g_loss < 0.90) and (i - bufer > 25):
             bufer = i
             i_s += 1
             summarize_performance(i_s, g_model, f=1)
-            # break
 
 
 def shown_statics():
