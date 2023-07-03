@@ -263,8 +263,12 @@ def generate_real_samples(list_dir_name, list_dir_name_25, patch_shape):
     Функция generate_real_samples генерирует реальные образцы данных, которые используются для обучения
     дискриминатора. Функция принимает список имен файлов и соответствующий им список файлов с масками,
     загружает изображения, объединяет их в единую матрицу и добавляет дополнительную размерность. Функция возвращает
-    два изображения и метки классов (все классы помечены как реальные). :param list_dir_name: :param
-    list_dir_name_25: :param n_samples: :param patch_shape: :return:
+    два изображения и метки классов (все классы помечены как реальные).
+    :param list_dir_name:
+    :param list_dir_name_25:
+    :param n_samples:
+    :param patch_shape:
+    :return:
     """
 
     list_img1 = list(map(read_img, list_dir_name))

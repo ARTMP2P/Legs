@@ -64,7 +64,9 @@ def create_dataset(file_paths: list, batch_size: int, side_param: str) -> list:
         file_path = random.choice(file_paths)
         temp_x = []
         temp_y = []
-        num_file = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 13, 14, 20, 21, 27, 28, 34, 35, 41, 42, 48])
+        num_file = random.choice([8, 9, 10, 11, 12, 15, 16, 17, 18, 19, 22,
+                                  23, 24, 25, 26, 29, 30, 31, 32, 33, 36,
+                                  37, 38, 39, 40, 43, 44, 45, 46, 47])
 
         for m in yaw_list:
             d_file_path = file_path.replace('yaw_0', f"yaw_{m}")
