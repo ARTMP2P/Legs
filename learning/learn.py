@@ -42,11 +42,11 @@ def summarize_performance(step, g_model, side_param, f=0):
     :param side_param: Значение стороны (left или right).
     """
     if f:
-        filename_model_NN = f'{dir_model_NN}/M_good{step}.h5'
+        filename_model_NN = f'{dir_model_NN}/M_good{step}_{side_param}.h5'
         g_model.save(filename_model_NN)
         print('> Saved:', filename_model_NN)
     else:
-        filename_model_NN = f'{dir_model_NN}/M_{step}.h5'
+        filename_model_NN = f'{dir_model_NN}/M_{step}_{side_param}.h5'
         g_model.save(filename_model_NN)
         print('> Saved:', filename_model_NN)
 
