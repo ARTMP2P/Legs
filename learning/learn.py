@@ -106,6 +106,7 @@ def train(d_model, g_model, gan_model, root_dir, n_epochs=200, n_batch=1, side="
 
         # list_A, list_B, list_y = [], [], []
         list_file_paths = get_file_paths(root_dir, side)
+        print(n_batch, type(n_batch))
         batch_x, batch_y = create_dataset(list_file_paths, n_batch, side)
 
         X_realA = np.concatenate(batch_x, axis=0)
