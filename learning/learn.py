@@ -107,17 +107,11 @@ def train(d_model, g_model, gan_model, root_dir, n_epochs=200, n_batch=1, side="
 
         # list_A, list_B, list_y = [], [], []
         list_file_paths = get_file_paths(root_dir, side)
-        print(n_batch, type(n_batch))
         batch_x, batch_y = create_dataset(list_file_paths, n_batch, side)
-        print(len(batch_x), len(batch_y))
 
         X_realA = np.stack(batch_x, axis=0)
         X_realB = np.stack(batch_y, axis=0)
         y_real = np.ones((X_realA.shape[0], n_patch, n_patch, 1))
-
-        print(f"X_realA {X_realA.shape}\n"
-              f"X_realB {X_realB.shape}\n"
-              f"y_real {y_real.shape}")
 
         X_fakeB, y_fake = generate_fake_samples(g_model, X_realA, n_patch)
 
