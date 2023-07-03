@@ -29,6 +29,9 @@ def get_file_paths(root_dir: str, side: str) -> list:
         model_dir = os.path.join(root_dir, subfolder_model)
 
         for dirpath, _, filenames in os.walk(model_dir):
+            if "/12/" in dirpath or "/_12/" in dirpath:
+                continue
+
             for filename in filenames:
                 if filename == "0_segmap.png":
                     if "yaw_0" in dirpath and os.path.exists(os.path.join(dirpath, '0_segmap.png')):
