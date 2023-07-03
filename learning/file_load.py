@@ -50,12 +50,12 @@ def create_dataset(file_paths: list, batch_size: int, side_param: str) -> list:
     left_yaw_list = ['0', '61', '90', '125', '180', '241', '270', '305']
     right_yaw_list = ['0', '55', '90', '119', '180', '235', '270', '299']
 
-    if side_param == 'left':
+    if side_param == 'Left':
         yaw_list = left_yaw_list
-    elif side_param == 'right':
+    elif side_param == 'Right':
         yaw_list = right_yaw_list
     else:
-        raise ValueError("Некорректное значение side_param. Допустимые значения: 'left', 'right'.")
+        raise ValueError("Некорректное значение side_param. Допустимые значения: 'Left', 'Right'.")
 
     batch_x, batch_y = [], []
 
