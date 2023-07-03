@@ -59,7 +59,7 @@ def create_dataset(file_paths: list, batch_size: int, side_param: str) -> list:
 
     batch_x, batch_y = [], []
 
-    for _ in tqdm(batch_size, desc="Processing files"):
+    for _ in tqdm(range(batch_size), desc="Processing files"):
         file_path = random.choice(file_paths)
         temp_x = []
         temp_y = []
