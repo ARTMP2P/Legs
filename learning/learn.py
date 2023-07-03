@@ -104,7 +104,7 @@ def train(d_model, g_model, gan_model, root_dir, n_epochs=200, n_batch=1, side="
 
     for i in range(n_steps):  # n_steps
 
-        list_A, list_B, list_y = [], [], []
+        # list_A, list_B, list_y = [], [], []
         list_file_paths = get_file_paths(root_dir, side)
         batch_x, batch_y = create_dataset(list_file_paths, n_batch, side)
 
