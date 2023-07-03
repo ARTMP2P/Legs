@@ -81,7 +81,7 @@ def summarize_performance(step, g_model, side_param, f=0):
         file.write(f'{filename_model_NN}\nMetricks: {mean(plist)}\n')
 
 
-def train(d_model, g_model, gan_model, root_dir, n_epochs=200, n_batch=1, bufer=0, side="Right", save_plot=True):
+def train(d_model, g_model, gan_model, root_dir, n_epochs=200, n_batch=1, side="Right", bufer=0, save_plot=True):
     """
     Данная функция предназначена для обучения модели генеративно-состязательной сети (GAN) для задачи
     переноса стиля между изображениями. Она принимает на вход модели дискриминатора (d_model),
