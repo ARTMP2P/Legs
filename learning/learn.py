@@ -116,7 +116,9 @@ def train(d_model, g_model, gan_model, root_dir, n_epochs=200, n_batch=1, side="
 
         X_fakeB = g_model.predict(X_realA)
         y_fake = np.zeros((X_realA.shape[0], n_patch, n_patch, 1))
-
+        print(f"X_realA {X_realA.shape}"
+              f"X_realB {X_realB.shape}"
+              f"y_real {y_real.shape}")
         d_loss1 = d_model.train_on_batch([X_realA, X_realB], y_real)
 
         # update discriminator for generated samples
