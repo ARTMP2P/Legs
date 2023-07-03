@@ -31,7 +31,7 @@ else:
     g_model = define_generator(image_shape)
     print('Learning running with start')
 gan_model = define_gan(g_model, d_model, image_shape)
-train(d_model, g_model, gan_model, root, batch, n_epochs, args.side)
+train(d_model, g_model, gan_model, root, n_epochs=n_epochs, n_batch=batch, side=args.side)
 
 
 # ======================================================================

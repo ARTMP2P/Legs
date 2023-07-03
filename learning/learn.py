@@ -111,8 +111,8 @@ def train(d_model, g_model, gan_model, root_dir, n_epochs=200, n_batch=1, side="
         batch_x, batch_y = create_dataset(list_file_paths, n_batch, side)
         print(len(batch_x), len(batch_y))
 
-        X_realA = np.concatenate(batch_x, axis=0)
-        X_realB = np.concatenate(batch_y, axis=0)
+        X_realA = np.stack(batch_x, axis=0)
+        X_realB = np.stack(batch_y, axis=0)
         y_real = np.ones((X_realA.shape[0], n_patch, n_patch, 1))
 
         print(f"X_realA {X_realA.shape}\n"
