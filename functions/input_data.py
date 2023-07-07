@@ -2,5 +2,5 @@ import os
 from keras.models import load_model
 
 current_path = os.getcwd()
-RAKURSES = ['0', '35', '90', '145', '180', '215', '270', '325']
-g_model = load_model(os.path.join(current_path, 'data_a', 'models', 'M_1.h5'), compile=False)
+g_model1 = load_model(os.path.join(current_path, 'data_a', 'models', 'M_100_Left.h5'), compile=False)
+g_model2 = load_model(os.path.join(current_path, 'data_a', 'models', 'M_100_Right.h5'), compile=False)

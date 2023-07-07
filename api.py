@@ -13,7 +13,7 @@ import time, os, werkzeug, zipfile, cv2, shutil
 from flask import Flask, render_template, make_response, request, Blueprint, send_file
 from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.utils import secure_filename
-from functions.function import get_img_for_predict, predict_img, save_gen_img
+from functions.function import get_img_for_predict, predict_img, save_gen_img, get_image_size
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -70,6 +70,7 @@ class Images(Resource):
     @api.expect(parser)
     def post(self):
 
+        global width, height
         try:
             # определяем текущее время
             start_time = time.time()
@@ -128,32 +129,17 @@ class Images(Resource):
             for filename in files:
                 if filename.endswith('.png'):
                     try:
-                        os.rename(os.path.join(unzipped, filename), os.path.join(unzipped, new_file_names[file_counter] + ".png"))
+                        width, height = get_image_size(os.path.join(unzipped, filename))
+                        os.rename(os.path.join(unzipped, filename),
+                                  os.path.join(unzipped, new_file_names[file_counter] + ".png"))
+
                         file_counter += 1
                     except:
                         pass
 
-            # зеркалим файлы, если mirr2
-            if req_mirr == 'mirr2':
-                for filename in os.listdir(unzipped):
-                    if filename.endswith('.png'):
-                        img = cv2.imread(os.path.join(unzipped, filename))
-                        img_flip_lr = cv2.flip(img, 1)
-                        cv2.imwrite(os.path.join(unzipped, filename), img_flip_lr)
-
-            # получаем обработанное изображение
-
             imgs = predict_img(get_img_for_predict(unzipped))
 
-            save_gen_img(imgs, img_path_save)
-
-            # зеркалим файлы еще раз, если mirr2
-            if req_mirr == 'mirr2':
-                for filename in os.listdir(img_path_save):
-                    if filename.endswith('.png'):
-                        img = cv2.imread(os.path.join(img_path_save, filename))
-                        img_flip_lr = cv2.flip(img, 1)
-                        cv2.imwrite(os.path.join(img_path_save, filename), img_flip_lr)
+            save_gen_img(imgs, img_path_save, width, height)
 
             # переименовываем файлы обратно
             for i in range(8):
@@ -177,6 +163,7 @@ class Images(Resource):
             response = send_file(zip_file, download_name=os.path.basename(zip_file), as_attachment=True, mimetype='application/zip')
             os.remove(zip_file)
             return response
+
         except ValueError as err:
             dict_response = {
                 'error': err.args[0],
