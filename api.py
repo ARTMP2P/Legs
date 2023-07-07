@@ -60,7 +60,7 @@ api = Api(app)
 # создаем парсер API-запросов
 parser = reqparse.RequestParser()
 parser.add_argument('image_file', type=werkzeug.datastructures.FileStorage, help='Binary Image in png format (zip, rar, 7z, tar, gz)', location='files', required=True)
-parser.add_argument('scale', type=werkzeug.datastructures.Accept, required=True)
+parser.add_argument('mirror', type=werkzeug.datastructures.Accept, required=True)
 
 
 @api.route('/images', methods=['GET', 'POST'])

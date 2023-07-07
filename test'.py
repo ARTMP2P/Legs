@@ -8,7 +8,7 @@ api_url = 'http://localhost:80/images'
 
 # объект запроса с архивом
 files = {'image_file': open(archive_file_path, 'rb')}
-data = {'mirr': 'mirr2', 'scale': '1'}
+data = {'mirr': 'mirr2'}
 
 # POST-запрос к API
 response = requests.post(api_url, files=files, data=data)
