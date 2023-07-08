@@ -47,12 +47,12 @@ def save_gen_img(img, path, width, height):
     Z = np.zeros((8, 1024, 1024))
     for i in range(8):
         Z[i, :, :] = img[:, :, i]
-        img = cv2.resize(Z[i], (width, height))
+        img_ = cv2.resize(Z[i], (width, height))
         # ==================================
         # Добавлена пробная функция, при необходимости можно отключить
-        # img = get_contour(img)
+        img_ = get_contour(img_)
         # ==================================
-        cv2.imwrite(os.path.join(path, f'{str(i)}.png'), img)
+        cv2.imwrite(os.path.join(path, f'{str(i)}.png'), img_)
         print(f"image {i+1} is write!")
 
 
