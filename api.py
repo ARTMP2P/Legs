@@ -84,7 +84,7 @@ class Images(Resource):
             f = request.files['image_file']
 
             req_mirr = request.form.get('mirr');
-            print(f"mirr: {req_mirr}")
+            # print(f"mirr: {req_mirr}")
             # проверка на наличие имени у файла
             if f.filename == '':
                 raise ValueError('Empty file name')
@@ -95,12 +95,12 @@ class Images(Resource):
 
             # имя файла
             image_file_name = secure_filename(f.filename)
-            print(f"image_file_name: {image_file_name}")
+            # print(f"image_file_name: {image_file_name}")
             # задаем полный путь к файлу
             image_file_path = os.path.join(app.config['UPLOAD_FOLDER'], image_file_name)
             # сохраняем файл
             f.save(image_file_path)
-            print(f"image_file_path: {image_file_path}")
+            # print(f"image_file_path: {image_file_path}")
             unzipped = os.path.join(app.config['UPLOAD_FOLDER'], image_file_name.split('.')[0] + time.time().__str__())
             img_path_save = os.path.join(app.config['RESULT_FOLDER'], image_file_name.split('.')[0])
             if not os.path.exists(img_path_save):
@@ -109,7 +109,7 @@ class Images(Resource):
             # unzipping files
             with zipfile.ZipFile(image_file_path, 'r') as zip_ref:
                 zip_ref.extractall(unzipped)
-
+            print("files unzipped!!!")
             time.sleep(3)
 
             # сортируем список файлов в директории
