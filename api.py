@@ -70,7 +70,7 @@ class Images(Resource):
     @api.expect(parser)
     def post(self):
 
-        global width, height
+        global width, height, img_path_save
         try:
             # определяем текущее время
             start_time = time.time()
