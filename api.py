@@ -140,8 +140,8 @@ class Images(Resource):
                         file_counter += 1
                     except Exception as e:
                         print(f'Ошибка при переименовании файла: {filename}\n{e}')
-            print(type(get_img_for_predict(unzipped)), get_img_for_predict(unzipped).shape)
-            imgs = predict_img(get_img_for_predict(unzipped))
+
+            imgs = predict_img(get_img_for_predict(unzipped), side=req_mirr)
             print(f"predict_img ==================OK")
             save_gen_img(imgs, img_path_save, width, height)
             print(f"save_gen_img =================OK")

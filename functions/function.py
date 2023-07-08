@@ -36,10 +36,10 @@ def get_img_for_predict(dir_folder):
 
 def predict_img(img, side: str):
     if side == "mirr1":
-        g_model = g_model1
+        img = g_model1.predict(img)[0] * 127.5 + 127.5
     else:
-        g_model = g_model2
-    img = g_model.predict(img)[0] * 127.5 + 127.5
+        img = g_model2.predict(img)[0] * 127.5 + 127.5
+    print()
     return np.where(img < 128, 0, 255)  # shape np.array (2048, 2048, 8)
 
 
