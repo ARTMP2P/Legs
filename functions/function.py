@@ -94,6 +94,7 @@ def remove_noise(image):
     :param image: Исходное изображение в формате NumPy.
     :return: Очищенное изображение без посторонних шумов.
     """
+    image = image.astype(np.uint8)
     print(image.dtype)
     try:
         # Проверка формата изображения
