@@ -35,7 +35,7 @@ def get_img_for_predict(dir_folder):
 
 
 def predict_img(img, side: str):
-    if side == "mirr1":
+    if side == "left":
         img = g_model1.predict(img)[0] * 127.5 + 127.5
     else:
         img = g_model2.predict(img)[0] * 127.5 + 127.5

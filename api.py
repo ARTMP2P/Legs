@@ -123,7 +123,7 @@ class Images(Resource):
                 #new_file_names_mirr1 = ["180", "145", "090", "035", "0", "325", "270", "215"]
                 new_file_names_mirr1 = ["i", "j", "k", "l", "m", "n", "o", "p"]
 
-                new_file_names = new_file_names_mirr1 if req_mirr == 'mirr1' else new_file_names_mirr2
+                new_file_names = new_file_names_mirr1 if req_mirr == 'left' else new_file_names_mirr2
 
                 # original_file_names_with_affix = list(map(add_affix, original_file_names))
             except Exception as e:
