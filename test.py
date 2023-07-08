@@ -6,7 +6,7 @@ archive_file_path = './in/archive.zip'
 # URL-адрес API-сервера
 api_url = 'http://192.168.8.178:8080/images'
 
-# объект запроса с архивом
+# Объект запроса с архивом
 files = {'image_file': open(archive_file_path, 'rb')}
 data = {'mirr': 'mirr2'}
 
@@ -22,3 +22,14 @@ if response.status_code == 200:
     print('Обработанный архив сохранен в', output_archive_path)
 else:
     print('Ошибка при отправке запроса:', response.text)
+
+# Запись характеристик ответа и содержимого в файл
+result_file_path = './output/result.txt'
+with open(result_file_path, 'w') as result_file:
+    result_file.write(f'Status Code: {response.status_code}\n')
+    result_file.write('Response Headers:\n')
+    for header, value in response.headers.items():
+        result_file.write(f'{header}: {value}\n')
+    result_file.write('\nResponse Body:\n')
+    result_file.write(response.text)
+print('Характеристики ответа и содержимое записаны в', result_file_path)
