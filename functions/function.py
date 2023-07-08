@@ -95,7 +95,6 @@ def remove_noise(image):
     :return: Очищенное изображение без посторонних шумов.
     """
     image = image.astype(np.uint8)
-    print(image.dtype)
     try:
         # Проверка формата изображения
         if len(image.shape) == 3 and image.shape[2] == 3:
