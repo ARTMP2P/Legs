@@ -95,14 +95,17 @@ def remove_noise(image):
     :return: Очищенное изображение без посторонних шумов.
     """
     try:
+        # Преобразование изображения в оттенки серого
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         # Бинаризация изображения с использованием порогового значения
-        _, thresh = cv2.threshold(image, 1, 255, cv2.THRESH_BINARY)
+        _, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
 
         # Поиск контуров объекта на бинарном изображении
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # Создание маски для очистки посторонних шумов
-        mask = np.zeros_like(image)
+        mask = np.zeros_like(gray)
 
         # Определение минимальной и максимальной площади контуров
         min_area = 100  # Минимальная площадь контура для удаления шумов (можно настроить)
