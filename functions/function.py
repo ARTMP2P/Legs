@@ -50,7 +50,7 @@ def save_gen_img(img, path, width, height):
         img = cv2.resize(Z[i], (width, height))
         # ==================================
         # Добавлена пробная функция, при необходимости можно отключить
-        img = get_contour(img)
+        # img = get_contour(img)
         # ==================================
         cv2.imwrite(os.path.join(path, f'{str(i)}.png'), img)
 
