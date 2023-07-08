@@ -69,6 +69,14 @@ def get_image_size(image_path):
 
 
 def get_contour(img, arg_1=15, arg_2=15, thickness=25):  # arg_1 только нечетное значение
+    """
+    Not use
+    :param img:
+    :param arg_1:
+    :param arg_2:
+    :param thickness:
+    :return:
+    """
     color = 127
 
     thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, arg_1, arg_2)
@@ -86,29 +94,31 @@ def remove_noise(image):
     :param image: Исходное изображение в формате NumPy.
     :return: Очищенное изображение без посторонних шумов.
     """
-    # Преобразование изображения в оттенки серого
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    try:
+        # Преобразование изображения в оттенки серого
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Бинаризация изображения с использованием порогового значения
-    _, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
+        # Бинаризация изображения с использованием порогового значения
+        _, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
 
-    # Поиск контуров объекта на бинарном изображении
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Поиск контуров объекта на бинарном изображении
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Создание маски для очистки посторонних шумов
-    mask = np.zeros_like(gray)
+        # Создание маски для очистки посторонних шумов
+        mask = np.zeros_like(gray)
 
-    # Определение минимальной и максимальной площади контуров
-    min_area = 10  # Минимальная площадь контура для удаления шумов (можно настроить)
-    max_area = 100  # Максимальная площадь контура для удаления шумов (можно настроить)
+        # Определение минимальной и максимальной площади контуров
+        min_area = 10  # Минимальная площадь контура для удаления шумов (можно настроить)
+        max_area = 100  # Максимальная площадь контура для удаления шумов (можно настроить)
 
-    # Проход по контурам и отметка контуров, удовлетворяющих условию площади
-    for contour in contours:
-        area = cv2.contourArea(contour)
-        if min_area < area < max_area:
-            cv2.drawContours(mask, [contour], -1, 255, cv2.FILLED)
+        # Проход по контурам и отметка контуров, удовлетворяющих условию площади
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if min_area < area < max_area:
+                cv2.drawContours(mask, [contour], -1, 255, cv2.FILLED)
 
-    # Применение маски на исходном изображении
-    result = cv2.bitwise_and(image, image, mask=mask)
-
+        # Применение маски на исходном изображении
+        result = cv2.bitwise_and(image, image, mask=mask)
+    except Exception as e:
+        print(f"Ошибка при очистки изображения от шумов: {e}")
     return result
