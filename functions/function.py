@@ -53,6 +53,7 @@ def save_gen_img(img, path, width, height):
         # img = get_contour(img)
         # ==================================
         cv2.imwrite(os.path.join(path, f'{str(i)}.png'), img)
+        print(f"image {i+1} is write!")
 
 
 def get_image_size(image_path):
