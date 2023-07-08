@@ -84,7 +84,7 @@ class Images(Resource):
             f = request.files['image_file']
 
             req_mirr = request.form.get('mirr');
-
+            print(f"mirr: {req_mirr}")
             # проверка на наличие имени у файла
             if f.filename == '':
                 raise ValueError('Empty file name')
@@ -95,11 +95,12 @@ class Images(Resource):
 
             # имя файла
             image_file_name = secure_filename(f.filename)
+            print(f"image_file_name: {image_file_name}")
             # задаем полный путь к файлу
             image_file_path = os.path.join(app.config['UPLOAD_FOLDER'], image_file_name)
             # сохраняем файл
             f.save(image_file_path)
-
+            print(f"image_file_path: {image_file_path}")
             unzipped = os.path.join(app.config['UPLOAD_FOLDER'], image_file_name.split('.')[0] + time.time().__str__())
             img_path_save = os.path.join(app.config['RESULT_FOLDER'], image_file_name.split('.')[0])
             if not os.path.exists(img_path_save):
@@ -122,7 +123,7 @@ class Images(Resource):
             new_file_names_mirr1 = ["i", "j", "k", "l", "m", "n", "o", "p"]
 
             new_file_names = new_file_names_mirr1 if req_mirr == 'mirr1' else new_file_names_mirr2
-
+            print(f"new_file_names: {new_file_names}")
             # original_file_names_with_affix = list(map(add_affix, original_file_names))
             # переименовываем файлы
             file_counter = 0
@@ -136,11 +137,11 @@ class Images(Resource):
                         file_counter += 1
                     except:
                         pass
-
+            print(f"files renamed ================OK")
             imgs = predict_img(get_img_for_predict(unzipped))
-
+            print(f"predict_img ==================OK")
             save_gen_img(imgs, img_path_save, width, height)
-
+            print(f"save_gen_img =================OK")
             # переименовываем файлы обратно
             for i in range(8):
                 os.rename(os.path.join(img_path_save, f'{str(i)}.png'), os.path.join(img_path_save, new_file_names_mirr2[i] + '.png'))
@@ -151,7 +152,7 @@ class Images(Resource):
                     img = cv2.imread(os.path.join(img_path_save, filename))
                     gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     cv2.imwrite(os.path.join(img_path_save, filename), gray_image)
-
+            print(f"Convert gray =================OK")
             zip_folder(img_path_save)
 
             os.remove(image_file_path)
