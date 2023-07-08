@@ -182,6 +182,6 @@ class Images(Resource):
 
 # запускаем сервер на порту 8008 (или на любом другом свободном порту)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=80)
+    app.run(host='0.0.0.0', debug=True, port=8080)
 
 
