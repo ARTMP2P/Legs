@@ -101,30 +101,33 @@ class Images(Resource):
             # сохраняем файл
             f.save(image_file_path)
             # print(f"image_file_path: {image_file_path}")
-            unzipped = os.path.join(app.config['UPLOAD_FOLDER'], image_file_name.split('.')[0] + time.time().__str__())
-            img_path_save = os.path.join(app.config['RESULT_FOLDER'], image_file_name.split('.')[0])
-            if not os.path.exists(img_path_save):
-                os.mkdir(img_path_save)
+            try:
+                unzipped = os.path.join(app.config['UPLOAD_FOLDER'], image_file_name.split('.')[0] + time.time().__str__())
+                img_path_save = os.path.join(app.config['RESULT_FOLDER'], image_file_name.split('.')[0])
+                if not os.path.exists(img_path_save):
+                    os.mkdir(img_path_save)
 
-            # unzipping files
-            with zipfile.ZipFile(image_file_path, 'r') as zip_ref:
-                zip_ref.extractall(unzipped)
-            print("files unzipped!!!")
-            time.sleep(3)
+                # unzipping files
+                with zipfile.ZipFile(image_file_path, 'r') as zip_ref:
+                    zip_ref.extractall(unzipped)
 
-            # сортируем список файлов в директории
-            files = os.listdir(unzipped)
-            files.sort()
+                time.sleep(3)
 
-            # сохраняем оригинальные имена файлов, создаем список новых имен файлов
-            #new_file_names_mirr2 = ["0", "035", "090", "145", "180", "215", "270", "325"]
-            new_file_names_mirr2 = ["a", "b", "c", "d", "e", "f", "g", "h"]
-            #new_file_names_mirr1 = ["180", "145", "090", "035", "0", "325", "270", "215"]
-            new_file_names_mirr1 = ["i", "j", "k", "l", "m", "n", "o", "p"]
+                # сортируем список файлов в директории
+                files = os.listdir(unzipped)
+                files.sort()
 
-            new_file_names = new_file_names_mirr1 if req_mirr == 'mirr1' else new_file_names_mirr2
-            print(f"new_file_names: {new_file_names}")
-            # original_file_names_with_affix = list(map(add_affix, original_file_names))
+                # сохраняем оригинальные имена файлов, создаем список новых имен файлов
+                #new_file_names_mirr2 = ["0", "035", "090", "145", "180", "215", "270", "325"]
+                new_file_names_mirr2 = ["a", "b", "c", "d", "e", "f", "g", "h"]
+                #new_file_names_mirr1 = ["180", "145", "090", "035", "0", "325", "270", "215"]
+                new_file_names_mirr1 = ["i", "j", "k", "l", "m", "n", "o", "p"]
+
+                new_file_names = new_file_names_mirr1 if req_mirr == 'mirr1' else new_file_names_mirr2
+
+                # original_file_names_with_affix = list(map(add_affix, original_file_names))
+            except Exception as e:
+                print(f"Ошибка при формировании имен файлов: {e}")
             # переименовываем файлы
             file_counter = 0
             for filename in files:
@@ -135,9 +138,9 @@ class Images(Resource):
                                   os.path.join(unzipped, new_file_names[file_counter] + ".png"))
 
                         file_counter += 1
-                    except:
-                        pass
-            print(f"files renamed ================OK")
+                    except Exception as e:
+                        print(f'Ошибка при переименовании файла: {filename}\n{e}')
+
             imgs = predict_img(get_img_for_predict(unzipped))
             print(f"predict_img ==================OK")
             save_gen_img(imgs, img_path_save, width, height)
