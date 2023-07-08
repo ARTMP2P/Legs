@@ -4,7 +4,7 @@ import requests
 archive_file_path = '/in/archive.zip'
 
 # URL-адрес API-сервера
-api_url = 'http://localhost:80/images'
+api_url = 'http://localhost:8080/images'
 
 # объект запроса с архивом
 files = {'image_file': open(archive_file_path, 'rb')}
