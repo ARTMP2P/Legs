@@ -47,10 +47,10 @@ def save_gen_img(img, path, width, height):
     Z = np.zeros((8, 1024, 1024))
     for i in range(8):
         Z[i, :, :] = img[:, :, i]
-        img_ = cv2.resize(Z[i], (width, height))
+        img_n = cv2.resize(Z[i], (width, height))
         # ==================================
         # Добавлена пробная функция, при необходимости можно отключить
-        # img_ = get_contour(img_)
+        img_ = remove_noise(img_n)
         # ==================================
         cv2.imwrite(os.path.join(path, f'{str(i)}.png'), img_)
         print(f"image {i+1} is write!")
@@ -77,3 +77,38 @@ def get_contour(img, arg_1=15, arg_2=15, thickness=25):  # arg_1 только н
     im = cv2.drawContours(image=thresh, contours=contours, contourIdx=-1, color=color, thickness=thickness)
 
     return im
+
+
+def remove_noise(image):
+    """
+    Очищает изображение от посторонних шумов, предполагая, что изображение состоит из объекта одного цвета.
+
+    :param image: Исходное изображение в формате NumPy.
+    :return: Очищенное изображение без посторонних шумов.
+    """
+    # Преобразование изображения в оттенки серого
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Бинаризация изображения с использованием порогового значения
+    _, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
+
+    # Поиск контуров объекта на бинарном изображении
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Создание маски для очистки посторонних шумов
+    mask = np.zeros_like(gray)
+
+    # Определение минимальной и максимальной площади контуров
+    min_area = 100  # Минимальная площадь контура для удаления шумов (можно настроить)
+    max_area = 10000  # Максимальная площадь контура для удаления шумов (можно настроить)
+
+    # Проход по контурам и отметка контуров, удовлетворяющих условию площади
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        if min_area < area < max_area:
+            cv2.drawContours(mask, [contour], -1, 255, cv2.FILLED)
+
+    # Применение маски на исходном изображении
+    result = cv2.bitwise_and(image, image, mask=mask)
+
+    return result
