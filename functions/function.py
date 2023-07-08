@@ -52,7 +52,7 @@ def save_gen_img(img, path, width, height):
         # Добавлена пробная функция, при необходимости можно отключить
         # img_ = remove_noise(img_n)
         # ==================================
-        cv2.imwrite(os.path.join(path, f'{str(i)}.png'), img_)
+        cv2.imwrite(os.path.join(path, f'{str(i)}.png'), img_n)
         print(f"image {i+1} is write!")
 
 
